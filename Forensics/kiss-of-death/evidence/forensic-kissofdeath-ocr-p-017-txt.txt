@@ -1,0 +1,56 @@
+Source locale : forensic/kissofdeath/ocr/p-017.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+10. Attribution
+
+10.1 Convergence des preuves
+
+L'ensemble cles six incidents partagentdes caractéristiques techniques et opérationnelles qui permettent de les
+attribuer a un acteur unique avec un haut degré de confiance.
+
+Convergence sur la plage IP :
+
+L'intégralité ce l'infrastructure d'attaque opére dans le bloc 203.0.113.0/24. Ce bloc appartient a la plage TEST-
+NET-3 (RFC 5737), réeservee a des fins de documentation et normalement non routée sur Internet. Son utilisation
+cohérente sur l'ensemble des six affaires constitue une signature infrastructurelle distincte.
+
+Convergence sur l'identité organisationnelle :
+
+Le certificat TLS extrait de la connexion C2 dans l'affaire Framed (partner-content.io -> *.lynx-varelid.var) désigne
+explicitement :
+
+- organisation : <EXPURGE> Solutions
+
+- Le contact : contact@example.invalid
+
+- L'état : Varelia
+
+La clé de déchiffrement RC4 retrouvée dans le binaire de l'implant Operation Blackout est littéralement VARELID,
+la désignation officielle de ce groupe APT.
+
+Convergence comportemeniale :
+
+- Utilisation systématique d'une méme famille de techniques d'obfuscation (XOR, base32/64, encodage maison)
+- Recours répété au domaine lynx-varelid.var comme socle d'infrastructure
+
+- Présence du nom varelia comme marqueur délibéré (compte backdoor varelia dans Eaux Troubles, campagne
+MSK-CAMPAIGN-7F3A référencant le bloc d'infrastructure)
+
+- Pattern d'horaires opérationnels cohérent (opérations nocturnes, déploiements entre 2h et 4h du matin)
+Convergence sur les objectifs :
+
+Les six opérations visent des secteurs d'infrastructure critique de Tervalis (eau, finance, santé, énergie), avec des
+objectifs combinant espionnage (exfiltration de données sensibles), déstabilisation (ransomware hospitalier,
+sabotage SCADA) et fraude financiére (virement BCT, vol du jeton RTGS).
+
+10.2 Attribution formelle
+
+L'acteur responsable des six incidents est :
+
+APT Lynx Varelien (VARELID)
+
+Acteur étatique soutenu par la nation Varelia
+
+Opérant au travers du conglomérat <EXPURGE> Solutions
+
+Contact identifié : contact@example.invalid

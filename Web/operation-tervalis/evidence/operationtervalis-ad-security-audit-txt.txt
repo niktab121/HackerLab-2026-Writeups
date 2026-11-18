@@ -1,0 +1,27 @@
+Source locale : operationtervalis/ad_security_audit.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+VALDORIA.FBI.LAB Domain Security Assessment
+Automated Credential Extraction - Quarterly Audit
+Date: 2024-09-15
+Scope: Service Accounts (OU=ServiceAccounts)
+Tool: Internal Audit Framework v3.2
+
+--- NTLM Hash Dump (Service Accounts) ---
+
+svc_mssql:1105:<HEX_EXPURGE>:<HEX_EXPURGE>:::
+svc_backup:1107:<HEX_EXPURGE>:<HEX_EXPURGE>:::
+svc_web:1103:<HEX_EXPURGE>:<HEX_EXPURGE>:::
+svc_certsvc:1108:<HEX_EXPURGE>:<HEX_EXPURGE>:::
+
+--- SPN Mapping ---
+
+svc_mssql    MSSQLSvc/APP01.valdoria.fbi.lab:1433    DB-Admins    Constrained Delegation
+svc_backup   (none)                                    Backup Operators
+svc_web      (none)                                    Web Portal
+svc_certsvc  (none)                                    Certificate Services
+
+--- Status ---
+
+Audit completed successfully.
+Next scheduled audit: 2025-Q1.

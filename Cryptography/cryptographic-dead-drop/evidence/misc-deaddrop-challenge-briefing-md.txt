@@ -1,0 +1,54 @@
+Source locale : misc/deaddrop/challenge/BRIEFING.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+CLASSIFICATION: TOP SECRET // NORVETH-EYES-ONLY
+OPERATION: TERVALIS
+REF: NV-OPS-2024-TERV-PKG01
+DATE: 2024-11-04
+PACKAGE: 01 — CRYPTOGRAPHIC DEAD DROP
+
+---
+
+INTELLIGENCE PACKAGE 01 — CRYPTOGRAPHIC DEAD DROP
+
+CONTEXT
+
+Agent AVALD (SUBJ-7742) maintained encrypted communications with HQ
+throughout 2024-11-03 using the NorvethSecure v3 messaging protocol.
+Five network captures were recovered from monitoring points on the
+Norveth relay infrastructure. These sessions span the hours preceding
+and including the arrest event.
+
+The NorvethSecure v3 protocol employs AES-256-GCM encryption with
+CBOR-encoded message framing. Each session negotiates key material
+identified by key IDs. The protocol specification and message schema
+are provided for reference.
+
+ARTIFACTS
+
+  session_01.pcapng        Network capture — messaging session 1
+  session_02.pcapng        Network capture — messaging session 2
+  session_03.pcapng        Network capture — messaging session 3
+  session_04.pcapng        Network capture — messaging session 4
+  session_05.pcapng        Network capture — messaging session 5
+
+  known_messages.json      Confirmed plaintext for select protocol
+                           control messages (heartbeats, handshakes)
+
+  message_schema.json      CBOR message structure specification
+
+  protocol_v3.md           NorvethSecure v3 protocol documentation
+                           (encryption, framing, key management)
+
+  session_metadata.csv     Session identifiers, timestamps, key IDs,
+                           and connection parameters for each capture
+
+OBJECTIVE
+
+Recover the content of Agent AVALD's communications to determine what
+he reported to HQ before going silent. His final messages may contain
+critical details about the individuals who arrested him.
+
+---
+
+END OF PACKAGE BRIEFING

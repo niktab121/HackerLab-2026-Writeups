@@ -1,0 +1,331 @@
+Source locale : forensic/hunt/wu.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+Writeup Complet : The hunt — HackerLab Bénin 2026
+Catégorie : Forensics / Rétro-ingénierie / Cryptographie / OSINT
+Points : 100
+Auteur : uchiwa
+Flag : <EXPURGE>
+Table des Matières
+[Contexte & Énoncé](#1-contexte--%C3%A9nonc%C3%A9)
+[Étape 1 : Extraction et Analyse de l'image Docker (relay.tar.gz)](#2-%C3%A9tape-1--extraction-et-analyse-de-limage-docker-relaytargz)
+[Étape 2 : Analyse de l'application RELAY et de la base SQLite](#3-%C3%A9tape-2--analyse-de-lapplication-relay-et-de-la-base-sqlite)
+[Étape 3 : Investigation de la machine suspecte (thanos_desktop.ad1)](#4-%C3%A9tape-3--investigation-de-la-machine-suspecte-thanos_desktopad1)
+[Étape 4 : Cracking du PDF et récupération des clés de canaux](#5-%C3%A9tape-4--cracking-du-pdf-et-r%C3%A9cup%C3%A9ration-des-cl%C3%A9s-de-canaux)
+[Étape 5 : Rétro-ingénierie de cipher.exe](#6-%C3%A9tape-5--r%C3%A9tro-ing%C3%A9nierie-de-cipherexe)
+[Étape 6 : Script complet de déchiffrement des messages](#7-%C3%A9tape-6--script-complet-de-d%C3%A9chiffrement-des-messages)
+[Étape 7 : Analyse du chat & Pivot OSINT (Bible d'univers HLB2026)](#8-%C3%A9tape-7--analyse-du-chat--pivot-osint-bible-dunivers-hlb2026)
+[Flag Final](#9-flag-final)
+1. Contexte & Énoncé
+Description du challenge :
+Analysez les artefacts et remontez la trace du suspect.
+01 : L'un des binaire utilisé par le groupe de hackers a été identifié. Une analyse dynamique du binaire a été effectué pour comprendre son fonctionnement. Pouvez-vous fournir l'adresse mail du suspect ?
+Format du drapeau : <EXPURGE>
+Fichier fourni : relay.tar.gz (accompagné de l'image forensic thanos_desktop.ad1)
+
+L'investigation se déroule dans l'univers géopolitique du CTF HackerLab 2026 (« Sous le masque numérique »). En tant qu'analystes cyberdéfense de Tervalis (.trv), notre mission est de remonter la trace d'un groupe d'attaquants opérant pour le compte de Norveth (.nrv) qui cherche à compromettre les infrastructures critiques du pays.
+
+2. Étape 1 : Extraction et Analyse de l'image Docker (relay.tar.gz)
+Le fichier fourni relay.tar.gz est une archive d'image Docker exportée (docker save).
+
+Commandes exécutées :
+mkdir -p /CHEMIN_LOCAL/relay_investigation
+cd /CHEMIN_LOCAL/relay_investigation
+tar -xzvf /CHEMIN_LOCAL/Téléchargements/relay.tar.gz
+Inspection du manifeste et de l'historique :
+cat manifest.json
+Le manifeste indique les couches empilées de l'image :
+
+[
+  {
+    "Config": "<HEX_EXPURGE>.json",
+    "RepoTags": ["localhost/relay-chall:latest"],
+    "Layers": [
+      "<HEX_EXPURGE>.tar",
+      "<HEX_EXPURGE>.tar",
+      "<HEX_EXPURGE>.tar",
+      "<HEX_EXPURGE>.tar",
+      "<HEX_EXPURGE>.tar",
+      "<HEX_EXPURGE>.tar",
+      "<HEX_EXPURGE>.tar",
+      "<HEX_EXPURGE>.tar",
+      "<HEX_EXPURGE>.tar",
+      "<HEX_EXPURGE>.tar",
+      "<HEX_EXPURGE>.tar"
+    ]
+  }
+]
+On extrait les couches applicatives d'intérêt :
+
+# Couche contenant le code source Flask (app/app.py)
+mkdir -p layer_6894 && tar -xf <HEX_EXPURGE>.tar -C layer_6894
+
+# Couche finale contenant la base de données SQLite (/data/relay.db)
+mkdir -p layer_f613 && tar -xf <HEX_EXPURGE>.tar -C layer_f613
+3. Étape 2 : Analyse de l'application RELAY et de la base SQLite
+Inspection de layer_6894/app/app.py :
+En lisant l'en-tête du code :
+
+"""Serveur de la plateforme RELAY.
+
+La plateforme ne connait pas l'algorithme de cipher.exe : elle affiche les messages tels qu'ils
+ont ete envoyes. En revanche, elle chiffre leur stockage :
+  - chaque channel a une cle derivee de son code d'acces (scrypt), jamais stockee en clair ;
+  - les messages sont chiffres en base avec cette cle (AES-256-GCM) ;
+  - un membre garde la cle du channel chiffree avec une cle derivee de son mot de passe ;
+  - les cles dechiffrees ne vivent qu'en memoire du serveur, le temps d'une session.
+Sans le code d'un channel ni le mot de passe d'un de ses membres, la base ne revele aucun message.
+"""
+Paramètres cryptographiques du serveur :
+KDF_PARAMS = {"n": 2**15, "r": 8, "p": 1, "maxmem": 64 * 1024 * 1024, "dklen": 32}
+CHECK_PLAINTEXT = b"relay-channel-key-check"
+
+def derive_key(secret_value, salt):
+    return hashlib.scrypt(secret_value.encode("utf-8"), salt=salt, **KDF_PARAMS)
+
+def unseal(key, blob, aad):
+    return AESGCM(key).decrypt(blob[:12], blob[12:], aad)
+
+def message_aad(channel_id, author):
+    return f"relay:message:{channel_id}:{author}".encode()
+Examen de la base SQLite relay.db :
+sqlite3 layer_f613/data/relay.db "SELECT id, username FROM users;"
+Résultat :
+
+1 | thanos
+2 | killer23
+3 | VanDerLin
+4 | krypton
+5 | hailer
+sqlite3 layer_f613/data/relay.db "SELECT id, name FROM channels;"
+Résultat :
+
+1 | general
+2 | infra
+3 | archive
+sqlite3 layer_f613/data/relay.db "SELECT count(*) FROM messages;"
+# -> 24 messages chiffrés au total (19 dans general, 5 dans infra, 0 dans archive)
+Chaque corps de message (messages.body) est un blob AES-256-GCM. Pour le déchiffrer, il nous faut le code d'accès de chaque canal afin de dériver sa clé via scrypt.
+
+4. Étape 3 : Investigation de la machine suspecte (thanos_desktop.ad1)
+L'image logique thanos_desktop.ad1 correspond au poste de travail de l'opérateur thanos. Nous utilisons un parseur Python pour explorer l'arborescence NTFS encapsulée dans le conteneur AD1.
+
+Script de parsing et d'extraction AD1 (ad1_parser.py) :
+# Extraction des artefacts clés du bureau de thanos
+python3 -c "
+import sys
+sys.path.append('/CHEMIN_LOCAL/relay_investigation')
+from ad1_parser import AD1
+
+targets = ['cipher.exe', 'channel.pdf', 'passwords.txt']
+
+with AD1('/CHEMIN_LOCAL/Téléchargements/thanos_desktop.ad1') as ad1:
+    def walk(n):
+        yield n
+        for c in n.children:
+            yield from walk(c)
+    for node in walk(ad1.root):
+        if node.is_file and any(t in node.name.lower() for t in targets):
+            print(f'Extraction de {node.path} ({node.size} octets)...')
+            data = ad1.read_file(node)
+            with open(node.name, 'wb') as out:
+                out.write(data)
+"
+Les fichiers suivants sont extraits dans le répertoire de travail :
+
+cipher.exe : Binaire PE 64-bit utilisé par les hackers pour chiffrer leurs messages.
+channel.pdf : Document PDF protégé par mot de passe.
+passwords.txt : Dictionnaire de mots de passe retrouvé sur la machine.
+5. Étape 4 : Cracking du PDF et récupération des clés de canaux
+Le fichier channel.pdf requiert un mot de passe à l'ouverture.
+
+Extraction du hash et cracking :
+# 1. Extraction du hash John du document PDF
+pdf2john channel.pdf > pdf.hash
+
+# 2. Cassage du mot de passe avec le dictionnaire passwords.txt
+john --wordlist=passwords.txt pdf.hash
+Sortie de John the Ripper :
+
+Loaded 1 password hash (PDF [MD5/SHA256/AES 128/256])
+<EXPURGE>          (channel.pdf)
+Session completed
+Le mot de passe est <EXPURGE>.
+
+Déchiffrement et lecture de channel.pdf :
+python3 -c "
+import pypdf
+reader = pypdf.PdfReader('channel.pdf')
+reader.decrypt('<EXPURGE>')
+print(reader.pages[0].extract_text())
+"
+Contenu récupéré :
+
+Code groupe communication  
+<EXPURGE> 
+<EXPURGE> 
+<EXPURGE> 
+ 
+!!!! remember to remove this file
+Les codes d'accès des canaux sont donc :
+
+Canal 1 (general) : <EXPURGE>
+Canal 2 (infra) : <EXPURGE>
+Canal 3 (archive) : <EXPURGE>
+6. Étape 5 : Rétro-ingénierie de cipher.exe
+En déchiffrant la couche AES-256-GCM des messages avec ces codes de canaux, on obtient des chaînes ressemblant à du base64 mais illisibles (ex: f6Wpx-Z_qjt-1qNq...). C'est le chiffrement propre à cipher.exe.
+
+Analyse du binaire :
+objdump -d cipher.exe > cipher_disasm.txt
+strings -a cipher.exe | grep -E "^[A-Za-z0-9_-]{64}$"
+L'analyse statique et dynamique de cipher.exe révèle :
+
+Alphabet Base64 personnalisé (64 caractères) :
+Zm9Kx2QaLp7VfT0cRw4YhN1sJd8GuB3eXo6IkP5tCyAqWn-_ErSvHgMlDjUbOiFz
+Génération de flux pseudo-aléatoire (Stream Cipher) :
+Chaque message chiffré contient un sel aléatoire de 4 octets (BCryptGenRandom) au début du payload.
+L'état initial du PRNG (graine 32-bit) est dérivé du sel via un hash de type FNV-1a.
+Le flux de chiffrement utilise un générateur Xorshift32 : 
+x
+←
+x
+⊕
+(
+x
+≪
+13
+)
+x
+←
+x
+⊕
+(
+x
+≫
+17
+)
+x
+←
+x
+⊕
+(
+x
+≪
+5
+)
+x
+x
+x
+​
+  
+←x⊕(x≪13)
+←x⊕(x≫17)
+←x⊕(x≪5)
+​
+ 
+Le texte clair est combiné par XOR octet par octet avec ce flux d'octets pseudo-aléatoires.
+7. Étape 6 : Script complet de déchiffrement des messages
+Voici le script d'automatisation complet qui réalise le déchiffrement de la couche externe AES-GCM puis invoque cipher.exe (ou émule sa logique) pour restituer l'intégralité des échanges :
+
+#!/usr/bin/env python3
+import hashlib
+import sqlite3
+import subprocess
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+
+DB_PATH = "layer_f613/data/relay.db"
+
+# Codes récupérés depuis channel.pdf
+CHANNEL_CODES = {
+    1: "<EXPURGE>",
+    2: "<EXPURGE>",
+    3: "<EXPURGE>",
+}
+
+KDF_PARAMS = {"n": 2**15, "r": 8, "p": 1, "maxmem": 64 * 1024 * 1024, "dklen": 32}
+
+def derive_key(code, salt):
+    return hashlib.scrypt(code.encode("utf-8"), salt=salt, **KDF_PARAMS)
+
+def unseal_aes_gcm(key, blob, channel_id, author):
+    aad = f"relay:message:{channel_id}:{author}".encode()
+    nonce = blob[:12]
+    ciphertext = blob[12:]
+    return AESGCM(key).decrypt(nonce, ciphertext, aad).decode("utf-8")
+
+def decrypt_cipher_payload(enc_text):
+    """Invoque cipher.exe via wine pour déchiffrer le payload interne."""
+    res = subprocess.run(
+        ["wine", "cipher.exe", "-d", enc_text],
+        capture_output=True,
+        text=True
+    )
+    return res.stdout.strip()
+
+con = sqlite3.connect(DB_PATH)
+cur = con.cursor()
+
+# Récupération des sels des canaux
+channels_salt = {}
+for cid, name, salt, check in cur.execute("SELECT id, name, key_salt, key_check FROM channels"):
+    channels_salt[cid] = salt
+
+# Dérivation des clés de canaux
+channel_keys = {
+    cid: derive_key(code, channels_salt[cid])
+    for cid, code in CHANNEL_CODES.items()
+}
+
+print("=== DECHIFFREMENT DU CHAT RELAY ===")
+rows = cur.execute("SELECT id, channel_id, author, body FROM messages ORDER BY id").fetchall()
+
+for mid, cid, author, body in rows:
+    key = channel_keys[cid]
+    relay_payload = unseal_aes_gcm(key, body, cid, author)
+    cleartext = decrypt_cipher_payload(relay_payload)
+    print(f"[{mid:02d}] [Ch{cid}] {author}: {cleartext}")
+Exécution du script :
+python3 decrypt_relay.py
+Sortie du transcript complet :
+[01] [Ch1] thanos: Hello les gars, nouvelle cible...
+[02] [Ch1] killer23: LOL !!
+[03] [Ch1] VanDerLin: On viens à peine de finir avec la derniere cible
+[04] [Ch1] thanos: C'est les instructions, et nous devons obtenir des résultats rapidement
+[05] [Ch1] killer23: qui est la cible ?
+[06] [Ch1] thanos: Tervalis
+[07] [Ch1] killer23: Tervalis ? Quel raison norveth a t'il pour s'en prendre a tervalis ?
+[08] [Ch1] thanos: comme je l'ai dis c'est les instructions. Et il faudra qu'on fasse passer cela pour des attaques venant de Valeria
+[09] [Ch1] thanos: Aucune information ne devrait permettre de remonter à nous
+[10] [Ch1] VanDerLin: Quel est l'objectif ? les cibles a tervalis ?
+[11] [Ch1] thanos: obtenir des données sensibles. Mais surtout créer des tensions entre valeria et tervalis
+[12] [Ch1] thanos: et surtout etre le plus discret killer23 .....
+[13] [Ch1] killer23: LOL !! Je suis le plus discret parmis nous
+[14] [Ch1] thanos: Plus sérieusement il faudra des cibles de choix. Je pense en premier a la banque centrale de tervalis
+[15] [Ch1] killer23: vive les millions
+[16] [Ch1] VanDerLin: il faudrait également d'autres cibles
+[17] [Ch1] VanDerLin: Centrale hydraulique , hopital central et Tervagrid peuvent etre des cibles de choix
+[18] [Ch1] thanos: bonne idee
+[19] [Ch1] VanDerLin: #n0rv3th_c1ph3r_1s_br0k3n
+[20] [Ch2] thanos: Hello les gars, je suis sur le coup pour Aquaterv. je pense cibler un employe du nom de simon
+[21] [Ch2] VanDerLin: ça marche
+[22] [Ch2] VanDerLin: Les nouveaux serveurs à utilisé : 203.0.113.42, 203.0.113.15, 203.0.113.66. J'envoie les accès par un autre canal.
+[23] [Ch2] VanDerLin: je rajouterai plus tard d'autre adresses IP de serveurs qu'on pourra utiliser
+[24] [Ch2] thanos: ça marche
+8. Étape 7 : Analyse du chat & Pivot OSINT (Bible d'univers HLB2026)
+Le message n°20 du canal 2 livre l'indice décisif :
+
+[thanos]: Hello les gars, je suis sur le coup pour Aquaterv. je pense cibler un employe du nom de simon
+
+Dans le cadre de l'investigation forensique d'incident, l'analyste cherche à identifier l'adresse électronique de la cible compromise/suspectée chez AquaTerv.
+
+Sur la plateforme officielle du CTF hackerlab.bj, la documentation de la Bible d'univers — Opération Tervalis fournit l'annuaire du personnel des infrastructures critiques :
+
+Organisation : AquaTerv (Opérateur national de distribution et gestion de l'eau — aquaterv.trv)
+Membre ciblé : Simon Vermont
+Fonction : Administrateur plateforme de gestion d'eau
+Format conventionnel de l'annuaire : <initiale_prenom>.<nom>@<domaine>
+Adresse e-mail : <EXPURGE>
+9. Flag Final
+Conformément au format exigé <EXPURGE> :
+
+<EXPURGE>

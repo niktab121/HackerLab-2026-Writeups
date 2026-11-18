@@ -1,0 +1,158 @@
+Source locale : operationtervalis/operation45
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# Write-up : Attribution Matrix (Opération TERVALIS, Package 05)
+
+**Catégorie :** Forensics / OSINT / Crypto | **Points :** 200 | **Flag :** `<EXPURGE>`
+
+---
+
+## 1. Énoncé
+
+Le relais 10.42.3.88 intercepte les communications de l'Agent AVALD. Huit sources de renseignement sont fournies, certaines se contredisent, et le briefing avertit qu'un acteur étatique plante de fausses preuves. Il faut trouver l'organisation responsable avec une confiance élevée.
+
+## 2. Contenu de l'archive
+
+| Fichier | Rôle |
+|---|---|
+| `certificates/` (200 PEM) | Certificats X.509 de l'environnement |
+| `dns_history.csv` | Historique des résolutions DNS |
+| `asset_inventory.json` | Inventaire des assets (IP, propriétaire, bon de commande, `zone_tag`) |
+| `asset_security_policy.json` | Politique de chiffrement des `zone_tag` |
+| `directory_export.ldif` | Annuaire LDAP |
+| `org_directory.csv` | Organigramme (départements, bâtiments, secteurs) |
+| `fleet_registry.db` | Base SQLite (véhicules, missions, maintenance, achats) |
+| `firewall_logs.jsonl` | 5 533 événements pare-feu |
+| `threat_assessments.json` | Profils de 8 groupes APT |
+| `maintenance_reports.md` | Rapports de maintenance |
+| `network_findings.json` | Point de départ : relais, destination d'exfiltration, fenêtre d'interception |
+
+Données clés de `network_findings.json` :
+- relais : 10.42.3.88:443 ;
+- exfiltration vers 10.42.5.200:8443 ;
+- fenêtre d'interception : 2024-11-03 de 08:12 à 08:25 UTC ;
+- migration QUIC : CID `4A7F` vers `8B2D`.
+
+## 3. Idée centrale : des fragments `{"seq": N, "val": ...}`
+
+Le flag est découpé en 5 fragments numérotés, cachés dans des formats différents. Repérage : `grep eyJzZXE` (le base64 de `{"seq"`), plus l'analyse des extensions X.509 et de la base SQLite.
+
+| seq | Source | Encodage | Valeur |
+|---|---|---|---|
+| 1 | cert_146 (extension X.509) | JSON en clair | `VALDORIA_FBI` |
+| 2 | LDIF, OU=TSD, attribut `info` | Base64 | `TSD` |
+| 3 | SQLite, `procurement_links.delivery_code` | Hexadécimal | `BUILDING7` |
+| 4 | `asset_inventory.json`, `zone_tag` | AES-128-ECB | `SECTOR4` |
+| 5 | `threat_assessments.json`, VLD-APT-03 | Base64 | `HIGH_CONFIDENCE` |
+
+## 4. Extraction, étape par étape
+
+### seq 1 : extensions X.509 personnalisées
+
+```bash
+for f in certificates/*.pem; do
+  openssl x509 -in $f -noout -text | grep -q 99999 && {
+    echo "== $f"; openssl x509 -in $f -noout -subject
+    openssl x509 -in $f -noout -text | grep -A1 99999; }
+done
+```
+
+Quatre certificats ont une extension `1.3.6.1.4.1.99999.x`. Deux portent un seq 1 :
+- cert_021 (`shared-proxy.merovia.int`) : `{"seq": 1, "val": "MEROVIA_INT"}`
+- cert_146 (`interceptor.tsd.valdoria.gov.vld`) : `{"seq": 1, "val": "VALDORIA_FBI"}`
+
+Les deux ont 10.42.3.88 dans leur SAN. C'est la contradiction à résoudre (section 5).
+
+### seq 2 : LDIF
+
+```bash
+grep -A1 "ou: TSD" directory_export.ldif
+echo 'eyJzZXEiOiAyLCAidmFsIjogIlRTRCJ9' | base64 -d
+# {"seq": 2, "val": "TSD"}
+```
+
+Les 18 OU ont chacune un seq 2. On retient celle du département qui possède le relais (voir seq 4).
+
+### seq 3 : SQLite
+
+```sql
+SELECT * FROM procurement_links WHERE asset_serial='VLD-TSD-SRV-0088';
+-- VLD-GOV-PROC-2023-0447 | Nordic Systems AB | 2023-06-15 |
+--   <HEX_EXPURGE> | TSD-OPS | 127500.0
+```
+```bash
+echo <HEX_EXPURGE> | xxd -r -p
+# {"seq": 3, "val": "BUILDING7"}
+```
+
+Les 201 bons de commande portent un seq 3 (BUILDING2, 6, 7, 9...). Seul celui du bon VLD-GOV-PROC-2023-0447 nous concerne.
+
+### seq 4 : AES-128-ECB
+
+Politique (`asset_security_policy.json`) :
+- algorithme : AES-128-ECB, padding PKCS7 ;
+- clé : `SHA256(purchase_order)[:16]` ;
+- sortie : hexadécimal dans `zone_tag`, repéré par `zone_encrypted: true`.
+
+```python
+import json, hashlib
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import unpad
+for a in json.load(open('asset_inventory.json')):
+    if a['ip'] == '10.42.3.88':
+        k = hashlib.sha256(a['purchase_order'].encode()).digest()[:16]
+        print(a['serial'], a['owner'], a['purchase_order'])
+        print(unpad(AES.new(k, AES.MODE_ECB).decrypt(bytes.fromhex(a['zone_tag'])), 16))
+```
+
+Résultat : `VLD-TSD-SRV-0088 | TSD-OPS | VLD-GOV-PROC-2023-0447`, puis `{"seq": 4, "val": "SECTOR4"}`.
+
+Ce résultat fait aussi le lien entre le relais, le bon de commande et le département TSD.
+
+### seq 5 : profils APT
+
+```bash
+echo 'eyJzZXEiOiA1LCAidmFsIjogIkhJR0hfQ09ORklERU5DRSJ9' | base64 -d
+# {"seq": 5, "val": "HIGH_CONFIDENCE"}
+```
+
+C'est le seul profil dont `infrastructure_overlap` contient `VLD-GOV-PROC-2023-0447`. Les 7 autres profils ont une confiance low, medium ou inconclusive, sans recoupement.
+
+## 5. Désambiguïsation : Valdoria ou Merovia ?
+
+| Source | Valdoria (cert_146) | Merovia (cert_021) |
+|---|---|---|
+| Autorité de certification | Valdoria-GOV-CA, PKI gouvernementale | Merovia-INT-CA |
+| DNS | `proxy-07.tsd.internal.vld` vers 10.42.3.88, confiance high, 28/10 au 04/11 (couvre le 03/11) | `shared-proxy.merovia.int`, confiance low |
+| Inventaire | TSD-SRV-0088, TSD-OPS, bon VLD-GOV-PROC-2023-0447 | Aucune trace |
+| Bon de commande | Nordic Systems AB, livré à TSD-OPS | Aucune trace |
+| Profil APT | VLD-APT-03 : même bon de commande, TTP concordants | MRV-APT-12 et MRV-APT-19 : aucun recoupement, hébergement commercial partagé |
+| Annuaire / maintenance | TSD, Bâtiment 7, Secteur 4, FBI Valdoria | Rien |
+| Pare-feu | 10.42.3.88 vers 10.42.5.200:8443 (TSD-SRV-0089, TSD-OPS) pendant 08:12–08:25 | Rien |
+
+**Concordance des TTP de VLD-APT-03 :**
+- migration de connexion QUIC : détectée (`quic_migration_detected`) ;
+- empoisonnement de cache DNS : confirmé (`dns_spoofing_confirmed`) ;
+- certificats issus d'une PKI gouvernementale : cert_146 ;
+- nommage `.tsd.internal.vld` : `proxy-07.tsd.internal.vld`.
+
+**Leurres identifiés :**
+- cert_021 : fausse piste Merovia. Il est isolé, non corroboré, et la CA n'a rien à faire sur une IP 10.42.x.x valdorienne.
+- cert_199 (`edge-cache-07.cloudnet.services`) : CA commerciale avec une IP interne incohérente.
+- Le rapport de maintenance mentionne aussi une unité CDU, mais le serveur du relais, TSD-SRV-0088, est entretenu par TSD (technicien J. Krause, superviseur K. Vogt, Bâtiment 7, Secteur 4).
+
+## 6. Conclusion
+
+L'organisation responsable est la **Technical Surveillance Division (TSD) du FBI Valdoria** (Bâtiment 7, Secteur 4). L'attribution est de confiance élevée, car au moins six sources indépendantes convergent (certificat, DNS, inventaire, achats, profil APT, annuaire et maintenance), alors que la piste Merovia ne repose que sur un seul certificat.
+
+## 7. Flag
+
+```
+<EXPURGE>
+```
+
+Le séparateur `_` entre fragments est une hypothèse, le format exact n'étant pas précisé. Si la plateforme refuse, teste un autre séparateur ou l'ordre seq 1 à 5 sans le préfixe `VALDORIA_`.
+
+---
+
+Je peux aussi te le mettre dans un fichier Markdown ou Word si tu veux le garder.

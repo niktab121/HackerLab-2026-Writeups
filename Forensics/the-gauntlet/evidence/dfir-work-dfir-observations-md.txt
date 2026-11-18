@@ -1,0 +1,41 @@
+Source locale : dfir/.work/dfir-observations.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# Notes d’investigation DFIR — The Gauntlet (en cours)
+
+Source Kibana: https://dfir.hackerlab.bj/s/hydra/app/discover — vue de données `DFIR Logs`, espace Hydra. Plage d’intérêt présentée dans les exports: 6 nov. 2026 10:29–14:14, fuseau Kibana GMT+01 Africa/Porto-Novo. Accès au site vérifié en HEAD/GET initial; interface Discover ouverte avec une session autorisée fournie par l’utilisateur. Ne jamais conserver les identifiants dans ces notes.
+
+## Données observées dans les exports fournis
+- Environ 7,259,178 documents sur l’export Discover initial, fenêtre 6 nov. 10:29–14:14.
+- Hôte reporté: `WIN-M16Q1KOG02O`, Windows Server 2022 Standard Evaluation, host.ip incluant `192.168.24.200`. Agent Elastic id `954f27ff-0181-418a-b88d-ea7bf2423f4`, version 9.5.5. Packetbeat/Filebeat différents selon les datasets.
+- Packetbeat DNS (`network_traffic.dns`): filtre `source.ip:"192.168.24.128" and dns.question.name:*` => 10,912 docs. Exemples répétés `versioning.ctfd.io`, DNS vers `192.168.24.2:53`, réponses NOERROR; A `104.21.19.74`, `172.67.185.159`; AAAA `2606:4700:3032::ac43:b99f`, `2606:4700:3036::6815:134a`.
+- Packetbeat flows: IP impliquant `.128`, 14:00–14:10 => 2,309 docs. Exemples DNS vers `.2:53`, UDP/123 vers `103.97.91.223` (GeoIP indique Lagos, Nigeria; attribution GeoIP non probante).
+- TLS Packetbeat vers les deux IP Cloudflare: 704 docs sur la plage large dans l’export. SNI/domain `versioning.ctfd.io`, TLS 1.3, sessions établies et certaines reprises. Exemples ~13:00–13:02.
+- Sysmon Event ID 1 filtré à 13:55–14:10 => 2 événements visibles: `MicrosoftEdgeUpdate.exe` (Planificateur, Microsoft) à @timestamp 13:58:44 avec UtcTime du message 12:58:44; `sppsvc.exe` (services.exe, Microsoft) à @timestamp 14:05:07 avec UtcTime 13:05:07. Garder décalage à investiguer.
+- Sysmon Event ID 3, hôte `win-m16q1kog02o`, port 443 => 64 docs dans l’export, exemples (non exhaustifs) de `elastic-endpoint.exe`, `MpDefenderCoreService.exe`, `php-cgi.exe` vers différentes destinations. Exemple PHP vers `api.wordpress.org`, user `IIS APPPOOL\\DefaultAppPool`.
+- Sysmon Event ID 3 ciblant `104.21.19.74`/`172.67.185.159` sur hôte `win-m16q1kog02o`: aucun résultat. Même recherche par `destination.domain:"versioning.ctfd.io"`: aucun résultat.
+- Important: Packetbeat traite source.ip `.128`; les événements hôte Sysmon montrent host.ip `.200` et source.ip `.200`. La relation entre ces adresses reste indéterminée.
+
+## Navigation actuelle
+Discover chargé, espace `Hydra`, data view `DFIR Logs`. La plage personnalisée a été réglée à Nov 6 2026 10:29–14:15 dans le fuseau affiché GMT+01 (URL interne correspond à UTC 09:29–13:15). Requête KQL actuelle vide. Dernière capture montrait encore l’interface en chargement après application; total global à relever.
+
+À ce stade, aucun constat ne suffit à qualifier le trafic de malveillant. Prochaine priorité: inventorier `data_stream.dataset`, `host.name`, `agent.name`, puis bâtir chronologie fondée sur événements hôte/réseau corrélés.
+
+
+## Résultat vérifié depuis Discover
+- Plage appliquée: Nov 6 2026 10:29–14:15, fuseau GMT+01 (`Africa/Porto-Novo`); plage API UTC 09:29–13:15.
+- Requête KQL `host.name:*`: Discover affiche 7 258 731 documents (contre 7 259 178 sans filtre, soit 447 documents écartés). Cela ne donne pas encore la fréquence par hôte.
+- Échantillons récents dans le tri décroissant: Fleet Server sur `5b65d382f6b4`, Red Hat Enterprise Linux 9.8, IP de conteneur `172.18.0.4`, dataset `elastic_agent.fleet_server`; Windows Server `win-m16q1kog02o`, IP `192.168.24.200`, Elastic Agent 9.5.5. Ce sont des exemples, pas un inventaire exhaustif.
+
+
+## Rectificatif d’état (remplace la ligne 17 ci-dessus)
+L’ancienne mention « requête KQL vide » décrivait l’état avant le lancement de la recherche et est obsolète. État le plus récent capturé: plage 6 novembre 2026 10:29–14:15 (Africa/Porto-Novo), requête KQL `host.name:*`, volume 7 258 731 documents. Discover est passée en mode agrégé (« Statistiques de champ »); le tableau affiche 1 254 champs et l’indicateur de statistiques donne 132 947 documents échantillonnés. Je n’ai pas pu isoler la ligne `host.name` ni établir des comptes par valeur avant que l’interface ne cesse de répondre. Le dernier clic sur le champ a expiré en préparation; aucune modification de données n’a été effectuée. Le poste est ensuite revenu en ligne, mais le connecteur local du navigateur était indisponible à la reprise. Ne pas interpréter l’échantillon comme un décompte exhaustif.
+
+
+## Résultat joint — filtre Sysmon/Security (15 nov. 2026)
+- Requête visible: `data_stream.dataset: ("windows.sysmon_operational" or "windows.security")`.
+- Discover affiche `Documents (2 825 554)`. Prudence: l’export présente une incohérence de période. Le sélecteur en haut indique « il y a 1 an → il y a 1 jour », tandis que le résumé du graphique indique le 6 nov. 2026, 10:29–14:15. Ne pas attribuer définitivement ce total à la fenêtre de quatre heures avant confirmation du sélecteur absolu.
+- Dans les détails de champ, `data_stream.dataset` est `windows.sysmon_operational` pour 5 000 documents (100 %) « calculé à partir de 5 000 enregistrements » : observation échantillonnée, pas un compte exhaustif. `windows.security` n’est pas visible dans les détails fournis; cela ne démontre pas son absence.
+- Événements visibles: `event.dataset=windows.sysmon_operational`, provider Microsoft-Windows-Sysmon, `event.code=10`, `event.action=ProcessAccess`, sur `WIN-M16Q1KOG02O` / `win-m16q1kog02o`, Windows Server 2022 Standard Evaluation, IP `192.168.24.200`. Plusieurs lignes montrent `elastic-otel-collector.exe` (PID 5952, compte SYSTEM) accédant à des `svchost.exe` sous LocalService/NetworkService, avec `GrantedAccess` observés `0x1000`, `0x1400` ou `0x1010`. Le contenu visible ne suffit pas à conclure à une activité malveillante; corréler avec les événements voisins, la signature/configuration de l’agent et les créations de processus.
+- Horodatage d’un exemple: `@timestamp` 6 nov. 2026 14:06:16.576 affiché, `UtcTime` du message 13:06:16.576, `event.created` 14:14:27.277 et `event.ingested` 14:14:50. Le décalage entre horodatages mérite vérification; conserver les heures sources plutôt que les fusionner.
+- Action de reprise avant l’analyse de `windows.security`: confirmer dans le sélecteur Discover la plage absolue 6 nov. 2026 10:29–14:15 Africa/Porto-Novo (UTC 09:29–13:15), puis exécuter `data_stream.dataset: "windows.security"` et relever le total. Ne pas traiter le nombre de 2 825 554 comme validé pour cette fenêtre tant que la période est ambiguë.

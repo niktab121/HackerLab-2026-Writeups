@@ -1,0 +1,122 @@
+Source locale : misc/deaddrop/broken/challenge/trust_policy.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# Norveth Federation --- Transport Layer Security Validation Policy
+
+**Document Identifier:** NF-SEC-POL-007
+**Classification:** INTERNAL
+**Effective Date:** 2024-01-15
+**Review Date:** 2025-01-15
+**Approver:** Director of Information Security, Norveth Federation
+**Version:** 3.2
+
+---
+
+## 1. Purpose
+
+This document establishes mandatory requirements for Transport Layer Security (TLS) certificate validation across all Norveth Federation information systems. It defines the procedures and technical controls that TLS client implementations must enforce when establishing secure connections to federation infrastructure.
+
+## 2. Scope
+
+This policy applies to all TLS client software, libraries, and agents operating within the Norveth Federation network perimeter, including but not limited to automated relay systems, monitoring agents, inter-service communication endpoints, and administrative tooling. Third-party integrations connecting to federation endpoints must comply with equivalent validation standards.
+
+## 3. Certificate Authority Trust Model
+
+### 3.1 Trust Anchors
+
+All TLS client implementations must maintain a trust store containing only the Norveth-Root-CA certificate as the sole trust anchor. No additional public or private certificate authorities may be added to the trust store without written authorization from the Director of Information Security.
+
+### 3.2 Intermediate Certificate Authorities
+
+Intermediate CAs issued under the Norveth-Root-CA are authorized for specific operational purposes. Clients must validate the complete chain from the presented server certificate through any intermediate CAs to the Norveth-Root-CA trust anchor. Intermediate CAs must carry the BasicConstraints extension with CA:TRUE and an appropriate pathLenConstraint.
+
+### 3.3 Cross-Signed and Testing Certificates
+
+Certificates issued by intermediate CAs designated for testing infrastructure must not be accepted in production environments. Network segmentation controls must prevent testing infrastructure certificates from being presented to production clients. Any certificate from a testing-designated CA observed in production traffic constitutes a security incident requiring immediate investigation.
+
+## 4. Server Certificate Validation Requirements
+
+### 4.1 Chain Integrity
+
+The client must verify every signature in the certificate chain from the leaf certificate to the trust anchor. If any signature fails verification, the connection must be terminated immediately. The client must verify that each issuer certificate in the chain has the keyCertSign bit set in the Key Usage extension.
+
+### 4.2 Server Identity Verification
+
+Conforming implementations must verify server identity in accordance with RFC 6125, Section 6.4.4. The validation procedure is as follows:
+
+1. If the server certificate contains a SubjectAlternativeName (SAN) extension with one or more dNSName entries, the client MUST use the SAN dNSName values for hostname matching. The Common Name (CN) field in the Subject Distinguished Name MUST NOT be used for hostname verification when a SAN extension is present.
+
+2. Only if the server certificate does not contain a SubjectAlternativeName extension at all may the client fall back to matching the Common Name field in the Subject Distinguished Name against the expected hostname.
+
+3. Wildcard matching in dNSName entries is permitted only in the leftmost label position and must not match across label boundaries. A wildcard certificate for *.norveth.vld matches relay-01.norveth.vld but does not match sub.relay-01.norveth.vld.
+
+4. IP address matching, when required, must use the iPAddress type in the SAN extension, never the dNSName type or the CN field.
+
+Failure to implement SAN-first validation introduces a class of vulnerabilities where an attacker in possession of a valid certificate with a matching Common Name but a non-matching SAN could impersonate a legitimate server. Such certificates may be technically valid within the PKI but are not authorized for the target service.
+
+### 4.3 Validity Period
+
+The client must verify that the current date and time fall within the certificate's notBefore and notAfter validity period. Certificates that are not yet valid or have expired must be rejected. Clock synchronization via NTP is mandatory for all systems performing certificate validation.
+
+### 4.4 Key Usage
+
+Server certificates must include the Key Usage extension with at minimum the digitalSignature and keyEncipherment bits set. Certificates missing the Key Usage extension or lacking the required bits must be rejected.
+
+### 4.5 Extended Key Usage
+
+Server certificates must include the Extended Key Usage extension containing the id-kp-serverAuth (1.3.6.1.5.5.7.3.1) object identifier. Certificates presented for server authentication that lack this extension or do not contain the serverAuth OID must be rejected.
+
+## 5. Cipher Suite Requirements
+
+### 5.1 Approved Cipher Suites
+
+TLS 1.2 connections must use cipher suites providing forward secrecy where possible. The following cipher suites are approved for use within the federation network:
+
+- TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+- TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+- TLS_RSA_WITH_AES_256_GCM_SHA384
+- TLS_RSA_WITH_AES_128_GCM_SHA256
+
+### 5.2 Deprecated Cipher Suites
+
+Cipher suites using RC4, DES, 3DES, MD5, or SHA-1 for message authentication are prohibited. Cipher suites providing no encryption (NULL ciphers) are prohibited in all environments.
+
+## 6. Connection Logging
+
+### 6.1 Event Recording
+
+All TLS connection events must be logged with the following minimum fields: connection identifier, timestamp, client address, server address, presented certificate fingerprint (SHA-256), validation verdict, and negotiated cipher suite. Rejected connections must include the specific reason for rejection.
+
+### 6.2 Log Retention
+
+TLS connection event logs must be retained for a minimum of 180 days and must be forwarded to the centralized security information and event management (SIEM) system within 60 seconds of the event.
+
+## 7. Incident Response
+
+### 7.1 Certificate Anomalies
+
+Presentation of an unexpected certificate, including certificates with valid chain signatures but unexpected Subject or SAN values, must be treated as a potential man-in-the-middle event. The incident response team must be notified within 15 minutes.
+
+### 7.2 Validation Bypass
+
+Any discovered implementation defect that causes the validator to accept certificates that should be rejected per this policy constitutes a critical vulnerability. Affected systems must be taken offline or placed behind compensating controls within 4 hours of discovery.
+
+## 8. Compliance and Audit
+
+### 8.1 Implementation Review
+
+All TLS client implementations must undergo security review prior to deployment. The review must verify compliance with each requirement in Section 4, with particular emphasis on Section 4.2 server identity verification procedures.
+
+### 8.2 Periodic Testing
+
+Quarterly penetration tests must include attempts to present certificates with mismatched CN and SAN values to verify that client implementations correctly prioritize SAN over CN for identity verification.
+
+## 9. Document Control
+
+| Version | Date | Author | Description |
+|---------|------|--------|-------------|
+| 1.0 | 2021-03-01 | Security Architecture | Initial release |
+| 2.0 | 2022-06-15 | Security Architecture | Added SAN validation requirements |
+| 3.0 | 2023-09-01 | Security Architecture | Updated cipher suite list |
+| 3.1 | 2023-12-01 | Security Operations | Added logging requirements |
+| 3.2 | 2024-01-15 | Security Architecture | Clarified Section 4.2 per RFC 6125 |

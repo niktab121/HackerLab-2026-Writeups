@@ -1,0 +1,282 @@
+Source locale : operationtervalis/operation1
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+Operation TERVALIS — Partie I
+
+Cryptographic Dead Drop
+
+CTF : HackerLab 2026
+Catégorie : Cryptographie / Network Forensics
+Difficulté : Non précisée
+Points : 100
+Auteur : Unpasswd
+Agent ciblé : TIMS AVALD — SUBJ-7742
+
+⸻
+
+1. Description du challenge
+
+L’agent TIMS AVALD, identifié sous le nom de code SUBJ-7742, a disparu alors qu’il effectuait une mission pour la Norveth Federation.
+
+Avant sa disparition, il communiquait avec son quartier général à travers le protocole chiffré NorvethSecure v3.
+
+Cinq captures réseau ont été récupérées sur les relais de communication de Norveth.
+
+Notre mission consiste à analyser ces captures et à récupérer les messages envoyés par l’agent avant son arrestation.
+
+2. Extraction des fichiers
+
+Le challenge fournit une archive challenge.zip.
+
+Nous commençons par extraire son contenu :
+
+mkdir -p ~/ctf/Operation-Tervalis
+cd ~/ctf/Operation-Tervalis
+unzip ~/Downloads/challenge.zip
+cd challenge
+ls -lah
+
+Les fichiers obtenus sont :
+
+challenge/
+├── BRIEFING.md
+├── protocol_v3.md
+├── message_schema.json
+├── known_messages.json
+├── session_metadata.csv
+├── session_01.pcapng
+├── session_02.pcapng
+├── session_03.pcapng
+├── session_04.pcapng
+└── session_05.pcapng
+
+Nous disposons donc de cinq captures réseau, d’une documentation du protocole, de métadonnées et d’un message dont le contenu est connu.
+
+3. Analyse de la documentation
+
+Nous lisons d’abord les fichiers de documentation :
+
+cat BRIEFING.md
+cat protocol_v3.md
+cat known_messages.json
+cat session_metadata.csv
+
+Le protocole NorvethSecure v3 utilise :
+
+* AES-256-GCM pour le chiffrement authentifié.
+* X25519 pour l’échange de clés.
+* HKDF-SHA256 pour la dérivation des clés.
+* CBOR pour l’encapsulation des messages.
+* TCP sur le port 8443.
+
+Chaque trame CBOR respecte la structure suivante :
+
+[
+    session_id,
+    key_id,
+    nonce,
+    ciphertext,
+    authentication_tag
+]
+
+Trois canaux sont définis :
+
+Key ID	Canal
+0x00000001	General
+0x00000002	Reports
+0x00000003	Priority
+
+Le canal 0x00000003 est particulièrement intéressant, car il transporte les communications prioritaires.
+
+4. Identification de la vulnérabilité
+
+La documentation indique que les nonces sont générés à partir d’un compteur.
+
+nonce = HKDF-SHA256(
+    input_key_material = key,
+    salt = None,
+    info = "NorvethSecure-v3-nonce-" || counter_be32,
+    length = 12
+)
+
+Le compteur doit être incrémenté après chaque message.
+
+Cependant, les métadonnées révèlent que plusieurs sessions utilisent le même identifiant et sont marquées comme des reconnexions.
+
+session_01 → reconnection: no
+session_02 → reconnection: yes
+session_03 → reconnection: yes
+
+Les trois sessions partagent le même identifiant :
+
+<HEX_EXPURGE>
+
+La documentation précise également que les reconnexions réutilisent le secret maître.
+
+Si le compteur est réinitialisé lors d’une reconnexion, le même nonce peut être généré avec la même clé.
+
+Cette situation constitue une vulnérabilité de réutilisation de nonce AES-GCM.
+
+Pourquoi est-ce dangereux ?
+
+AES-GCM utilise le mode compteur pour produire le chiffrement.
+
+On peut représenter le chiffrement ainsi :
+
+C1 = P1 XOR KS
+C2 = P2 XOR KS
+
+Avec :
+
+* P : texte clair ;
+* C : texte chiffré ;
+* KS : flux de chiffrement.
+
+Si une clé et un nonce sont réutilisés, le même flux de chiffrement est généré.
+
+Nous obtenons alors :
+
+C1 XOR C2 = P1 XOR P2
+
+Si nous connaissons P1, nous pouvons retrouver P2 :
+
+P2 = C1 XOR C1_chiffré XOR C2
+
+Cette attaque permet de récupérer les octets couverts par le texte clair connu.
+
+5. Recherche d’un texte clair connu
+
+Le fichier known_messages.json contient un message HEARTBEAT connu.
+
+{
+  "session_file": "session_01",
+  "message_index": 20,
+  "key_id": "00000003",
+  "counter": 0
+}
+
+Le message contient notamment :
+
+{
+  "type": "HEARTBEAT",
+  "seq": 20,
+  "ts": "2024-11-02T08:30:00Z"
+}
+
+Il possède également un champ pad contenant 100 caractères A.
+
+Ce texte clair connu nous permet de calculer le flux de chiffrement correspondant :
+
+keystream = bytes(
+    a ^ b
+    for a, b in zip(ciphertext, plaintext)
+)
+
+Nous pouvons ensuite appliquer ce flux à un autre message utilisant la même clé et le même nonce.
+
+6. Analyse des captures réseau
+
+Nous ouvrons les captures avec Wireshark :
+
+wireshark session_01.pcapng
+
+Le protocole utilise TCP sur le port 8443.
+
+Nous pouvons appliquer le filtre :
+
+tcp.port == 8443
+
+Ou utiliser Tshark :
+
+tshark -r session_01.pcapng \
+  -Y "tcp.port == 8443" \
+  -T fields \
+  -e frame.number \
+  -e tcp.payload
+
+Nous répétons l’opération sur les autres sessions afin d’extraire les trames CBOR.
+
+L’objectif est de comparer les champs suivants :
+
+session_id
+key_id
+nonce
+
+Deux trames utilisant le même identifiant de session, le même canal et le même nonce constituent des candidates pour notre attaque.
+
+La comparaison des sessions 01 et 03 met en évidence une réutilisation de nonce sur le canal prioritaire.
+
+7. Déchiffrement du message
+
+Après extraction des champs CBOR, nous appliquons l’attaque XOR.
+
+Exemple de fonction Python :
+
+def xor_bytes(a: bytes, b: bytes) -> bytes:
+    return bytes(x ^ y for x, y in zip(a, b))
+def recover_plaintext(
+    known_plaintext: bytes,
+    known_ciphertext: bytes,
+    target_ciphertext: bytes
+) -> bytes:
+    keystream = xor_bytes(
+        known_plaintext,
+        known_ciphertext
+    )
+    return xor_bytes(
+        target_ciphertext,
+        keystream
+    )
+
+Cette fonction prend trois éléments :
+
+1. Le message HEARTBEAT connu.
+2. Son texte chiffré extrait de la capture.
+3. Le texte chiffré du message cible.
+
+Elle retourne les octets récupérables du message cible.
+
+Il faut noter que cette technique ne vérifie pas le tag GCM et ne permet pas de récupérer automatiquement les octets situés au-delà de la longueur du texte clair connu.
+
+8. Résultat de l’analyse
+
+Un message d’alerte a été récupéré :
+
+{
+  "type": "ALERT",
+  "seq": 13,
+  "agent": "TIMS",
+  "priority": "HIGH",
+  "msg": "Suspicious activity near hotel position. Black vehicle approaching slowly from north."
+}
+
+Le message indique qu’un véhicule noir approche lentement de la position de l’agent, depuis le nord.
+
+Les communications récupérées lors de l’analyse précédente font également apparaître :
+
+Agent: TIMS AVALD
+Vehicle: VLD-74-OPS
+Organization: FBI Valdoria
+Last reported coordinates: 10.281, -22.153
+
+Ces renseignements permettent de commencer à reconstituer les événements ayant précédé la disparition de l’agent.
+
+9. Flag
+
+Le flag candidat obtenu est :
+
+<EXPURGE>
+
+Statut : candidat non confirmé par une soumission réussie sur la plateforme HackerLab.
+
+10. Conclusion
+
+Ce challenge illustre une erreur critique dans l’utilisation du chiffrement AES-GCM.
+
+Le protocole NorvethSecure v3 repose sur un mécanisme cryptographique robuste, mais une mauvaise gestion des compteurs lors des reconnexions peut compromettre la confidentialité des communications.
+
+La combinaison d’un texte clair connu et d’une réutilisation de nonce permet de retrouver une partie des communications chiffrées sans connaître la clé AES.
+
+La leçon principale est que l’unicité du nonce pour chaque clé AES-GCM est une condition de sécurité essentielle.
+
+Pour éviter cette vulnérabilité, l’implémentation doit garantir la persistance des compteurs, y compris après une déconnexion, un redémarrage ou une interruption réseau.

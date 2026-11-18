@@ -1,0 +1,4 @@
+Source locale : canry/corp_auth-1.2.0/corp_auth.egg-info/dependency_links.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+

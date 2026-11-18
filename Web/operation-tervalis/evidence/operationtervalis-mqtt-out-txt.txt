@@ -1,0 +1,9 @@
+Source locale : operationtervalis/mqtt_out.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+CONNACK (2, 0, b'\x00\x00')
+SUBACK (9, 0, b'\x00\x01\x00\x00\x00\x00')
+MSG topic=ActiveMQ/Advisory/MasterBroker body=b''
+MSG topic=ActiveMQ/Advisory/Consumer/Topic/# body=b''
+MSG topic=ActiveMQ/Advisory/Connection body=b''
+MSG topic=ActiveMQ/Advisory/Connection body=b''

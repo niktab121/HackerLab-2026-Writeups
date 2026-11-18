@@ -1,0 +1,31 @@
+Source locale : operationtervalis/delegation-notes.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+AD Configuration Notes - 2024-09
+Updated by: unpasswd
+
+Service Accounts:
+- svc_mssql: local admin on APP01, member of DB-Admins
+- svc_backup: member of Backup Operators
+- svc_web: web application service, LDAP bind account
+- svc_gmsa_backup: automated backup operations
+- svc_certsvc: certificate enrollment service
+
+Kerberos Configuration:
+- Standard encryption types configured per policy
+- Service principal names assigned to application accounts
+
+Group Policy:
+- Workstation updates pushed weekly
+- Antivirus definitions updated daily
+- Password policy: 12 chars minimum, 90 day rotation
+
+Network Segments:
+- Servers OU: APP01, FS01, MGMT01
+- Workstations OU: WS01, WS02
+- Management traffic isolated on VLAN 10
+
+Scheduled Maintenance:
+- Monthly patching window: 3rd Sunday 02:00-06:00
+- Quarterly credential rotation for service accounts
+- Annual security assessment due 2025-03

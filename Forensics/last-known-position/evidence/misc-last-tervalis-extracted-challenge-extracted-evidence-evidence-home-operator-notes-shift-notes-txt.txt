@@ -1,0 +1,19 @@
+Source locale : misc/last/tervalis_extracted/challenge/_extracted_evidence/evidence/CHEMIN_LOCAL/notes/shift_notes.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+2024-11-03 SHIFT NOTES OPERATOR STATION 7B
+
+0800  Shift start. Systems nominal.
+0815  Morning brief. 2 scheduled transfers, 1 priority directive pending.
+0900  SUBJ-7743 routine transfer to FACILITY-ALPHA. Escort TSD-OPR-4433.
+0930  Filed intake reports for October backlog.
+1200  Lunch rotation.
+1345  Priority directive TSD-2024-1887 received from Director REINHARDT.
+      Subject SUBJ-7742 designated for immediate transfer.
+      Escort assigned: TSD-OPR-4451. Unit: TSD-OPS-04.
+      Convoy frequency set to 148.325 MHz per protocol.
+      Route: Nord-7 corridor.
+      Vehicle: VLD-74-OPS.
+1415  Convoy departed TSD-HQ main gate.
+1630  Radio confirmation received. Transfer complete.
+1700  End of shift. All transfers logged.

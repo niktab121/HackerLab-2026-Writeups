@@ -1,0 +1,63 @@
+Source locale : blockchain/anotherwu
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# Writeup CTF — HackerLab Bénin (HLB 2026)
+## Challenge : Node To Nowhere — 03 : "Connecting the Dots"
+- **Catégorie** : Blockchain Intelligence / Forensics
+- **Points** : 200 pts
+- **Auteur** : W1z4rd
+
+---
+
+## 1. Contexte & Objectif
+
+L'énoncé indique :
+> *"Des fonds illicites provenant d'une autre transaction inter-chaînes Thorchain dont le hachage est : `<HEX_EXPURGE>` ont atteint le portefeuille `bc1qxn7algyps6gq8jcg8u3ys72zwpkpksnjwuk4wn` après plusieurs relais de fonds, puis ont été agrégés avec un portefeuille `bc1qermfghzn6u475vktnxusklxe60cthv98djfwwy` qui a reçu 0,00412369 BTC du portefeuille de retrait Wasabi du criminel. Identifiant le chemin des hachages de transaction entre la transaction Thorchain et le portefeuille `bc1qxn7algyps6gq8jcg8u3ys72zwpkpksnjwuk4wn`.*
+> 
+> **Format du drapeau** : `<EXPURGE>`
+
+---
+
+## 2. Analyse et Traçage Bidirectionnel
+
+### Étape 1 : Transaction Thorchain Initiale
+- **TXID** : `<HEX_EXPURGE>`
+  - Sortie 0 : `bc1q2ckjg8a997md83acvmc0pknzdwlgz9pgy0zc3a` (0.80965529 BTC)
+  - Sortie 1 : `bc1qgc563ccy622345pk6pmuhnlmsru87v32gvwzzz` (114.59 BTC - Vault THORChain)
+
+### Étape 2 : Traçage de la chaîne de blanchiment (Peeling Chain)
+
+Chaque saut a été identifié par analyse des UTXO dépensées (*outspends*) :
+
+1. **Hop 0 (Tx Thorchain)** : `<HEX_EXPURGE>`
+   - Dépose vers `bc1q2ckjg8a997md83acvmc0pknzdwlgz9pgy0zc3a` (0.80965529 BTC)
+2. **Hop 1** : `<HEX_EXPURGE>`
+   - Dépense `bc1q2ck...` → envoie 0.803 BTC vers `bc1qtnu3zlyuxrfmug8k02germdkzwp0qccdwg0hlt`
+3. **Hop 2** : `<HEX_EXPURGE>`
+   - Dépense `bc1qtnu...` → envoie 0.524782 BTC vers `bc1q589qw53d5p8qnkk290mgqu4w6ljncjrn9qewee`
+4. **Hop 3** : `<HEX_EXPURGE>`
+   - Dépense `bc1q589...` → envoie 0.5168 BTC vers `bc1qvludfndj0av53gdp75xqwwfpn58ejaca7qh8qz`
+5. **Hop 4** : `<HEX_EXPURGE>`
+   - Dépense `bc1qvlu...` → envoie 0.511961 BTC vers `bc1q0pzywaljf28kkq0wggzuvs73xxlws3ufgqnj8x`
+6. **Hop 5** : `<HEX_EXPURGE>`
+   - Dépense `bc1q0pz...` → envoie 0.00098177 BTC vers `bc1qyxxf695clcv3c4w7yg8f6z2ydywpy9sp8p3qn2`
+7. **Hop 6** : `<HEX_EXPURGE>`
+   - Dépense `bc1qyxx...` → envoie 0.001 BTC vers `bc1q0vn7sfkhg456t3hrx2wr2xfszwkewzzpde0yl9`
+8. **Hop 7 (Tx Finale vers le portefeuille cible)** : `<HEX_EXPURGE>`
+   - Dépense `bc1q0vn...` → envoie 0.0037366 BTC vers **`bc1qxn7algyps6gq8jcg8u3ys72zwpkpksnjwuk4wn`** !
+
+*(Ensuite, la transaction `<HEX_EXPURGE>` agrège les fonds de `bc1qxn7...` avec `bc1qerm...` comme décrit dans l'énoncé).*
+
+---
+
+## 3. Flag
+
+### Option 1 (Complète avec la Tx Thorchain initiale - 8 hachages) :
+```text
+<EXPURGE>
+```
+
+### Option 2 (Strictement les relais intermédiaires sans la Tx Thorchain - 7 hachages) :
+```text
+<EXPURGE>
+```

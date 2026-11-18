@@ -1,0 +1,45 @@
+Source locale : forensic/kissofdeath/ocr/p-007.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+5. Dossier 3 - Infrastructure AquaTerv (Eaux Troubles)
+5.1 Contexte
+Une seconde compromission de l'infrastructure AquaTerv a été identifiée, cistincte de celle instruite dans le dossier
+Shutter Island. Elle implique deux postes de travail Windows : celui de Simon (DESKTOP-8MOGHIA) et celui de
+Percy, ainsi qu'un serveurde gestion AquaWatch interne (10.10.10.50:5000).
+5.2 Chaine d'attaque
+Phase 1 : Compromission du poste de Simon (DESKTOP-8MOGHIA)
+Un processus smss.exe frauduleux (PID 10096, un PID élevée est anormal pour ce processus systeme qui démarre tot
+cans le cycle de démarrage Windows) a été exécuté sur la machine de Simon. Ce processus a injecté son code dans
+chrome.exe (PID 1396) pour dissimuler son activité dans un processus légitime.
+Le processus chrome.exe injecté a établi une connexion C2 vers 203.0.113.15:80 (port HTTP standard, technique de
+contournement cle pare-feu).
+Le framework C2 identifié est Sliver (BishopFox), détecté via les chaines de symboles Go
+(github.com/bishopfox/sliver), le mutex slivermtx_* et les patterns cle certificats TLS auto-signés caractéristiques.
+La persistance a été assurée via une tache planifiée (T1053) déguisée en « Windows Update Helper », exécutant C:\
+Users\simon\AppData\Roaming\smss.exe au démarrage.
+Phase 2 : Pivot vers la plateforme AquaWatch
+Depuis le poste de Simon (10.10.10.101), l'attaquant a pivoté vers la plateforme de gestion AquaWatch sur
+10.10.10.50:5000, en s'authentifiant avec les identifiants aquaterv-admin:Aquaterv123?# (récuperés via Sliver), puis
+a téléversé le fichier aquactrl.exe (implant Sliver pour la machine de Percy).
+Phase 3 : Compromission du poste de Percy
+Le fichier aquactrl.exe a été téléchargé depuis http://aquaterv.trv:5000/download/aquactrl.exe le 11/08/2026 a
+09:01:49 UTC, et exécuté manuellement pour la premiere fois a 13:35:20 UTC (confirmé par l'analyse du fichier
+Prefetch Windows AQUACTRL.EXE-284C3721. pf, format MAM/Xpress-Huffman, Run Count = 1).
+Phase 4 : Persistance sur le serveur interne
+Sur un serveur interne accessible via AquaWatch, l'attaquant a:
+- Utilisé le compte simon pour la connexion initiale
+- Ajouté un utilisateur backdoor nommeé varelia (nom directement référengant la nation commanditaire)
+- Dépose le binaire ELF Sliver /usr/local/bin/aquaterv-update comme mécanisme de persistance
+5.3 Indicateurs clés
+
+IP C2 203.0.113.15:80
+
+Framework C2 Sliver (BishopFox
+DESKTOP-8MOGHIA (simon), poste Perc
+
+Processus malveillants smss.exe PID 10096, chrome.exe PID 1396
+T1053 (Windows Update Helper), aquaterv-update (ELF)
+
+Compte backdoor ajouté
+10.10.10.50:5000 (AquaWatch)
+aquactrl.exe (téeléchargé 09:01:49, exécuté 13:35:20 UTC le 11/08)

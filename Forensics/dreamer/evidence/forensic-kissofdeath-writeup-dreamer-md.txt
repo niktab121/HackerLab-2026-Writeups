@@ -1,0 +1,49 @@
+Source locale : forensic/kissofdeath/writeup-dreamer.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# Dreamer — Kiss of Death, question 7
+
+## Objectif et état initial
+Retrouver la date, l'heure d'impression et le numéro de série de l'imprimante dans le document numérisé issu de la question précédente. Le répertoire contient `step3.pdf` (19 pages) et les images extraites dans `pdfpages/`. L'indice officiel est « Yellow dots ».
+
+## Observation et méthode
+Une sélection des pixels dont les composantes rouge et verte dépassent 170 et dont le bleu est inférieur de plus de 25 aux deux autres composantes révèle 240 pixels jaunes sur la deuxième page. Ils se situent dans la marge inférieure droite, entre les coordonnées x=2054 et 2336, y=2999 et 3141, pour une image de 2480 × 3210 pixels.
+
+Les centres forment une grille de 15 colonnes sur 8 lignes, de pas 20 pixels, ancrée vers (2055,3000). Plusieurs pixels peuvent appartenir à un même point : il faut remplir une matrice binaire et non compter directement les pixels.
+
+Le guide original de l'EFF (référence historique : `https://w2.eff.org/Privacy/printers/docucolor/`) décrit ce format. La ligne supérieure sert à la parité. Les sept autres lignes portent les poids 64,32,16,8,4,2,1. Les colonnes sont numérotées depuis 1 : minute en colonne 2, heure en 5, jour en 6, mois en 7 et année sans siècle en 8. Le séparateur en colonne 10 vaut 127. Les groupes du numéro de série se lisent dans l'ordre 14,13,12,11, avec deux chiffres décimaux par groupe et conservation des zéros initiaux.
+
+## Commandes reproductibles
+Le script `decode_yellow.py` réalise la sélection chromatique, la reconstruction de la grille, la vérification des parités et la comparaison des 19 pages. Il ne publie pas les valeurs décodées.
+
+```bash
+file step3.pdf
+python3 decode_yellow.py
+```
+
+Sorties non sensibles :
+
+```text
+step3.pdf: PDF document, version 1.4, 19 pages
+Validation: 19 pages concordantes; parités des données correctes.
+```
+
+Transmission autorisée au hub local, sans affichage de la réponse :
+
+```bash
+python3 decode_yellow.py --report
+```
+
+Résultat : transmission réussie. Cela confirme l'enregistrement local, pas une validation par la plateforme de compétition. Le format exact de saisie attendu par la plateforme n'était pas précisé dans l'énoncé fourni.
+
+## Pistes écartées et anomalies
+- Le texte OCR ne restitue pas les points jaunes : travailler sur les pixels est nécessaire.
+- L'aperçu à taille réduite rend la grille presque invisible. La segmentation chromatique localise directement les marques.
+- La première colonne a une parité globale paire. Cette colonne contient les bits de parité des lignes ; son intersection avec la ligne supérieure n'affecte aucune donnée utile. Toutes les colonnes de données et les sept lignes utiles présentent une parité impaire correcte. Il ne faut donc pas modifier un bit de donnée pour corriger ce seul coin.
+- La première tentative d'envoi au hub a été bloquée par le bac à sable réseau. La réexécution avec permission réseau a réussi.
+
+## Validation et limites
+Le script exige que les 19 matrices donnent les mêmes valeurs et que toutes les parités utiles soient correctes. La date et l'heure extraites sont dans les plages calendaires et horaires attendues. L'année est interprétée dans le siècle du scénario. Aucun fuseau horaire n'est encodé : il s'agit de l'heure de l'imprimante, sans conversion spéculative.
+
+## Leçons
+La marge d'un scan peut conserver des informations invisibles à l'OCR. Vérifier les parités et comparer plusieurs pages permet de distinguer une erreur d'extraction d'un détail du générateur de grille. Ne pas confondre accusé de réception du hub et acceptation par la plateforme.

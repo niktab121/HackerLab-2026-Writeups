@@ -1,0 +1,74 @@
+Ghost Ratchet — write-up forensique
+
+Résultat
+L’identité cryptographique de l’officier traitant est l’empreinte PGP :
+  <HEX_EXPURGE>
+Cette empreinte est explicitement communiquée dans le message reçu n° 18, puis
+confirmée par Kessler dans le message sortant n° 20. Les messages déchiffrés ont été
+authentifiés par leur MAC.
+1. Inventaire et premiers indices
+L’archive contient une bibliothèque Java, NordLink.jar , une base SQLite, des préférences
+Android, une sauvegarde de session et un fichier d’état du ratchet.
+Les préférences identifient la session NLNK-2026-0915-7F2A , l’identité locale GHOST-3 et le
+correspondant comme SMOKE-OPS-7 , de rôle handler . Ces noms de contact ne donnent
+toutefois pas l’identité cryptographique demandée.
+Le fichier ratchet_state.dat commence par la signature NRST , puis contient un JSON
+indiquant notamment wiped: true et reason: GHOST_SILENT . L’état courant du ratchet a
+donc été effacé. La base nordlink.db , elle, conserve 25 enregistrements de messages avec
+direction, numéro, type, clé DH publique, texte chiffré, MAC, longueur de chaîne précédente
+et horodatage.
+La sauvegarde session_init.bak conserve trois éléments utiles : une clé privée DH locale, la
+clé racine (root key) et la clé publique DH distante. La clé privée sauvegardée, convertie en
+clé publique X25519, correspond à la clé DH des messages sortants n° 4 à 6. Cela permet de
+situer le point de reprise dans la session.
+2. Comprendre le chiffrement
+La décompilation de NordLink.jar révèle les primitives suivantes :
+ • Échange DH : X25519.
+ • KDF racine : HKDF-SHA256, avec l’information NORDLINK-root-kdf ; 64 octets sont
+    produits, séparés en nouvelle clé racine et clé de chaîne.
+ • KDF de chaîne : deux HMAC-SHA256 sur les octets 0x01 et 0x02 donnent
+    respectivement la prochaine clé de chaîne et le secret de message.
+ • Clés de message : HKDF-SHA256 avec l’information NORDLINK-msg-keys , sur 80 octets
+    : clé AES de 32 octets, clé MAC de 32 octets, puis IV de 16 octets.
+ • Chiffrement : AES-CBC avec padding PKCS#7.
+ • Authentification : HMAC-SHA256 sur les données associées suivies du texte chiffré.
+Les données associées ( AD ) sont encodées comme trois entiers 32 bits big-endian — type,
+numéro de message et longueur de la chaîne précédente — suivis de la clé publique DH de
+l’en-tête.
+Lorsqu’un message entrant annonce une nouvelle clé DH, le ratchet calcule d’abord une
+nouvelle chaîne de réception avec l’ancienne clé privée locale et la nouvelle clé publique
+distante. Il met ensuite à jour la clé privée locale : pour les messages de type non nul, la
+bibliothèque utilise HKDF-SHA256(ancienne_clé_privée, sel nul, info="NORDLINK-next-dh", 32) . Un
+deuxième échange X25519 produit la chaîne d’envoi suivante.
+3. Reprendre après la perte d’état
+Il n’était pas nécessaire de reconstruire les anciennes clés de chaîne manquantes. La
+sauvegarde contient suffisamment d’état pour reprendre au prochain changement de clé
+DH distante.
+  1. Charger la clé privée locale, la clé racine et la clé publique distante depuis
+      session_init.bak .
+  2. Parcourir les messages dans l’ordre chronologique jusqu’au message reçu n° 7, dont
+     la clé DH publique diffère de celle conservée dans la sauvegarde.
+  3. Calculer le secret X25519 entre la clé privée locale sauvegardée et la clé publique DH du
+     message n° 7.
+  4. Appliquer la KDF racine pour obtenir la nouvelle clé racine et la chaîne de réception.
+  5. Dériver les clés de message, recalculer le MAC sur AD || ciphertext , puis le comparer au
+     MAC enregistré.
+  6. Si le MAC est valide, déchiffrer le texte AES-CBC et continuer la chaîne. Répéter
+     l’opération à chaque nouvelle clé DH distante.
+Le MAC du message n° 7 correspond exactement à celui stocké. C’est le contrôle décisif
+qui confirme à la fois le point de reprise et l’ordre des paramètres utilisés pour les KDF et
+les données associées. Le rejeu du ratchet permet ensuite de vérifier les MAC et de
+déchiffrer les messages n° 7 à 25, y compris les messages sortants après les rotations
+locales.
+4. Message décisif
+Le message reçu n° 18, daté du 23 septembre, donne l’instruction suivante :
+  « Pour vérifier que c'est bien moi, utilise l'empreinte PGP
+  <HEX_EXPURGE>. N'importe quel message qui n'est
+  pas signé par cette cle, tu l'ignores et tu declenches GHOST SILENT dans la foulee. »
+Au message sortant n° 20, Kessler confirme :
+  « Empreinte B27569A0...AAAA enregistrée pour la vérification post-NORDLINK. »
+La réponse n’est donc pas le nom de code du contact, mais l’empreinte PGP fournie par
+l’officier traitant.
+Réponse à soumettre
+<HEX_EXPURGE>
+

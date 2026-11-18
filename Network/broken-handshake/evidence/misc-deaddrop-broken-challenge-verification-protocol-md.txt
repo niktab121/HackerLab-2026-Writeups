@@ -1,0 +1,47 @@
+Source locale : misc/deaddrop/broken/challenge/verification_protocol.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# Norveth Federation --- Certificate Attribution Verification Protocol
+
+**Document Identifier:** NF-SEC-PROC-012
+**Classification:** RESTRICTED
+**Effective Date:** 2024-08-01
+
+---
+
+## 1. Purpose
+
+This procedure defines the method for verifying the attribution of interceptor certificates discovered during incident response investigations. When a suspected man-in-the-middle certificate is extracted from network captures, analysts must follow this protocol to confirm its operational origin before filing attribution reports.
+
+## 2. Verification Token
+
+Certificates deployed for authorized interception operations carry a verification token in the custom extension OID **1.3.6.1.4.1.99999.1**. The token is a hex-encoded HMAC-SHA256 digest computed as:
+
+    HMAC-SHA256(key, message)
+
+Where:
+- **key**: `NVTH-CERT-VERIFY-2024` (ASCII-encoded)
+- **message**: the certificate's serial number in lowercase hexadecimal (no prefix, no padding)
+
+Multiple certificates in a capture may carry this extension. Only the certificate whose stored token matches the computed HMAC is verified as an authorized operational certificate. Certificates with non-matching tokens are either test artifacts, revoked, or adversary-planted decoys.
+
+## 3. Attribution Report Format
+
+Once the verified certificate is identified, the attribution flag is constructed from the certificate's own fields:
+
+    <EXPURGE>
+
+Field extraction:
+- **validation_bypass**: The TLS validation flaw that allowed the interception. Refer to NF-SEC-POL-007 Section 4.2 for the applicable validation model. When a certificate's Common Name matches the target hostname but its SubjectAlternativeName does not, the bypass method is the legacy validation mode that checks only the CN field.
+- **role**: First label of the SubjectAlternativeName DNS entry (before the first dot), uppercased.
+- **department**: Second label of the SAN DNS entry, uppercased.
+- **sovereign_entity**: The governing entity from the SAN domain hierarchy, uppercased. For SAN entries of the form `<role>.<dept>.<entity>.gov.vld`, this is the `<entity>` component.
+
+## 4. Procedure Summary
+
+1. Extract all certificates from the network capture.
+2. Identify certificates carrying extension OID 1.3.6.1.4.1.99999.1.
+3. For each, compute HMAC-SHA256 over the serial number and compare with the stored token.
+4. The certificate with a matching token is the verified interceptor.
+5. Extract attribution fields from the verified certificate's SAN entry.
+6. Construct and submit the attribution flag per Section 3.

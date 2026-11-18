@@ -1,0 +1,17 @@
+Source locale : forensic/kissofdeath/ocr/p-004.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+Phase 5: Exfiltration et vente des données
+Les documents exfiltrés(plans EPANET, rapports hydrologiques, codes d'extinction) ont été retrouvés sur un
+marché .onion (DarkVault). Les métadonnées des fichiers DOCX (créateur : Jon Varek, ingénieur hydraulique en
+chef d'AquaTerv) confirment la source interne de la fuite.
+Le fichier Reseau_Eau_EPANET.inp récupéré contenait une clé de maintenance :
+<EXPURGE>.
+3.3 Indicateurs clés
+IP recon/C2 203.0.113.42, 203.0.113.99, 217.182.170.157
+Script malveillant update-helper.ps1 (fileless
+Fonction JS malveillante
+CVE exploitée CVE-2022-44268 (Pillow < 9.4.0)
+water_technician:H20_t3ch!2026$
+DESKTOP-DONSMDE (Zenith, mdp : calypso)
+T1547.001 (homepage.html), T1546.001 (bdcedit.exe)

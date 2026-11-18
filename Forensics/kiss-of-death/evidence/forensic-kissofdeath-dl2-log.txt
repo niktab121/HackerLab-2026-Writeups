@@ -1,0 +1,11 @@
+Source locale : forensic/kissofdeath/dl2.log
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+token acquired
+real mode reached
+attempt 1 size=7421952
+attempt 2 size=7421952
+attempt 3 size=7421952
+attempt 4 size=7421952
+attempt 5 size=13775536
+beth.png: data

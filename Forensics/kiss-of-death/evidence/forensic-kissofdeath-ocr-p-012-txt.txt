@@ -1,0 +1,47 @@
+Source locale : forensic/kissofdeath/ocr/p-012.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+8. Dossier 6 - TervaGrid / Opérateur électrique (Shockwave)
+8.1 Contexte
+TervaGrid est l'opérateur du réseau électrique de Tervalis. L'attaque a compromis l'infrastructure SCADA de
+l'opérateur en suivant une chaine multi-vecteurs allant de la fuite initiale d'un credential jusqu'au sabotage de la
+chaine d'approvisionnement logicielle, a la compromission du réseau OT (Operational Technology), et enfin a
+l'interception radio et l'exfiltration de la clé mattre du réseau.
+8.2 Chaine d'attaque
+
+Phase 1 : Fuite du Personal Access Token Gitea (point d'entrée réel)
+
+L'instance Gitea interne de TervaGrid (172.28.48.3:3000) était exposée sur Internet. Un ancien commit du dépét
+tervagrid/billing (56821bbb, « init: TervaBill scaffold + local env ») contenait un fichier .env jamais nettoyé de
+'historique, exposant un Personal Access Token (PAT) appartenant a l'utilisateur horace.ade :
+GITEA_PAT=<HEX_EXPURGE>
+Ce PAT dormant constitue le véritable point d'entrée de la chaine d'attaque : c'est lui qui a permis, plusieurs
+semaines plus tard, de pousser le commit malveillant identifié en Phase 2. Trois comptes Gitea liés a l'organisation
+étaient exposés au mMéme moment : dora.ganon, horace.ade et tvsadmin.
+
+Comptes Gitea compromis (horace.ade PAT exposé)
+
+dora.ganon
+
+ud
+
+Sir horace.ade
+
+one
+
+tay tvsadmin
+
+Phase 2 : Attaque de la chaine d'approvisionnement npm (Pathogen / NightShift /
+Original Sin)
+
+En utilisant le PAT dérobé a la Phase 1, l'attaquant a poussé un commit malveillant sur le dépét tervagrid/billing
+(eedf9f7bae, « chore: update @tervagrid/tervalog (log format) ») :
+
+- "@tervagrid/tervalog": "1.4.6"
+
++ "@tervagrid/tervalog": "1.4.7"
+
+La version 1.4.7 est 18 fois plus volumineuse que la version légitime 1.4.6 (8 583 octets contre 452 octets). Ce
+commit a été poussé le 11/06/2026 a 02:14:00 UTC (heure anormale, dans la plage du cron nightly-backup.sh).
+Cette méme signature horaire (02:14 UTC) se retrouvera a chaque étape ultérieure de dépét de fichier, signature
+d'un mode opératoire automatisé ou d'une fenétre d'intervention fixe coté VARELID.

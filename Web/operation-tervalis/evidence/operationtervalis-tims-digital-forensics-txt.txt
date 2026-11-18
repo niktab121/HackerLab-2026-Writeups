@@ -1,0 +1,205 @@
+Source locale : operationtervalis/tims_digital_forensics.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+FEDERAL BUREAU OF INVESTIGATION - VALDORIA FIELD OFFICE
+DIGITAL FORENSICS LABORATORY
+========================================================
+CLASSIFICATION: SECRET // NOFORN
+DOCUMENT CONTROL: TSD-2024-DFR-7742
+DATE: 2024-11-08
+EXAMINER: Forensic Analyst Li Chen (IT-Support Division)
+PEER REVIEW: IT Administrator Carlos Martinez
+========================================================
+
+         DIGITAL FORENSIC EXAMINATION REPORT
+         SUBJECT: AVALD, Tims (SUBJ-7742)
+         OPERATION: TERVALIS
+
+1. EVIDENCE SUMMARY
+
+Item 1: Laptop Computer
+  Make/Model: Lenovo ThinkPad X1 Carbon Gen 11
+  Serial: PF3KXYZ9
+  OS: Ubuntu 22.04 LTS (dual-boot with Windows 11 Pro)
+  Storage: 1TB NVMe SSD (Samsung 980 Pro)
+  Seized: 2024-11-03, KAPPA facility
+  Hash (DD image): SHA256:a4f8e2c1...
+
+Item 2: USB Drive A
+  Make: Kingston DataTraveler Max
+  Capacity: 256GB
+  Encrypted: LUKS (AES-256-XTS)
+  Seized: 2024-11-03
+
+Item 3: USB Drive B
+  Make: Samsung BAR Plus
+  Capacity: 256GB
+  Encrypted: VeraCrypt (AES-Serpent cascade)
+  Seized: 2024-11-03
+
+Item 4: USB Drive C
+  Make: SanDisk Extreme Pro
+  Capacity: 256GB
+  Encrypted: LUKS (AES-256-XTS)
+  Seized: 2024-11-03
+
+Item 5: Mobile Phone (Primary)
+  Make/Model: Samsung Galaxy S23
+  IMEI: 354789102345678
+  OS: Android 14, GrapheneOS
+  Seized: 2024-11-03
+
+Item 6: Mobile Phone (Burner)
+  Make/Model: Nokia 105
+  IMEI: 359012345678901
+  SIM: Prepaid, Nordvelt Telecom
+  Seized: 2024-11-03
+
+Item 7: Cryptocurrency Hardware Wallet
+  Make/Model: Ledger Nano X
+  Seized: 2024-11-03
+
+2. EXAMINATION FINDINGS
+
+2.1 Laptop - Linux Partition
+
+File System Analysis:
+  Primary user: tavald (UID 1000)
+  Home directory: /CHEMIN_LOCAL
+  Last login: 2024-11-02 23:14 UTC
+
+Encrypted Volume (/dev/sda3):
+  Encryption: TrueCrypt 7.1a, AES-256 + Serpent cascade
+  Passphrase: Recovered via memory analysis (cold boot capture
+  during arrest): "Naar vi doede vaagner" (Ibsen reference)
+  Contents: 1,247 files in 89 directories
+
+Key files recovered from encrypted volume:
+
+  /vault/exfil/
+    - 39 PDF/DOCX files matching classified documents from TSD
+      SIGINT repository (MD5 hashes verified against repository)
+    - Organized by date (2021-09 through 2024-10)
+    - Handwritten annotations scanned and appended as final pages
+
+  /vault/tools/
+    - nonce_exploit.py: Python script exploiting AES-GCM nonce
+      reuse for covert data embedding (187 lines, matches network
+      traffic patterns from surveillance)
+    - quic_relay.py: QUIC connection migration tool (243 lines)
+    - dns_redirect.conf: Configuration for DNS spoofing relay
+    - extract_docs.py: SIGINT repository extraction script with
+      audit log evasion (bypasses Windows Event Log via ETW
+      patching equivalent)
+    - README.txt: Technical notes in subject's handwriting style,
+      describing tool usage and operational procedures
+
+  /vault/comms/
+    - echo_messages.db: SQLite database containing 847 text
+      messages between KAPPA and ECHO (2022-03 to 2024-10)
+    - dead_drop_addrs.txt: 3 .onion addresses for TOR dead drops
+    - gruner_calls.log: 34 VOIP call records with timestamps and
+      durations (no audio recordings on this device)
+
+  /vault/financial/
+    - btc_addresses.txt: 12 Bitcoin addresses with labels
+    - xmr_addresses.txt: 4 Monero addresses
+    - shell_companies.csv: 4 shell company names, jurisdictions,
+      and account numbers
+    - payment_schedule.xlsx: Spreadsheet tracking payments received
+      by document (dates, amounts in EUR, BTC equivalents)
+
+  /vault/targets/
+    - tasking_2024_q1.txt through tasking_2024_q3.txt: Syndicate
+      intelligence requirements organized by quarter
+    - priority_matrix.xlsx: Document priority scoring with columns
+      for "value", "access_difficulty", "detection_risk"
+
+2.2 Laptop - Windows Partition
+
+Minimal use. Default Windows 11 installation with standard
+applications. No classified material found. Appears to be
+maintained as cover for border crossings and casual use.
+Browser history shows only general web browsing (news, weather,
+social media).
+
+2.3 USB Drives
+
+Drive A (Kingston):
+  Complete mirror of /vault/exfil/ from laptop
+  Additional 8 documents not found on laptop (possibly transferred
+  to Syndicate and subsequently deleted from primary storage)
+
+Drive B (Samsung):
+  Collection of technical references and academic papers related
+  to cryptographic vulnerabilities. Includes:
+  - 14 published papers on GCM nonce reuse attacks
+  - 7 papers on QUIC protocol security
+  - Draft paper authored by subject: "Practical Exploitation of
+    Nonce Reuse in Counter-Mode Authenticated Encryption"
+    (unpublished, 34 pages, highly detailed)
+  - Source code repositories for cryptographic tools
+
+Drive C (SanDisk):
+  Operational materials:
+  - Maps and satellite imagery of dead drop locations
+  - Photographs of Syndicate contacts (4 individuals, 2 identified)
+  - Scanned identity documents (2 forged passports)
+  - Encrypted archive (password not yet recovered) - 4.7GB
+
+2.4 Mobile Phones
+
+Primary (Galaxy S23, GrapheneOS):
+  - Signal app: Messages auto-deleted (30-day retention)
+  - Recovered 17 messages via SQLite WAL recovery
+  - Tor Browser: History cleared, 3 .onion bookmarks recovered
+    (matching dead_drop_addrs.txt)
+  - VPN configuration for 3 providers (Mullvad, IVPN, ProtonVPN)
+  - No call history (Silence app for encrypted calls)
+
+Burner (Nokia 105):
+  - 7 outgoing calls to Nordvelt numbers (prepaid, unregistered)
+  - 3 incoming calls from same pool of numbers
+  - No SMS messages
+  - Last used: 2024-10-31
+
+2.5 Hardware Wallet
+
+Ledger Nano X:
+  Bitcoin: 31.0847 BTC (approx. USD 1,400,000 at seizure date)
+  Ethereum: 12.5 ETH (approx. USD 25,000)
+  Seed phrase: Recovered from paper backup in subject's notebook
+  (substitution cipher using periodic table element symbols)
+  Transaction history: 47 incoming transactions over 36 months
+  from 12 unique addresses (all linked to Dressler shell companies)
+
+3. CHAIN OF CUSTODY
+
+All evidence items were seized under sealed court order
+VF-FISC-2024-0477 by Special Agent James Miller (arresting
+officer). Items were catalogued at KAPPA facility by SA Eva
+Kovacs and transported under diplomatic seal to Valdoria FBI
+Digital Forensics Laboratory on 2024-11-04. Evidence integrity
+verified via hash comparison upon receipt.
+
+4. ACTIVE DIRECTORY IMPACT ASSESSMENT
+
+During examination of the subject's tools, indicators of Active
+Directory compromise were identified:
+
+  - Kerberos ticket manipulation scripts (custom implementation
+    of MS-KILE S4U2Self/S4U2Proxy)
+  - Cached NTLM hashes for 3 service accounts (svc_web, svc_mssql,
+    svc_backup)
+  - Python script for LDAP enumeration of VALDORIA.FBI.LAB domain
+  - Notes referencing "krbtgt hash extraction successful" with date
+    2024-01-22
+
+Recommendation: Full domain compromise assessment and credential
+rotation for all accounts in VALDORIA.FBI.LAB domain. See separate
+incident report TSD-INCIDENT-2024-0891.
+
+========================================================
+END OF REPORT - TSD-2024-DFR-7742
+CLASSIFICATION: SECRET // NOFORN
+========================================================

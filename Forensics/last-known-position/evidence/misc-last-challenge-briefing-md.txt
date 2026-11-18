@@ -1,0 +1,80 @@
+Source locale : misc/last/challenge/BRIEFING.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+CLASSIFICATION: TOP SECRET // NORVETH-EYES-ONLY
+OPERATION: TERVALIS
+REF: NV-OPS-2024-TERV-PKG06
+DATE: 2024-11-04
+PACKAGE: 06 — LAST KNOWN POSITION
+
+---
+
+INTELLIGENCE PACKAGE 06 — LAST KNOWN POSITION
+
+CONTEXT
+
+Agent AVALD was transported from the Nordvelt Grand Hotel by a TSD
+tactical unit on 2024-11-03. An operator involved in the transfer has
+falsified the official transport records to conceal the destination.
+
+A forensic evidence package was recovered from the operator's
+workstation, including the transfer database, shell command history,
+gate access logs, and operational documents.
+
+Signals intelligence (SIGINT) stations across the Nordvelt region
+monitored radio transmissions during the transfer window. The national
+vehicle tracking system recorded GPS positions for fleet vehicles
+throughout the day. Border and facility checkpoint passage records
+are available.
+
+Traffic camera footage from Route Nord-7 — the primary northern
+transport corridor — was obtained under requisition.
+
+ARTIFACTS
+
+  evidence_files.zip       Forensic evidence package from the
+                           operator's workstation (contains: transfer
+                           database, shell history, gate access logs,
+                           facility gate map, shift notes, transport
+                           manifest)
+
+  signal_intel.csv         SIGINT intercepts (timestamps, frequencies,
+                           station bearings, signal strength)
+
+  sigint_stations.json     SIGINT station locations, equipment
+                           specifications, and operational status
+
+  station_diagnostics.json Station calibration records and diagnostic
+                           event reports
+
+  facility_registry.csv    Registry of known facilities in the
+                           operational area (some coordinates redacted
+                           for security classification reasons)
+
+  transport_routes.csv     Official transport route definitions
+
+  vehicle_tracking.db      National vehicle GPS tracking database
+                           (SQLite format — fleet-wide positioning)
+
+  checkpoint_logs.csv      Checkpoint passage records across the
+                           northern transport corridor
+
+  dispatch_records.jsonl   Vehicle dispatch and operational event logs
+
+  reporting_format.md      Intelligence report submission format
+
+  traffic_cameras/         15 traffic camera frames from Route Nord-7
+                           (JPEG format with embedded EXIF metadata)
+
+  traffic_cameras_manifest.json  Traffic camera specifications and
+                                 extraction metadata
+
+OBJECTIVE
+
+Determine the exact facility where Agent AVALD is being held. The
+official transfer records have been deliberately falsified. Reconstruct
+the true destination from the available evidence. Time is critical.
+
+---
+
+END OF PACKAGE BRIEFING

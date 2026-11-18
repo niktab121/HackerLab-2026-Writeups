@@ -1,0 +1,23 @@
+{
+  "source_files_checked": 377,
+  "changed_originals": [],
+  "broken_markdown_links": [],
+  "missing_sections": [],
+  "python_syntax_errors": [],
+  "shell_syntax_errors": [],
+  "secret_scan_exit_code": 0,
+  "secret_scan_findings": [],
+  "github_publication": false,
+  "hub_new_imports": [
+    {
+      "challenge": "THE GATE",
+      "exit_code": 0,
+      "status": "import local confirmé"
+    },
+    {
+      "challenge": "Enquete",
+      "exit_code": 0,
+      "status": "import local confirmé"
+    }
+  ]
+}

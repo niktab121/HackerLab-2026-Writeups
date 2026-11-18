@@ -1,0 +1,58 @@
+Source locale : forensic/kissofdeath/ocr/p-003.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+Backdoor SSH /CHEMIN_LOCAL/.ssh/ Clé SSH deploy@internal-ci
+authorized_keys
+
+Sudoers /etc/sudoers.d/svc_update | svc_update ALL=(ALL) NOPASSWD: <SECRET_EXPURGE>
+
+backdoor
+Daemoncaché | /tmp/.c Script en boucle beaconant vers
+
+03.0 99:8443/ani/drop
+
+Une backdoor supplémentaire a été plantée via liblzma.so.5.6.1 (variante de la backdoor XZ), la version légitime
+étant 5.4.1.
+L'intrusion initiale sur le serveur DNS est datée du 15/07/2026 a 15:15 (GMT+1), confirmée par le timestamp de
+déclenchement du keylogger Vim.
+Configuration des 7 mécanismes de persistance DNS (dnsmasgq, cron, sudoers)
+| :-§ sudo cat /etc/crontab
+icat /etc/dnsmasq.d/*.conf
+scat /CHEMIN_LOCAL/.ssh/authorized_keys 2>/dev/null
+igrep svc_update /etc/passwd
+pls /etc/update-motd.d/
+sPS aux | grep -iE— “beacon|motd" | grep -v grep
+i¢ /etc/crontab: system-wide crontab
+H# Unlike any other crontab you don't have to run the ‘crontab’
+pit command to install the new version when you edit this file
+h# and files in /etc/cron.d. These files also have username fields,
+}# that none of the other crontabs do.
+ISHELL=/bin/sh
+SPATH=/usr/lLocal/sbin:/usr/local/bin:/sbin:/bin: /usr/sbin:/usr/bin
+ta Example of job definition:
+ht .---------------- minute (0 - 59)
+4 | .------------- hour (60 - 23)
+a” | | .---------- day of month (1 - 31)
+bi | | | .-+------ month (1 - 12) OR jan,feb,mar,apr ...
+at | 6|lhCUd|lhCUdL)tltiw---- day of week (® - 6) (Sunday=6@ or 7) OR sun,mon,tue,wed,thu,fri,sat
+CE el
+it * * * * * yser-name command to be executed
+}17 ad en root cd / && run-parts --report /etc/cron.hourly
+125 6 eee root test -x /usr/sbin/anacron || { cd / && run-parts --report /etc/cron
+i.daily; }
+147 6 #7 root test -x /usr/sbin/anacron || { cd / && run-parts --report /etc/cron
+}.weekly; }
+152 6 i** root test -x /usr/sbin/anacron || { cd / && run-parts --report /etc/cron
+¥.monthly; }
+bit
+} Listen-address=127.0.0.1
+Ibind-interfaces
+iserver=8.8.8.8
+pserver=8.8.4.4
+100-header 10-uname
+Phase 4 : Elévation de privileges sur AquaWatch
+A10h30:44 UTC, l'attaquant a modifié le fichier /opt/report-processor/config.yml (accessible en écriture par
+water_technician, exécuteé en root toutes les 2 minutes) pour injecter des commandes. Le cron s'est déclenché a
+10h32:01 UTC, accordant a l'attaquant une exécution en root confirmée par l'audit log (epoch 1784111521).
+A 10h40:22 UTC, une clé SSH de backdoor (maintenance@internal) a été ajoutée a
+/CHEMIN_LOCAL/.ssh/authorized_keys.

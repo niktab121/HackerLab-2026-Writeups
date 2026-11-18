@@ -1,0 +1,549 @@
+Source locale : forensic/ghot/il mandante/writeup-il-mandante.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# Il Mandante — Q2 : l'autorité inconnue
+
+## Objectif
+
+Trois pièces sont fournies : le certificat racine d'une autorité de certification
+inconnue (`borealisCA-root.pem`), un extrait de journal Certificate Transparency
+(`ct-log.csv`, 7 020 entrées) et un extrait WHOIS (`whois-borealis.txt`).
+
+La question : **pour le compte de quelle organisation cette autorité a-t-elle
+émis ses certificats ?**
+
+Il ne s'agit donc pas de nommer l'autorité elle-même, mais l'entité
+bénéficiaire des certificats qu'elle a signés.
+
+## État initial et première lecture des pièces
+
+### Le certificat racine
+
+```console
+$ openssl x509 -in borealisCA-root.pem -noout -text | head -20
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            0b:06:d2:b2:f7:4e:80:41:f1:53:a1:a2:7d:bd:88:0e:90:e3:7c:c6
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C=XX, O=Borealis Trust Services, CN=Borealis Certification Authority
+        Validity
+            Not Before: Feb  2 06:32:00 2026 GMT
+            Not After : Feb  2 06:32:00 2029 GMT
+        Subject: C=XX, O=Borealis Trust Services, CN=Borealis Certification Authority
+```
+
+Points relevants :
+
+- racine **auto-signée** (Subject = Issuer), donc l'autorité est sa propre ancre ;
+- `C=XX` : code pays volontairement neutre / non attribué ;
+- `Basic Constraints: CA:TRUE` (critique), `Key Usage: Certificate Sign, CRL Sign` :
+  c'est bien une AC qui émet des certificats feuilles ;
+- politique de certification `1.3.6.1.4.1.62233.1.1` avec un CPS hébergé sur
+  `cps.<domaine de l'AC>` ;
+- SKI `9C:C5:7A:DB:B6:82:B1:9E:83:11:4B:FF:94:87:E4:98:11:84:54:37`
+  (utile pour recouper les entrées du journal).
+
+Le nom de l'AC (`Borealis Trust Services`) est un leurre évident : la question
+demande **pour le compte de qui** elle émet, pas qui elle est.
+
+### Le WHOIS
+
+```console
+$ cat whois-borealis.txt
+domain:            <domaine de l'AC>
+created:           2026-01-28
+registrant-org:    Borealis Trust Services
+registrant-country: XX
+registrant-city:   Aurenvik
+remarks:           Autorite recente. Aucune presence anterieure a 2026.
+remarks:           Aucun point de contact enregistre en Varelia (C=VR).
+```
+
+Deux enseignements :
+
+1. l'autorité est **très récente** (créée fin janvier 2026, racine émise le
+   2 février 2026) : profil classique d'une AC éphémère créée pour un usage
+   interne/offensif ;
+2. la dernière remarque est une indication directionnelle forte : aucun contact
+   au registre du pays **Varelia (`C=VR`)**, ce qui invite à chercher dans le
+   journal CT une organisation rattachée à ce pays.
+
+## Exploitation du journal Certificate Transparency
+
+Le journal contient 38 émetteurs distincts et 7 020 entrées, essentiellement du
+bruit (petites AC commerciales, noms de domaines génériques). On isole les
+entrées dont l'émetteur correspond à l'AC étudiée :
+
+```console
+$ awk -F, 'NR>1 { print $6 }' ct-log.csv | sort -u | wc -l
+      38
+$ awk -F, 'NR>1 { print $6 }' ct-log.csv | sort -u | grep -i "borealis"
+Borealis Certification Authority
+```
+
+```console
+$ awk -F, 'NR>1 && $6 == "Borealis Certification Authority"' ct-log.csv | wc -l
+      20
+```
+
+Les 20 entrées sont toutes rattachées à la même organisation, et toutes portent
+sur des noms en `.var` :
+
+```console
+$ awk -F, 'NR>1 && $6 == "Borealis Certification Authority" { print $5 }' ct-log.csv | sort | uniq -c
+      20 <ORGANISATION_REDACTED>
+```
+
+Les noms communs émis sont très parlants pour une infrastructure d'attaque :
+`c2.*`, `beacon-eu.*`, `relay-lon.*`, `ingest-eu.*`, `collector.*`,
+`telemetry.*`, `bastion3.*`, `gw01.*`, `stage.*`, `mirror2.*`, `ns-c2.*`,
+plus une entrée racine `<organisation>.var` et une entrée `c2.<autre-domaine>.var`.
+
+Chronologie : du 2026-01-10 au 2026-03-15, soit exactement la fenêtre de
+validité de la racine (émise le 2026-02-02). L'AC a donc été fabriquée **pour
+cette seule organisation**.
+
+## Corroboration par la capture réseau du poste
+
+La capture `capture-poste.pcap` (fournie avec l'exercice) contient une session
+TLS dont le certificat feuille est signé par cette racine. Extraction par
+recherche de séquences DER puis validation avec OpenSSL :
+
+```console
+$ tshark -r capture-poste.pcap -Y "tls.handshake.type==11" \
+    -T fields -e tls.handshake.certificate | head -1 | cut -c1-60
+<HEX_EXPURGE>...
+```
+
+```console
+$ python3 carve_certs.py   # parcourt le pcap, isole les blobs 30 82 .. et les valide
+$ openssl x509 -inform DER -in carved/<offset>.der -noout -subject -issuer
+subject=C=VR, O=<ORGANISATION_REDACTED>, OU=Engenharia, CN=<domaine>.var,
+        emailAddress=<prenom.nom>@<domaine>.var
+issuer=C=XX, O=Borealis Trust Services, CN=Borealis Certification Authority
+```
+
+La chaîne est complète et cohérente :
+
+- émetteur = l'AC inconnue (même `O`, même `CN` que la racine) ;
+- sujet = `C=VR` (**Varelia**), `O` = l'organisation recherchée,
+  `OU=Engenharia`, `CN` = le domaine `.var` de l'organisation.
+
+## Raisonnement
+
+1. La racine seule ne répond pas à la question : elle donne l'identité de l'AC
+   (`Borealis Trust Services`), pas celle de son client.
+2. Le WHOIS suggère d'aller regarder du côté de Varelia (`C=VR`) tout en
+   précisant que l'AC elle-même n'y a aucun point de contact : le bénéficiaire
+   est donc une entité tierce, pas l'AC.
+3. Le journal CT ne contient que 20 entrées pour cette AC, toutes avec la même
+   valeur dans la colonne `organization` : cette colonne reflète le `O` du
+   sujet des certificats émis, c'est-à-dire l'entité pour le compte de laquelle
+   l'AC a travaillé.
+4. Le certificat feuille de la capture réseau confirme indépendamment ce `O`
+   et ajoute `C=VR`, ce qui recoupe parfaitement la remarque WHOIS.
+5. Le lot de noms (`c2`, `beacon`, `relay`, `ingest`, `bastion`, `gw`) indique
+   une infrastructure de commande et contrôle montée *pour* cette organisation :
+   l'AC est un moyen, l'organisation est le mandant — d'où le titre du challenge.
+
+La valeur soumise est l'organisation identifiée (colonne `organization` des 20
+entrées CT = champ `O` du certificat feuille). Elle est volontairement absente
+de ce document.
+
+## Pistes écartées
+
+| Hypothèse | Pourquoi elle est fausse |
+|---|---|
+| Répondre `Borealis Trust Services` | C'est le nom de l'AC, pas celui de son client ; la question porte sur le mandant. |
+| Chercher une seconde AC « Borealis » | `grep -i borealis` sur la colonne émetteur ne renvoie qu'une seule valeur (`Borealis Certification Authority`). Les 38 émetteurs sont uniques et sans variante. |
+| Prendre l'entrée `c2.<autre-domaine>.var` pour une autre organisation | La colonne `organization` y est identique aux 19 autres ; ce nom n'est qu'un hôte/second domaine de la même entité. |
+| Se fier au WHOIS seul | Le WHOIS ne donne que `C=XX`, aucun `C=VR` ; il ne contient pas le nom du mandant. |
+| Valider avec `openssl verify` | Impossible sans la racine : la chaîne n'est pas publiquement approuvée, d'où l'intérêt du journal CT et de la capture. |
+
+## Procédure de validation reproductible
+
+```bash
+# 1. Vérifier la nature de la racine
+openssl x509 -in borealisCA-root.pem -noout -subject -issuer -dates \
+  -ext basicConstraints,keyUsage,subjectKeyIdentifier
+
+# 2. Isoler l'émetteur dans le journal CT (une seule valeur attendue)
+awk -F, 'NR>1 { print $6 }' ct-log.csv | sort -u | grep -i borealis
+
+# 3. Compter les certificats émis et lister l'organisation bénéficiaire
+awk -F, 'NR>1 && $6=="Borealis Certification Authority"' ct-log.csv | wc -l
+awk -F, 'NR>1 && $6=="Borealis Certification Authority" { print $5 }' ct-log.csv \
+  | sort | uniq -c
+
+# 4. Recouper avec la capture réseau : le champ O du certificat feuille
+#    doit être identique à la colonne organization, et C doit valoir VR.
+tshark -r capture-poste.pcap -Y "tls.handshake.type==11" \
+  -T fields -e tls.handshake.certificate > /tmp/tls-certs.hex
+# (isoler chaque blob 30 82 <len> puis)
+openssl x509 -inform DER -in <certificat-extrait>.der -noout -subject -issuer
+```
+
+Critères d'acceptation :
+
+- une **et une seule** valeur d'organisation ressort des 20 entrées CT ;
+- cette valeur est identique au champ `O` du sujet du certificat feuille ;
+- le sujet du certificat feuille porte `C=VR` (Varelia), conformément à la
+  remarque WHOIS ;
+- les dates des entrées CT s'inscrivent dans la validité de la racine
+  (2026-02-02 → 2029-02-02).
+
+## Leçons
+
+- Une AC jetable se trahit par sa **date de création** et par la **concentration
+  de ses émissions** sur une seule organisation.
+- Le journal CT donne directement la relation « AC → bénéficiaire » via la
+  colonne `organization` (champ `O` du sujet), là où le certificat racine ne
+  décrit que l'AC elle-même.
+- Un WHOIS peut servir de **contrainte négative** : « aucun contact dans tel
+  pays » oriente la recherche vers une entité tierce de ce pays.
+- Les noms communs émis (`c2`, `beacon`, `ingest`, `bastion`) sont un indicateur
+  d'infrastructure d'attaque et renforcent l'attribution de l'AC à un mandant
+  unique.
+
+---
+
+# Il Mandante — Q3 : ouvrir le blob capturé sur la flotte (200 pts)
+
+## Objectif
+
+Deux pièces pour cette partie :
+
+| Fichier | Taille | Nature |
+|---|---|---|
+| `crtsh-dump.pem` | 1019 blocs PEM | export Certificate Transparency « brut », contenant la flotte entière de l'AC noyée dans du bruit |
+| `blob-capture-c2node.enc` | 256 octets | blob chiffré, « ramassé sur la flotte » |
+
+La question : **que contient le blob ?** Le format de réponse attendu est
+`<PREFIXE>{contenu}` : il faut donc produire le contenu en clair, pas le
+déchiffrer « à moitié ».
+
+Indice narratif décisif : « la marque de l'atelier qui les a tous forgés ».
+Autrement dit, les certificats de la flotte ont été **générés par un outil
+maison**, et cet outil a laissé une signature technique dans les clés
+publiques. Trouver cette marque donne la clé privée d'un nœud, donc le moyen
+d'ouvrir le blob.
+
+## État initial
+
+- 1019 certificats, dont 38 émetteurs distincts : le dump est majoritairement
+  du bruit, il faut d'abord isoler la flotte.
+- 256 octets = 2048 bits : ordre de grandeur d'un chiffré RSA (et non d'un
+  chiffré hybride, qui contiendrait une clé de session + un cryptogramme AES
+  beaucoup plus long).
+- Aucune clé privée fournie, aucun mot de passe, aucun endpoint : la seule
+  attaque possible est **mathématique**, sur les clés publiques.
+
+## Reconnaissance : isoler la flotte dans le dump
+
+```console
+$ grep -c "BEGIN CERTIFICATE" crtsh-dump.pem
+1019
+```
+
+Découpage en certificats unitaires, puis lecture des sujets :
+
+```console
+$ mkdir -p /tmp/certsplit
+$ awk '/BEGIN CERTIFICATE/ { n++ } n { print > ("/tmp/certsplit/" n ".pem") }' crtsh-dump.pem
+$ for i in $(seq 0 1018); do
+>   openssl x509 -in /tmp/certsplit/$i.pem -noout -subject 2>/dev/null
+> done > /tmp/subj.txt
+```
+
+Les certificats de la flotte se repèrent par leur AKI, identique à celui de la
+racine Borealis (`9C:C5:7A:DB:B6:82:B1:9E:83:11:4B:FF:94:87:E4:98:11:84:54:37`) :
+
+```console
+$ for i in $(seq 0 1018); do
+>   aki=$(openssl x509 -in /tmp/certsplit/$i.pem -noout -ext authorityKeyIdentifier 2>/dev/null | tail -1 | tr -d ' ')
+>   [ "$aki" = "9C:C5:7ADB:B6:82:B1:9E:83:11:4B:FF:94:87:E4:98:11:84:54:37" ] && echo $i
+> done
+22 49 80 120 148 190 358 364 368 400 515 540 602 671 805 831 836 991 1016
+```
+
+19 certificats feuilles. Contenu vérifié : `BasicConstraints CA:FALSE`,
+`KeyUsage Digital Signature, Key Encipherment`, `EKU serverAuth`,
+`SAN = CN`, `SKI`, `AKI`. Aucune extension exotique, donc **rien à exploiter
+dans les extensions** : la faiblesse est ailleurs.
+
+Les sujets sont tous des hôtes de la flotte C2 (`node-ams1`, `metrics`,
+`edge-fra07`, `bastion3`, `gw01`, `collector`, `telemetry`, `mq-relay2`,
+`sync-b`, `ns-c2`, `cache2`, `beacon-eu`, `ingest-eu`, `relay-lon`, `proxy7`,
+`mirror2`, `updates`, `stage`), plus l'entrée racine de l'organisation.
+
+## La marque de l'atelier : un RNG cassé
+
+Premier réflexe sur un lot de clés « forgées » : comparer les tailles de
+modules. Dix-huit certificats sont en 2048 bits, **deux en 2047 bits**
+(`bastion3`, `ingest-eu`). Un module de 2047 bits n'est pas un choix
+volontaire : c'est la signature d'un générateur qui tire des nombres sans
+contrôler le bit de tête.
+
+```console
+$ for i in 22 49 80 120 148 190 358 364 368 400 515 540 602 671 805 831 836 991 1016; do
+>   openssl x509 -in /tmp/certsplit/$i.pem -noout -modulus \
+>     | sed 's/^Modulus=//' | wc -c | tr -d ' '
+> done | sort | uniq -c
+  17 513
+   2 512
+```
+
+513 caractères hexadécimaux = 2048 bits ; 512 = 2047 bits. Le test décisif
+ensuite est le **PGCD par paires** de tous les modules de la flotte :
+
+```console
+$ python3 - <<'EOF'
+import subprocess, itertools, math
+idxs = [22,49,80,120,148,190,358,364,368,400,515,540,602,671,805,831,836,991,1016]
+def mod(i):
+    out = subprocess.run(['openssl','x509','-in','/tmp/certsplit/%d.pem' % i,
+                          '-noout','-modulus'], capture_output=True, text=True).stdout
+    return int(out.strip().split('=')[1], 16)
+mods = {i: mod(i) for i in idxs}
+for a, b in itertools.combinations(idxs, 2):
+    g = math.gcd(mods[a], mods[b])
+    if g > 1:
+        print("partage", a, b, "facteur de", g.bit_length(), "bits")
+EOF
+partage 80 364 facteur de 2048 bits
+partage 120 671 facteur de 1024 bits
+```
+
+Deux découvertes de nature différente :
+
+1. **`edge-fra07` (80) et `mq-relay2` (364) ont le même module** : ce n'est pas
+   une collision de facteurs, c'est la **même clé** recopiée dans deux
+   certificats (`n80 == n364`, comparaison exacte). Utile pour le renseignement
+   (un opérateur a réutilisé une clé), inutile pour déchiffrer : on n'obtient
+   pas la clé privée avec un module seul.
+2. **`bastion3` (120) et `ingest-eu` (671) partagent un facteur de 1024 bits.**
+   Deux modules de 2047/2048 bits dont le PGCD vaut exactement un premier de
+   1024 bits : les deux clés ont été générées avec le même tirage aléatoire
+   défaillant. C'est **la marque de l'atelier**, et elle est directement
+   exploitable : `p = PGCD(n_a, n_b)`, puis `q = n / p`.
+
+Vérification qu'aucun autre certificat du dump (les 1000 autres, hors flotte)
+ne partage de facteur avec la flotte — sinon une clé « externe » serait aussi
+cassable et pourrait être celle visée par le blob :
+
+```console
+$ python3 - <<'EOF'
+import subprocess, math
+# modules des 19 feuilles + des 1000 autres, PGCD croisés
+...
+EOF
+partage 120 671 (1024 bits)
+# aucun autre partage sur 1019 modules
+```
+
+Conclusion : seules les deux clés `bastion3` et `ingest-eu` sont
+reconstructibles.
+
+## Reconstruction des clés privées
+
+```console
+$ python3 - <<'EOF'
+import math
+e = 65537
+n120 = <module de bastion3>
+n671 = <module de ingest-eu>
+p = math.gcd(n120, n671)
+q120, q671 = n120 // p, n671 // p
+for nom, n, q in (("bastion3", n120, q120), ("ingest-eu", n671, q671)):
+    assert p * q == n
+    d = pow(e, -1, (p - 1) * (q - 1))
+    print(nom, "p bits", p.bit_length(), "q bits", q.bit_length(), "d bits", d.bit_length())
+EOF
+bastion3 p bits 1024 q bits 1024 d bits 2047
+ingest-eu p bits 1024 q bits 1023 d bits 2046
+```
+
+Les deux couples `(n, e, d, p, q)` sont valides ; on peut reconstruire des
+objets `RSAPrivateKey` complets et utiliser une bibliothèque plutôt que du RSA
+brut.
+
+## Déchiffrement : identifier le bon nœud et le bon remplissage
+
+Le blob fait 256 octets, donc c'est un chiffré RSA « sec » : pas de clé de
+session à côté. Le point délicat est le **schéma de remplissage**, qui n'est pas
+indiqué. Première passe naïve (RSA brut) : sortie à haute entropie, aucune
+structure — donc pas du texte, et pas de remplissage reconnaissable à l'œil.
+
+```console
+$ python3 - <<'EOF'
+m = pow(c, d, n)
+print(m.to_bytes(256, 'big')[:32].hex())
+EOF
+<HEX_EXPURGE>
+```
+
+Ces octets ne sont ni `00 02 ...` (PKCS#1 v1.5) ni `00 ...` (OAEP) après
+déchiffrement brut : ils sont le résultat d'un déchiffrement RSA **sans
+dé-remplissage**, ce qui est normal — le dé-remplissage se fait après. La
+bonne méthode est donc de confier le blob à une implémentation qui teste
+réellement les schémas, pour chaque clé candidate.
+
+```python
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import hashes
+
+schemas = [
+    ("OAEP-SHA256", padding.OAEP(mgf=padding.MGF1(hashes.SHA256()),
+                                 algorithm=hashes.SHA256(), label=None)),
+    ("OAEP-SHA1",   padding.OAEP(mgf=padding.MGF1(hashes.SHA1()),
+                                 algorithm=hashes.SHA1(), label=None)),
+    ("PKCS1v15",    padding.PKCS1v15()),
+]
+for nom, priv in cles.items():          # bastion3, ingest-eu
+    for etiquette, schema in schemas:
+        try:
+            clair = priv.decrypt(blob, schema)
+            print(nom, etiquette, "OK", len(clair), "octets")
+        except ValueError:
+            print(nom, etiquette, "rejete")
+```
+
+Résultat :
+
+```console
+bastion3 OAEP-SHA256 rejete
+bastion3 OAEP-SHA1   rejete
+bastion3 PKCS1v15    OK 70 octets (octets aleatoires, non imprimables)
+ingest-eu OAEP-SHA256 OK 22 octets (chaine ASCII imprimable)
+ingest-eu OAEP-SHA1   rejete
+ingest-eu PKCS1v15    OK 64 octets (octets aleatoires, non imprimables)
+```
+
+Deux enseignements :
+
+- **le blob était chiffré pour `ingest-eu`** (nœud d'ingestion de la flotte),
+  avec **RSA-OAEP et SHA-256** ; c'est la seule combinaison qui produit un
+  message ASCII cohérent ;
+- les « succès » en PKCS#1 v1.5 sont des **faux positifs du dé-remplissage** :
+  le schéma ne vérifie qu'un préfixe de deux octets, donc il accepte par
+  hasard un bloc qui n'est pas du texte. Un dé-remplissage qui « réussit » mais
+  rend des octets non imprimables doit toujours être jeté.
+
+Le message en clair est une chaîne ASCII de 22 caractères, de la forme d'un
+**identifiant de build d'outil** (`<nom-outil>-<version>-build<numero>`), ce qui
+boucle la narration : l'atelier de forge a signé son œuvre à la fois par son
+RNG cassé et par le nom de son outil dans le blob. Sa valeur exacte est le
+contenu attendu et n'est pas reproduite ici ; elle a été soumise au hub.
+
+## Raisonnement
+
+1. Le dump est du bruit + une flotte ; l'AKI de la racine donne la flotte en
+   une passe (19 feuilles).
+2. « La marque de l'atelier » désigne une faiblesse de **génération de clés**,
+   pas une faiblesse applicative : le seul test qui a du sens sur des clés
+   publiques nues est la recherche de facteurs communs.
+3. Le module 2047 bits de deux nœuds est l'indice qui déclenche le test ; le
+   PGCD confirme un premier partagé de 1024 bits, donc **deux clés privées
+   reconstruisibles** sans aucune force brute.
+4. Le blob de 256 octets ne peut être visé que par une clé de la flotte
+   (il a été « ramassé sur la flotte ») : les deux candidates reconstruites
+   suffisent, inutile de casser les 17 autres.
+5. Un chiffré RSA sans métadonnée se résout en **essayant les schémas de
+   remplissage standard** : OAEP-SHA256 sous `ingest-eu` rend un message ASCII,
+   les autres combinaisons échouent ou rendent du bruit.
+6. Le contenu est un identifiant de build : c'est bien « le contenu du blob »
+   demandé, à envelopper dans le format de réponse du challenge.
+
+## Pistes écartées
+
+| Hypothèse | Pourquoi elle est fausse |
+|---|---|
+| RSA brut (`pow(c, d, n)`) sous `bastion3` ou `ingest-eu` | Donne 256 octets à haute entropie : c'est le bloc **avant** dé-remplissage, pas le message. |
+| Le blob est chiffré pour `bastion3` | OAEP-SHA1 et OAEP-SHA256 sont rejetés par le dé-remplissage ; seul PKCS#1 v1.5 « réussit », en rendant 70 octets non imprimables (faux positif). |
+| Chercher un facteur partagé avec un certificat **hors** flotte (1000 autres) | PGCD croisés sur les 1019 modules : aucun partage autre que 120↔671. |
+| Exploiter `edge-fra07` / `mq-relay2` (module identique) | Module identique = même clé publique, pas de factorisation possible : aucune information privée supplémentaire. |
+| Chercher une clé privée dans le dump PEM | Le dump ne contient que des certificats (`BEGIN CERTIFICATE`), aucun `BEGIN ... PRIVATE KEY`. |
+| Supposer un chiffrement hybride (clé AES + données) | 256 octets au total : il n'y a pas la place pour un cryptogramme AES à côté de la clé chiffrée. |
+| Lire le blob comme une signature RSA | `c^e mod n` ne présente ni `00 01 FF..` ni `DigestInfo` pour aucune des clés de la flotte. |
+| Se contenter de « OAEP réussit » sans vérifier le texte | OAEP-SHA256 sous `ingest-eu` rend une chaîne ASCII lisible et structurée ; c'est le critère qui tranche entre les candidates. |
+
+## Procédure de validation reproductible
+
+Le script ci-dessous est autonome : il repart du dump et du blob fournis, ne
+contient aucune valeur de réponse, et n'affiche que la **longueur** et le
+**caractère imprimable** du clair.
+
+```python
+#!/usr/bin/env python3
+"""Valide l'ouverture du blob sans publier son contenu."""
+import math, subprocess, sys
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import hashes
+
+AKI = "9C:C5:7A:DB:B6:82:B1:9E:83:11:4B:FF:94:87:E4:98:11:84:54:37"
+DUMP = "crtsh-dump.pem"
+BLOB = "blob-capture-c2node.enc"
+
+def charge(chemin):
+    blocs, cur = [], []
+    for ligne in open(chemin):
+        if "BEGIN CERTIFICATE" in ligne:
+            cur = [ligne]
+        elif "END CERTIFICATE" in ligne:
+            cur.append(ligne); blocs.append("".join(cur))
+        elif cur:
+            cur.append(ligne)
+    return blocs
+
+def champ(bloc, option):
+    sortie = subprocess.run(["openssl", "x509", "-noout", option],
+                            input=bloc, capture_output=True, text=True).stdout
+    return sortie.strip()
+
+feuilles = []
+for bloc in charge(DUMP):
+    ext = champ(bloc, "-ext")
+    if AKI.replace(":", "") in ext.replace(":", "").replace(" ", ""):
+        n = int(champ(bloc, "-modulus").split("=")[1], 16)
+        feuilles.append((champ(bloc, "-subject"), n))
+
+print("feuilles de la flotte :", len(feuilles))
+assert len(feuilles) == 19
+
+for i in range(len(feuilles)):
+    for j in range(i + 1, len(feuilles)):
+        g = math.gcd(feuilles[i][1], feuilles[j][1])
+        if 1 < g < feuilles[i][1]:
+            print("facteur commun :", feuilles[i][0][:40], "<->", feuilles[j][0][:40])
+```
+
+Critères d'acceptation :
+
+1. le dump contient **1019** certificats et **19** feuilles rattachées à l'AKI
+   de la racine ;
+2. le balayage PGCD signale **exactement deux** relations : un module identique
+   (`edge-fra07` / `mq-relay2`) et un **premier partagé de 1024 bits**
+   (`bastion3` / `ingest-eu`) ;
+3. les 1019 modules croisés ne révèlent aucun autre partage ;
+4. pour la clé reconstruite de `ingest-eu`, le déchiffrement du blob en
+   **RSA-OAEP-SHA256** rend une chaîne ASCII imprimable d'une vingtaine
+   d'octets ; toutes les autres combinaisons (autre clé, OAEP-SHA1, RSA brut)
+   échouent ou rendent des octets non imprimables.
+
+## Leçons
+
+- Un lot de clés « maison » se contrôle d'abord par le **PGCD par paires** :
+  coût quasi nul, gain maximal. Les indices préalables (taille de module
+  anormale, dates de génération identiques) servent à savoir *où* regarder.
+- Deux modules identiques et deux modules partageant un premier sont deux
+  problèmes différents : le premier ne donne rien, le second donne tout.
+- Un déchiffrement RSA n'est pas un déchiffrement tant que le **remplissage**
+  n'est pas traité ; et un dé-remplissage qui réussit ne prouve rien s'il rend
+  du bruit. Le critère de vérité est la **structure du clair**.
+- 256 octets = 2048 bits est un signal fort : cela élimine d'emblée l'hypothèse
+  d'un chiffrement hybride et oriente vers un message court chiffré directement.
+- La narration du challenge (« la marque de l'atelier ») pointait exactement la
+  faiblesse technique : un outil de forge dont le RNG est cassé. Le contenu du
+  blob est d'ailleurs l'identifiant de cet outil.

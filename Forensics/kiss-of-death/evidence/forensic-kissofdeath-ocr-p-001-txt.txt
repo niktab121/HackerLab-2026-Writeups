@@ -1,0 +1,39 @@
+Source locale : forensic/kissofdeath/ocr/p-001.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+Table des matieres
+1. Résumé exécutif
+2. Contexte et périmetre
+3. Dossier 1 - AquaTerv / Centrale hydraulique (Shutter Island)
+4. Dossier 2 - Banque Centrale de Tervalis (Framed)
+5. Dossier 3 - Infrastructure AquaTerv (Eaux Troubles)
+6. Dossier 4 - BCT : campagne de phishing ciblé (Operation Blackout)
+7. Dossier 5 - Hopital Central de Tervalis (Ransom Me)
+8. Dossier 6 - TervaGrid / Opérateur électrique (Shockwave)
+9. Indicateurs de compromission consolidés
+10. Attribution
+11. Conclusion
+1. Résumé exeécutif
+Entre le mois de juin etle mois d'aotit 2026, le CERT-Tervalis a instruit six affaires de sécurité informatique
+touchant cles secteurs d'activité critiques de la nation : l'eau, la finance, la santé, l'énergie et l'infrastructure
+industrielle SCADA. L'analyse croisée des artefacts, des indicateurs réseau et des techniques employées établit de
+maniére convergente que ces six incidents sont le fait d'un acteur unique, l'APT étatique Lynx Varelien (VARELID),
+agissant pour le compte de la nation Varelia au travers du conglomérat <EXPURGE> Solutions.
+Les objectifs poursuivis par cet acteur comprennent l'espionnage industriel et économique, la déstabilisation des
+infrastructures critiques ce Tervalis, le sabotage de systemes de contréle industriels (SCADA/OT) et la fraude
+financiére.
+2. Contexte et périmetre
+Le CERT-Tervalis (ci-aprés « CERT-TVS») a recu, a partir du mois de juin 2026, plusieurs signalements
+d'anomalies provenant d'organisations cistinctes. Six dossiers ont été ouverts et instruits séparément avant que leur
+corrélation ne soit établie. La présente synthese couvre l'ensemble de ces dossiers et s'appuie sur les artefacts
+forensiques recueillis : images disques (E01, AD1), dumps mémoire, captures réseau (PCAP), journaux systéeme et
+applicatifs, et code malveillant.
+| Dossier —=——s|_—s“Victime =O | SS Secteur = | Serio SC
+Shutter Island mydhewiliene Eau Juillet-Aodt 2026
+Tervalis (BCT
+Eaux troubles Infrastructure Aqualerv Aoit 2026
+Banque Centrale de . .
+Opération Blackout Tervalis (BCT) Finance Aott 2026
+R M . t
+ansomime Tervalis (HCT Sante Hote AURIS
+électrique

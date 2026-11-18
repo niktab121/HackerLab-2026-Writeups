@@ -1,0 +1,33 @@
+Source locale : forensic/kissofdeath/ocr/p-018.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+11. Conclusion
+
+Les six affaires instruites par le CERT-Tervalis constituent une campagne coordonnée d'intrusions ciblées contre les
+
+infrastructures critiques de Tervalis. L'acteur VARELID a démontré une capacité opérationnelle avancée : utilisation de
+
+frameworks C2 modernes (Sliver), exploits recents (CVE-2022-44268), attaques cde chaine d'approvisionnement npm,
+
+pivots réseau IT/OT, chiffrement multi-couches et techniques anti-forensiques (VBA Stomping, exécution fileless).
+
+La coordination et la sophistication des attaques, associées a la persistance observée sur l'ensemble des cibles,
+
+indiquent une opération planifiée sur plusieurs mois, avec une phase de reconnaissance préalable, des phases
+
+d'intrusion successives et une phase de persistance longue durée dans les systémes ciblés.
+
+Le CERT-TVS recommande, en priorité absolue :
+
+1. La révocation immeédiate de l'ensemble des credentials compromis identifiés dans ce rapport
+
+2. La neutralisation de l'infrastructure C2 active (203.0.113.0/24, sync.324fr2abv9984.xyz, xn--varelcrp-s4a.var)
+
+3. Laremédiation des 7 mécanismes de persistance sur le serveur DNS d'AquaTerv
+
+4. L'audit ce l'ensemble des cépdts Git des organisations touchées pour détecter d'autres fuites ce credentials
+
+5. La reconstruction des systémes hospitaliers HCT depuis une sauvegarde saine antérieure au 16/08/2026
+
+6. Une investigation approfondie sur les accés OT de TervaGrid pour évaluer l'étendue du compromis SCADA
+Rapport provisoire rédigé par l'équipe H3lf_W1tch3s, HackerLab 2026

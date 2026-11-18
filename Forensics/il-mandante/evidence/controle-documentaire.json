@@ -1,0 +1,20 @@
+{
+  "certificats": 1019,
+  "flotte_AKI": 19,
+  "tailles_bits": {
+    "2048": 17,
+    "2047": 2
+  },
+  "relations_pgcd": [
+    {
+      "relation": "module identique",
+      "bits": 2048
+    },
+    {
+      "relation": "facteur propre partagé",
+      "bits": 1024
+    }
+  ],
+  "blob_octets": 256,
+  "note": "Aucun déchiffrement effectué."
+}

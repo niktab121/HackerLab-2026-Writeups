@@ -1,0 +1,361 @@
+Source locale : operationtervalis/operation4
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+Invisible Relay — Write-up
+
+CTF: HackerLab 2026
+Operation: TERVALIS — Partie IV
+Category: Network Forensics / DFIR
+Difficulty: Hard
+Points: 150
+Author: Unpasswd
+Solved by: 7H3_D4RK_R007
+
+⸻
+
+1. Challenge Description
+
+Trois capteurs réseau indépendants ont capturé du trafic autour du poste de l’Agent AVALD pendant la fenêtre d’incident. Chaque capteur fonctionne sur sa propre horloge interne.
+
+L’analyse de l’infrastructure réseau autour de l’arrestation révèle des anomalies. Séparément, des images CCTV du Nordvelt Grand Hotel ont été obtenues sous réquisition légale.
+
+Objectif : Identifier l’infrastructure utilisée pour intercepter le trafic réseau de l’Agent AVALD, déterminer le vecteur d’attaque et confirmer l’origine par corrélation croisée des preuves.
+
+2. Extraction des fichiers
+
+Nous commençons par extraire l’archive fournie.
+
+unzip 'challenge (4).zip' -d invisible_relay
+cd invisible_relay/challenge
+ls -lah
+
+L’archive contient plusieurs catégories de preuves :
+
+* sensor_endpoint.csv : trafic capturé au niveau du poste de l’agent.
+* sensor_gateway.csv : trafic observé à la passerelle.
+* sensor_transit.csv : trafic capturé sur le réseau de transit.
+* sensor_clock_offsets.csv : décalages horaires des capteurs.
+* dns_events.jsonl : événements de résolution DNS.
+* firewall_events.csv : décisions du pare-feu.
+* connection_inventory.csv : connexions réseau autorisées.
+* network_topology.md : topologie officielle.
+* camera_inventory.csv : inventaire des caméras CCTV.
+* hotel_vms_events.jsonl : événements du système de vidéosurveillance.
+* hotel_frames/ : images extraites des caméras.
+* flag_manifest.json : protocole de validation cryptographique.
+
+Notre démarche consiste à identifier le relais malveillant, reconstituer la chronologie, puis déchiffrer la preuve finale.
+
+3. Reconnaissance de l’infrastructure
+
+Nous examinons la topologie :
+
+cat network_topology.md
+
+Les adresses importantes sont :
+
+Adresse IP	Fonction
+10.42.1.5	Poste de l’Agent AVALD
+10.42.1.2	Serveur DNS
+10.42.1.15	Relais légitime
+10.42.3.88	CDN edge cache
+10.42.2.1	Passerelle réseau
+
+La machine 10.42.3.88 est officiellement identifiée comme cdn-edge-02, un cache CDN utilisant normalement le port 80.
+
+Nous consultons ensuite les connexions autorisées :
+
+cat connection_inventory.csv
+
+Le poste 10.42.1.5 est autorisé à communiquer avec 10.42.1.15 sur le port 443 en TLS et QUIC.
+
+Une communication QUIC vers 10.42.3.88:443 ne correspond donc pas au comportement attendu.
+
+4. Analyse des anomalies DNS
+
+Nous recherchons les résolutions du domaine de communication sécurisé.
+
+grep 'relay-01.norveth.vld' dns_events.jsonl
+
+Les événements révèlent deux réponses différentes.
+
+Résolution légitime :
+
+2024-11-03T08:10:00.000Z
+Query: relay-01.norveth.vld
+Response: 10.42.1.15
+TTL: 300
+
+Résolution suspecte :
+
+2024-11-03T08:13:50.438Z
+Query: relay-01.norveth.vld
+Response: 10.42.3.88
+TTL: 60
+
+L’adresse du relais est passée de 10.42.1.15 à 10.42.3.88.
+
+La diminution du TTL de 300 à 60 secondes renforce le caractère suspect de cette modification.
+
+Nous identifions ainsi un détournement de résolution DNS, cohérent avec une attaque de type DNS spoofing.
+
+5. Synchronisation des capteurs réseau
+
+Les trois capteurs utilisent des horloges différentes.
+
+cat sensor_clock_offsets.csv
+
+Résultat :
+
+Capteur	Emplacement	Décalage
+sensor_a	Endpoint	0 seconde
+sensor_b	Gateway	+3,7 secondes
+sensor_c	Transit	−12,4 secondes
+
+Pour corréler les événements, nous devons ramener les horodatages à une référence commune.
+
+La correction de base est :
+
+UTC = Horodatage_capteur - Décalage
+
+Ainsi, un événement enregistré par le capteur B doit être corrigé de −3,7 secondes, tandis qu’un événement du capteur C doit être corrigé de +12,4 secondes.
+
+Ces offsets constituent les valeurs de référence du fichier d’inventaire. Pour la chronologie précise, nous privilégions les événements du capteur A, dont le décalage déclaré est nul.
+
+6. Identification de la migration QUIC
+
+Nous recherchons les communications impliquant l’adresse suspecte.
+
+grep 'QUIC_CID_8B2D' sensor_endpoint.csv
+
+Un événement particulièrement important apparaît :
+
+2024-11-03T08:14:16.200Z
+Source: 10.42.1.5:49201
+Destination: 10.42.3.88:443
+Protocol: QUIC
+Connection ID: QUIC_CID_8B2D
+Info: path_challenge
+
+La réponse du relais arrive 30 millisecondes plus tard :
+
+2024-11-03T08:14:16.230Z
+Source: 10.42.3.88:443
+Destination: 10.42.1.5:49201
+Info: QUIC path_response
+
+Les messages PATH_CHALLENGE et PATH_RESPONSE appartiennent au mécanisme de validation de chemin de QUIC.
+
+Le maintien du même Connection ID permet de suivre la connexion malgré le changement de chemin réseau.
+
+Horodatage retenu pour la migration :
+
+2024-11-03T08:14:16.200Z
+
+Nous avons maintenant identifié le vecteur technique : une résolution DNS détournée, associée à une migration de chemin QUIC vers le relais suspect.
+
+7. Identification de l’infrastructure d’exfiltration
+
+Nous examinons le trafic capturé au point de transit.
+
+grep '10.42.5.200' sensor_transit.csv
+
+Une nouvelle adresse apparaît :
+
+Source: 10.42.3.88
+Destination: 10.42.5.200
+Port: 8443
+Protocol: TCP
+
+Cette adresse ne figure pas dans la topologie réseau autorisée.
+
+Le relais 10.42.3.88 établit plusieurs sessions TCP vers cette destination, dont les champs info contiennent des données chiffrées.
+
+Pour les isoler :
+
+grep 'enc:aes256gcm:' sensor_transit.csv
+
+Nous trouvons trois messages chiffrés.
+
+Leur présence suggère que le relais transmet des données à une infrastructure secondaire.
+
+L’adresse 10.42.3.88 constitue donc le relais d’interception identifié, tandis que 10.42.5.200:8443 représente une destination secondaire suspecte.
+
+8. Analyse des images CCTV
+
+La seconde partie du challenge nécessite une corrélation avec les preuves physiques.
+
+Nous examinons l’inventaire des caméras :
+
+cat camera_inventory.csv
+
+La caméra importante est :
+
+Camera ID: CAM-01
+Location: main_entrance
+Clock offset: -340 ms
+Status: active
+
+Nous consultons également les événements du système de vidéosurveillance :
+
+grep 'CAM-01' hotel_vms_events.jsonl
+
+Un événement de mouvement apparaît à proximité de :
+
+2024-11-03T21:43:40Z
+
+La preuve visuelle retenue est :
+
+hotel_frames/frame_cam01_214341.jpg
+
+Nous pouvons examiner ses métadonnées :
+
+exiftool hotel_frames/frame_cam01_214341.jpg
+
+L’horodatage EXIF doit être corrigé avec le décalage de la caméra.
+
+La caméra CAM-01 présente un retard de 340 millisecondes.
+
+Nous ajoutons donc 340 ms à l’horodatage enregistré.
+
+Horodatage UTC corrigé :
+
+2024-11-03T21:43:40.340Z
+
+Cette valeur constitue le troisième élément nécessaire au mécanisme de validation cryptographique.
+
+9. Analyse du protocole de validation
+
+Nous ouvrons le manifeste :
+
+cat flag_manifest.json
+
+Le fichier précise :
+
+Algorithm: AES-256-GCM
+Key derivation: SHA256
+
+La clé doit être calculée à partir de trois éléments :
+
+{relay_origin_ip}|{migration_event_utc}|{visual_confirmation_utc}
+
+Nous disposons désormais de toutes les valeurs :
+
+Relay IP:
+10.42.3.88
+QUIC migration:
+2024-11-03T08:14:16.200Z
+CCTV confirmation:
+2024-11-03T21:43:40.340Z
+
+La chaîne exacte utilisée pour la dérivation est :
+
+10.42.3.88|2024-11-03T08:14:16.200Z|2024-11-03T21:43:40.340Z
+
+La clé AES-256 correspond au SHA-256 de cette chaîne.
+
+Le manifeste précise également que chaque message chiffré est encodé en Base64 et contient :
+
+[12-byte nonce][ciphertext][16-byte authentication tag]
+
+Trois messages sont présents, mais un seul est authentifiable avec la bonne clé.
+
+10. Déchiffrement du flag
+
+Nous utilisons Python et la bibliothèque cryptography.
+
+Installation si nécessaire :
+
+python3 -m venv .venv
+source .venv/bin/activate
+pip install cryptography
+
+Créons le fichier decrypt_flag.py dans le dossier challenge/.
+
+import csv
+import base64
+import hashlib
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+relay_ip = "10.42.3.88"
+migration_utc = "2024-11-03T08:14:16.200Z"
+visual_utc = "2024-11-03T21:43:40.340Z"
+# Construction de la clé
+material = (
+    f"{relay_ip}|"
+    f"{migration_utc}|"
+    f"{visual_utc}"
+)
+key = hashlib.sha256(
+    material.encode("utf-8")
+).digest()
+aes = AESGCM(key)
+prefix = "enc:aes256gcm:"
+with open(
+    "sensor_transit.csv",
+    newline="",
+    encoding="utf-8"
+) as file:
+    reader = csv.DictReader(file)
+    for row in reader:
+        info = row["info"]
+        if prefix not in info:
+            continue
+        encoded = info.split(prefix, 1)[1]
+        blob = base64.b64decode(encoded)
+        nonce = blob[:12]
+        ciphertext = blob[12:]
+        try:
+            plaintext = aes.decrypt(
+                nonce,
+                ciphertext,
+                None
+            )
+            print("[+] Decryption successful!")
+            print("[+] Timestamp:", row["timestamp"])
+            print("[+] Flag:", plaintext.decode())
+        except Exception:
+            print("[-] Invalid authentication tag")
+
+Exécution :
+
+python3 decrypt_flag.py
+
+Résultat obtenu :
+
+[-] Invalid authentication tag
+[-] Invalid authentication tag
+[+] Decryption successful!
+[+] Timestamp: 2024-11-03T08:14:15.712Z
+[+] Flag: <EXPURGE>
+
+Les deux premiers messages échouent à la vérification d’authenticité GCM.
+
+Le troisième message est déchiffré correctement.
+
+Cela confirme que les trois paramètres utilisés pour dériver la clé correspondent aux valeurs attendues par le challenge.
+
+11. Conclusion
+
+L’investigation a permis de reconstituer une chaîne d’attaque reposant sur plusieurs éléments :
+
+1. Le domaine relay-01.norveth.vld renvoyait initialement l’adresse légitime 10.42.1.15.
+2. Une réponse DNS suspecte a redirigé le trafic vers 10.42.3.88.
+3. Le poste de l’Agent AVALD a communiqué avec cette adresse via QUIC.
+4. Les messages PATH_CHALLENGE et PATH_RESPONSE ont permis d’identifier le changement de chemin.
+5. Le relais suspect a communiqué avec 10.42.5.200:8443, une destination extérieure à la topologie documentée.
+6. Les éléments CCTV et les corrections temporelles ont fourni la confirmation physique nécessaire.
+7. La corrélation des preuves a permis de dériver une clé AES-256 valide et de déchiffrer le message final.
+
+Infrastructure malveillante : 10.42.3.88
+Vecteur d’attaque : DNS spoofing + QUIC migration
+Destination secondaire : 10.42.5.200:8443
+
+Flag
+
+<EXPURGE>
+
+Challenge solved — 150 points.
+
+⸻
+
+Write-up by 7H3_D4RK_R007 — HackerLab 2026

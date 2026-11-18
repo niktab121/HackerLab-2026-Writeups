@@ -1,0 +1,49 @@
+Source locale : forensic/kissofdeath/ocr/p-005.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+4. Dossier 2 - Banque Centrale de Tervalis (Framed)
+
+4.1 Contexte
+
+La Banque Centrale ce Tervalis (BCT Ops, bct.gov.trv) a signalé un virement frauduleux de plusieurs millions
+
+d'euros vers un compte étranger. L'administrateur du portail Marc de Lacroix (contact@example.invalid, machine
+DESKTOP-O59DAGR, IP 192.168.58.129) a été initialement mis en cause. L'investigation a démontré qu'il a été
+victime et non auteur : son poste a été instrumentalisé a son insu.
+
+4.2 Chaine d'attaque
+
+Phase 1 : Reconnaissance et ingénierie sociale
+
+Le 30 juillet 2026 a 12:49:02 (UTC), Marc de Lacroix a effectué une recherche Google world bank latest breaking news,
+puis visité http://financial-wire.press/ a 12:50:52. Sur ce site, il a telechargé le document mckinsey-ai-
+banking-2026.pdf depuis la route /dl/2026-q3-wp.
+
+SHA-256 du fichier téléchargé : <HEX_EXPURGE>
+Phase 2 : Déclenchement du virement frauduleux
+
+A 12:56:52 UTC, un virement sortant a été initié depuis la session de Marc de Lacroix sur le portail BCT vers le
+
+compte MU84BCTL099900442210891. Ce compte avait déja enregistré une premiére transaction antérieure en date
+du 02/06/2026 14:08:47 sous l'identifiant bkessie.
+
+Transaction frauduleuse extraite de l’export CSV de virements (BCT-transfers-20260802.csv)
+
+Phase 3 : Connexion C2 depuis le poste de Marc
+
+Entre 12:56:34 et 12:57:49 (heure locale WAT, UTC+1), une unique session TCP a été établie depuis le poste de
+
+Marc (192.168.58.129:64237) vers l'adresse 203.0.113.42:443. La résolution DNS dans la capture retournait
+partner-content.io comme alias de cette adresse
+Session TCP établie
+
+Phase 4 : Démasquage de I’infrastructure réelle
+
+L'extraction du certificat X.509 du handshake TLS (frame 6 de la capture) a révelé la véritable identité de
+‘infrastructure derriére l'alias partner-content.io :
+
+Champ _certificat
+SAN (affiché)
+SAN(réel) * lynx-varelid.var
+
+VARELCORPSolutions

@@ -1,0 +1,6 @@
+Source locale : forensic/hunt/relay/app/requirements.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+flask==3.1.0
+gunicorn==23.0.0
+cryptography==44.0.0

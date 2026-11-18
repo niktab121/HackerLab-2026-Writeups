@@ -1,0 +1,105 @@
+Source locale : forensic/hunt/ctf_writeup_relay_forensics.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# CTF Writeup : Analyse Forensique et Extraction de Flag
+
+## 1. Fiche récapitulative
+* **Plateforme / Événement :** CTF / Challenge Forensique
+* **Nom du challenge :** Relay / `relay.tar.gz`
+* **Catégorie :** Forensique / Investigation numérique
+* **Difficulté :** Facile / Intermédiaire
+* **Public cible :** Pair technique / Étudiant en cybersécurité
+* **Langue :** Français
+* **Outils utilisés :** `tar`, `strings`, `grep`
+* **Date :** 2026
+
+---
+
+## 2. Résumé exécutif
+L'objectif de ce challenge consistait à analyser une archive compressée (`relay.tar.gz`) afin d'y repérer des artefacts cachés. Par le biais d'une énumération de fichiers et d'une recherche textuelle par motifs dans les flux binaires et textuels de l'archive, nous avons pu identifier la chaîne de caractères correspondants au format de flag exigé (`<EXPURGE>`).
+
+---
+
+## 3. Prérequis & Outils utilisés
+* **Système d'exploitation :** Environnement Linux / Bash
+* **Outils en ligne de commande :**
+  * `tar` (extraction d'archives)
+  * `strings` (extraction de chaînes de caractères lisibles depuis des binaires ou fichiers bruts)
+  * `grep` (recherche de motifs textuels)
+
+---
+
+## 4. Reconnaissance / Énumération
+### Objectif
+Inspecter la structure de l'archive fournie pour découvrir les fichiers et les sources de données internes.
+
+### Action
+Examen initial du contenu de l'archive `relay.tar.gz` et de ses flux internes (notamment le fichier d'archive brut `relay-chall.tar`).
+
+### Sortie obtenue
+L'archive encapsulait un ensemble massif de données binaires et textuelles mélangées, typique d'une image ou d'une archive source modifiée pour cacher des données.
+
+### Interprétation
+Face à une masse de données brutes non structurées, une approche par analyse statique textuelle globale est nécessaire pour repérer rapidement les patterns de drapeaux (`CTF`, `HLB2026`, etc.).
+
+---
+
+## 5. Analyse & Identification de la vulnérabilité / de la cible
+* **Cause racine / Logique du challenge :** Les défis de type "forensics" intègrent souvent des chaînes de caractères en clair ou légèrement obfusquées au milieu de blocs de données aléatoires ou binaires.
+* **Indice clé :** Le format de flag standardisé pour cet événement commence par le préfixe `<REPONSE_EXPURGEE>
+
+---
+
+## 6. Exploitation pas à pas
+
+### Étape 1 : Extraction et inspection des artefacts
+* **Objectif :** Extraire le contenu de l'archive pour isoler les fichiers analysables.
+* **Action :** 
+  ```bash
+  tar -xvf relay.tar.gz
+  ```
+* **Sortie obtenue :** Extraction des fichiers constituants le challenge (ex: `relay-chall.tar`).
+* **Interprétation :** Permet d'obtenir les fichiers cibles sur lesquels appliquer des recherches ciblées.
+
+### Étape 2 : Recherche de motifs (Strings & Grep)
+* **Objectif :** Rechercher le préfixe du flag dans l'ensemble des données extraites.
+* **Action :**
+  ```bash
+  strings relay-chall.tar | grep "HLB2026"
+  ```
+* **Sortie obtenue :** 
+  ```text
+  <EXPURGE>
+  ```
+* **Interprétation :** La commande `strings` extrait toutes les séquences de caractères imprimables du fichier binaire/archive, et `grep` isole instantanément la ligne contenant le motif recherché, révélant le flag en clair.
+
+---
+
+## 7. Récupération du flag
+* **Flag extrait :** `<EXPURGE>`
+
+---
+
+## 8. Impasses et pistes abandonnées
+* **Piste initiale :** L'analyse visuelle ou l'ouverture manuelle des fichiers s'est avérée impossible en raison de la volumétrie et de la nature binaire des flux.
+* **Apprentissage :** Ne jamais perdre de temps à ouvrir ou lire manuellement des flux binaires complexes ; automatiser directement la recherche de motifs textuels via des utilitaires de filtrage (`strings` + `grep`).
+
+---
+
+## 9. Chaîne d'attaque complète
+1. Récupération de l'archive brute `relay.tar.gz`.
+2. Extraction des couches d'archives.
+3. Analyse de chaînes de caractères combinée à un filtrage par expression/motif (`HLB2026`).
+4. Validation et récupération du flag final.
+
+---
+
+## 10. Remédiation & Détection (Côté Défense)
+* **Comment éviter l'exposition :** Ne pas inclure de données sensibles ou de drapeaux en clair non chiffrés dans des archives de distribution publique.
+* **Détection :** Utiliser des outils d'analyse d'intégrité et de classification de fichiers pour auditer le contenu des archives avant leur déploiement.
+
+---
+
+## 11. Leçons apprises
+* L'efficacité en forensics repose sur l'utilisation rapide des commandes fondamentales de recherche (`strings`, `grep`, `find`).
+* Face à un flux de données obfusqué, le texte en clair finit toujours par laisser des traces exploitables par des filtres adaptés.

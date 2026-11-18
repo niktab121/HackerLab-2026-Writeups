@@ -1,0 +1,22 @@
+Source locale : forensic/kissofdeath/ocr/p-015.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+EGBA:
+| ane |
+Décodeée, la transmission contenait une archive .tar.gz exfiltrée renfermant master_control.key avec la clé maitre du
+réseau :
+GRID_MASTER_KEY=TVG-GRID-MK-7c1f9a3e5b2d8046
+Contrairement a l'hypothése initiale qui placait cette interception radio en tout début de chaine, l'exfiltration de la clé
+maitre du réseau électrique présuppose un accés déja pleinement établi aux gateways SCADA (Phases 4 a 6) : elle
+constitue l'aboutissement de l'attaque, pas son point d'entrée.
+3 : reuve ue | 3d n'a as été
+8.3 Indicateurs clés
+IP _attaquant C2 203.0.113.66:54321
+@tervagrid/tervalog@1.4.7
+Commit —malveillant eedf9f7bae (11/06/2026 02:14:00 UTC)
+Credential compromis PAT horace.ade (e713570d...)
+Backdoor HTTP En-téte x-tervalog-trace (RCE base64)
+Pivot OT 10.96.2.3:8080/api/gateway/diag?host=
+Implant C2 .sync-agent.js (RC4, port 80)
+Backdoor SSH SHA256:CXx3e+n531Rn1HO+knDpovHrvT8uXmsbN3RcxUk5til
+Clé maitre dérobée TVG-GRID-MK-7c1f9a3e5b2d8046

@@ -1,0 +1,21 @@
+Source locale : forensic/kissofdeath/ocr/p-016.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+9. Indicateurs de compromission consolidés
+
+9.1 Adresses IP
+
+[ipo iC Re Cd fares
+
+e
+
+[ sync.324fr2abv9984.xyz:9090 | C2ransomware
+
+9.2 Domaines
+
+[Domaine sage
+
+9.3 Techniques MITRE ATT&CK
+
+[IDs Technique Cd Affaires Sd
+Me (SSTI

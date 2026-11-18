@@ -1,0 +1,14 @@
+Source locale : misc/last/tervalis_extracted/challenge/_extracted_evidence/evidence/CHEMIN_LOCAL/.sqlite_history
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+.tables
+SELECT COUNT(*) FROM transfers;
+SELECT * FROM transfers ORDER BY transfer_date DESC LIMIT 10;
+SELECT * FROM transfers WHERE priority != 'routine';
+SELECT * FROM transfers WHERE subject_id='SUBJ-7742';
+SELECT destination, escort_badge, vehicle_id FROM transfers WHERE subject_id='SUBJ-7742';
+UPDATE transfers SET destination=NULL, vehicle_id=NULL WHERE subject_id='SUBJ-7742';
+SELECT * FROM audit_log WHERE record_id=15;
+DELETE FROM audit_log WHERE record_id=15;
+SELECT id FROM audit_log ORDER BY id;
+.quit

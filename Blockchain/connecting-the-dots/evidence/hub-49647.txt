@@ -1,0 +1,134 @@
+Source : CTFHUB local, writeups.challenge_id=49647 ; copie expurgée.
+
+# Connecting the Dots — analyse de transactions Bitcoin
+
+> **Correction après rejet par la plateforme.** La première réponse, construite à partir du chemin court de huit transactions, a été refusée. Les vérifications de liaisons étaient exactes, mais ne démontraient ni l’unicité du chemin ni le format attendu. Ne pas considérer la réception locale comme une résolution validée.
+
+## Objectif et périmètre
+
+Challenge de traçage blockchain, annoncé à 200 points. Retrouver le chemin de transactions entre la transaction Bitcoin associée à THORChain fournie dans l'énoncé et l'adresse cible fournie. L'indice complémentaire est une agrégation ultérieure avec une seconde adresse ayant reçu 412 369 satoshis.
+
+Les recherches portent uniquement sur les données publiques Bitcoin et le hub local. Aucun transfert, aucune signature et aucune soumission au site de compétition ne sont effectués. L'attribution criminelle et l'étiquette Wasabi sont des éléments de l'énoncé : les relations entre transactions les corroborent structurellement, mais ne prouvent pas à elles seules l'identité d'un propriétaire.
+
+Les hachages du chemin sont volontairement absents de ce document, car ils constituent la réponse soumise. Les arguments correspondants des commandes sont remplacés par des variables. Aucun résultat brut contenant ces hachages n'est conservé ici.
+
+## État initial et reconnaissance
+
+Le point de départ est confirmé au bloc 884973. Il comporte une entrée et trois sorties : 80 965 529 satoshis vers une première adresse, 11 459 184 106 satoshis vers une seconde et une sortie de valeur nulle.
+
+L'historique de l'adresse cible révèle une transaction qui la crédite de 373 660 satoshis, puis une transaction qui dépense ce montant avec deux autres entrées : 423 618 et 412 369 satoshis. Cette dernière entrée provient bien de la seconde adresse de l'énoncé. La transaction d'agrégation a une sortie de 1 208 368 satoshis et des frais de 1 279 satoshis. La conservation des montants est vérifiée :
+
+```text
+423618 + 373660 + 412369 = 1208368 + 1279
+```
+
+Cette agrégation est un contrôle contextuel ; elle se produit après l'arrivée des fonds à la cible et n'appartient donc pas au chemin demandé.
+
+## Commandes et méthode reproductible
+
+Depuis le répertoire du challenge, saisir les valeurs publiques fournies dans l'énoncé sans les recopier dans les notes :
+
+```bash
+read -r SOURCE
+read -r TARGET
+```
+
+Les requêtes de reconnaissance utilisées sont les suivantes, avec les arguments sensibles pour la réponse remplacés par ces variables :
+
+```bash
+curl -sS --max-time 25 "https://blockstream.info/api/address/$TARGET/txs"
+curl -sS --max-time 25 "https://blockstream.info/api/tx/$SOURCE"
+curl -sS --max-time 25 "https://blockstream.info/api/tx/$SOURCE/outspends"
+```
+
+Attention : ces commandes de reconnaissance affichent des hachages. Ne pas rediriger leurs résultats vers le compte rendu. Le script `trace.py` présent dans ce répertoire masque les identifiants dans ses sorties de diagnostic.
+
+La commande de résolution exécutée, avec remplacement des deux arguments de l'énoncé, est :
+
+```bash
+python3 -u trace.py --source "$SOURCE" --target "$TARGET" --report
+```
+
+Pour reproduire uniquement l'analyse et la validation, sans nouvel envoi au hub :
+
+```bash
+python3 -u trace.py --source "$SOURCE" --target "$TARGET"
+```
+
+Le script charge les transactions qui créditent la cible et remonte leurs entrées. Chaque entrée désigne exactement une transaction antérieure et un indice de sortie. Il explore les entrées par valeur décroissante, mémorise les transactions déjà visitées et abandonne les branches antérieures au bloc de départ. Il impose également une profondeur maximale de 50 et un budget de 700 transactions. Ces limites sont des garde-fous pratiques ; elles ne constituent pas un algorithme exhaustif pour toute blockchain. Pour ce challenge, le chemin a été trouvé dans ces limites.
+
+Quand le hachage de départ est rencontré, la remontée récursive construit la séquence chronologique jusqu'à la transaction qui crédite la cible. Le point de départ est inclus ; la dépense ultérieure d'agrégation est exclue.
+
+## Observations validées
+
+Les diagnostics suivants ne contiennent aucun fragment de la réponse :
+
+| Position chronologique | Hauteur de bloc | Entrées | Sorties |
+| --- | ---: | ---: | ---: |
+| Départ | 884973 | 1 | 3 |
+| Relais 1 | 884973 | 1 | 2 |
+| Relais 2 | 890514 | 1 | 2 |
+| Relais 3 | 890515 | 1 | 2 |
+| Relais 4 | 890773 | 1 | 2 |
+| Relais 5 | 890852 | 1 | 2 |
+| Relais 6 | 891305 | 2 | 2 |
+| Arrivée à la cible | 891572 | 3 | 2 |
+
+```text
+Path found: 8 transactions including source; checking independent explorer.
+All edges independently verified.
+Flag reported to CTFHUB.
+```
+
+La transaction d'arrivée possède trois entrées de 100 000, 100 000 et 316 394 satoshis, deux sorties de 373 660 et 142 331 satoshis, et 403 satoshis de frais. Le chemin trouvé passe par l'entrée de 100 000 satoshis issue du bloc 891305.
+
+## Pistes non retenues et limites
+
+- La recherche web du hachage initial a seulement retrouvé une page du bloc Bitcoin correspondant ; elle n'a pas fourni le chemin.
+- L'examen des dépenses des deux premières sorties du départ a révélé plusieurs branches possibles. Leur montant seul ne permet pas de choisir celle qui rejoint la cible.
+- La plus grosse entrée de la transaction d'arrivée, de 316 394 satoshis, n'a pas conduit au départ dans la remontée effectuée. Privilégier uniquement le montant le plus élevé aurait donc écarté le bon chemin.
+- La liste publique des 30 challenges du hub et la recherche du nom dans la base locale ne montraient pas ce challenge. L'appel réel au pont local a toutefois accepté le signalement sous le nom exact fourni par l'utilisateur. Aucune acceptation par le jury de la compétition n'est déduite de ce succès local.
+- L'API d'historique est paginée en général. L'adresse cible ne présentait ici que les deux transactions pertinentes ; le script n'implémente pas une pagination générale pour les adresses très actives.
+
+## Validation indépendante
+
+Pour chaque transaction du chemin découvert avec Blockstream, le script demande la même transaction à l'API de mempool.space. Il confirme son identifiant et, pour chaque liaison, vérifie :
+
+1. qu'une entrée de la transaction suivante référence la précédente ;
+2. que l'indice de sortie référencé existe ;
+3. que le montant et le script de cette sortie correspondent aux données de l'entrée ;
+4. que la dernière transaction paie effectivement l'adresse cible.
+
+Les huit transactions et les sept liaisons ont été vérifiées. Cette vérification démontre une chaîne de dépenses d'UTXO. Lorsqu'une transaction possède plusieurs entrées, elle ne démontre pas une affectation individuelle de chaque satoshi à chaque sortie.
+
+La réponse soumise a été construite en mémoire puis transmise au hub local via son pont, sans être écrite dans ce compte rendu ni affichée. Le hub a confirmé la réception. Le succès auprès du système de notation reste distinct de cette réception locale.
+
+## Enseignements et nettoyage
+
+Partir de l'adresse d'arrivée et remonter les références exactes d'UTXO réduit fortement l'espace de recherche. Un indice d'agrégation et un montant précis permettent de vérifier que l'on suit la bonne adresse. Une seconde source évite de dépendre d'un seul explorateur, et les vérifications de scripts et de montants sont plus solides qu'une simple proximité temporelle.
+
+Le script est terminé. Aucun service, écouteur ou processus de fond n'a été lancé, et aucun secret d'accès n'a été enregistré dans ce répertoire. Les seuls livrables sont le script reproductible et ce compte rendu expurgé.
+
+## Réexamen après le rejet
+
+Le script `check_paths.py` lit le premier résultat dans le hub, sans l’écrire dans un fichier, et explore en largeur les ancêtres de la transaction d’arrivée sur huit niveaux. Il récupère 43 transactions et reconstruit les chemins dans ce sous-graphe. Cette exploration couvre les chemins au moins aussi courts que le premier résultat, mais ne prétend pas épuiser tous les chemins plus longs. Le sous-graphe révèle aussi un deuxième chemin de onze transactions, car plusieurs transactions sont accessibles à différentes profondeurs.
+
+Commande exécutée pour cette vérification :
+
+```bash
+python3 -u check_paths.py
+```
+
+Les deux chemins partagent leurs sept premières transactions. Au bloc 891305, une sortie de 100 000 satoshis rejoint directement la transaction d’arrivée. Une autre sortie de 63 989 satoshis poursuit sa route par trois transactions supplémentaires, aux blocs 891311, 891315 et 891318. Les liaisons de cette branche portent successivement sur 63 989, 60 953 et 58 793 satoshis ; elle fournit finalement une autre entrée de 100 000 satoshis à la transaction d’arrivée au bloc 891572.
+
+Le chemin court est donc réel, mais il ne représente pas cette seconde branche. Le chemin long est un nouveau candidat, pas une réponse acceptée par le jury. Son format retire aussi les espaces après les virgules ; sans retour de la plateforme, il n’est pas possible de déterminer séparément l’effet du chemin choisi et celui des espaces.
+
+La première recherche non bornée a été interrompue lorsque les branches collatérales se sont fortement multipliées ; la vérification a ensuite été bornée à huit niveaux. Aucun résultat exhaustif n’est revendiqué pour les chemins plus longs.
+
+Le mode suivant vérifie indépendamment le candidat long auprès de mempool.space puis l’enregistre au hub avec une source signalant son statut de candidat. Il affiche la valeur : ne pas copier sa sortie dans les notes ou ce document.
+
+```bash
+python3 -u check_paths.py --report-candidate
+```
+
+La vérification indépendante des onze transactions a réussi. Le hub a enregistré le nouveau candidat. Son acceptation par la plateforme de compétition demeure inconnue.

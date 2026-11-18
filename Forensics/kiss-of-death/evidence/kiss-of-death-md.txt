@@ -1,0 +1,121 @@
+Source locale : Kiss_of_Death.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# Kiss of Death — Writeup
+
+- **Catégorie :** Forensics
+- **Valeur :** 100 points
+- **Cible :** simulation de perquisition dans un navigateur
+
+## Objectif
+
+Fouiller l’appartement de Mikkel Strandhjelm et placer sous scellés les 18 éléments d’intérêt :
+
+- 4 à l’entrée ;
+- 4 dans le séjour ;
+- 6 au bureau ;
+- 4 dans la chambre.
+
+## Accès réseau
+
+Le VPN fournit une route vers le réseau de la simulation :
+
+```bash
+sudo wg-quick up dvpn-xxxx.conf
+```
+
+Puis la cible est accessible sur l’adresse indiquée par la plateforme, par exemple :
+
+```text
+172.28.x.x:8080
+```
+
+## Éléments à placer sous scellés
+
+### Entrée
+
+```text
+cam       Caméra de surveillance IP
+receipt   Reçu de transfert déchiré
+simbox    Boîtier SIM box artisanal
+wallet    Portefeuille
+```
+
+### Séjour
+
+```text
+compass_watch   Montre à aiguilles
+phone           Smartphone personnel
+microsd         Carte microSD
+usb             Clé USB
+```
+
+### Bureau
+
+```text
+laptop      Ordinateur portable
+notebook    Carnet à spirale
+mail        Courrier
+postit      Post-it
+cards       Cartes bancaires de tiers
+sims        Lot de cartes SIM prépayées
+```
+
+### Chambre
+
+```text
+pistol     Pistolet semi-automatique
+envelope   Enveloppe dissimulée
+cash       Liasses de billets
+burner     Téléphone à clapet
+```
+
+## Découvertes nécessaires
+
+Certaines pièces doivent être révélées avant de pouvoir être scellées :
+
+- fouiller le sac poubelle pour trouver `receipt` ;
+- inspecter le carton pour trouver `simbox` ;
+- examiner le paquet de cigarettes pour trouver `microsd` ;
+- retirer le tome VII pour trouver `usb` ;
+- ouvrir le tiroir du bureau pour trouver `postit` ;
+- ouvrir les tiroirs 2 et 3 du meuble pour trouver `cards` et `sims` ;
+- ouvrir le tiroir de la table de chevet pour trouver `pistol` ;
+- décrocher le cadre pour trouver `envelope` ;
+- ouvrir l’armoire puis la valise pour trouver `cash` et `burner`.
+
+## Exploitation API
+
+Les actions sont envoyées à l’API de la simulation :
+
+```http
+POST /api/action
+{"id":"trash"}
+```
+
+Pour les meubles, le paramètre `open` est requis :
+
+```http
+POST /api/open
+{"id":"desk_drawer","open":true}
+```
+
+Placement d’un élément :
+
+```http
+POST /api/seal
+{"id":"cam"}
+```
+
+Après les 18 scellés :
+
+```http
+POST /api/finish
+{}
+```
+
+## Flag
+
+```text
+<EXPURGE>
+```

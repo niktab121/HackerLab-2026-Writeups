@@ -1,0 +1,24 @@
+Source locale : forensic/ghot/il mandante/whois-borealis.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+% Registre offline (extrait fourni pour l'enquete - fictif, hors-ligne)
+% Objet : autorite "Borealis Trust Services" / domaine borealis-trust.example
+
+domain:            borealis-trust.example
+status:            active
+created:           2026-01-28
+changed:           2026-02-01
+expires:           2027-01-28
+
+registrant-org:    Borealis Trust Services
+registrant-country: XX
+registrant-city:   Aurenvik
+registrant-tz:     UTC+02:00
+registrant-email:  contact@example.invalid
+
+admin-c:           BTS-OPS
+tech-c:            BTS-OPS
+name-server:       ns1.borealis-trust.example
+
+remarks:           Autorite recente. Aucune presence anterieure a 2026.
+remarks:           Aucun point de contact enregistre en Varelia (C=VR).

@@ -1,0 +1,26 @@
+Source locale : forensic/kissofdeath/ocr/p-011.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+Phase 3: Installation de l'implant et persistance
+L'implant déposé a l'adresse /usr/lib/sysmond/.sysmond.bin (ELF 64-bit statique, environ 1 Mo, nom commengcant
+par . pour se dissimuler) a été rendu persistant via un service systemd sysmond.service, lié a multi-user.target pour
+un démarrage automatique.
+Le script de lancement run.sh configurait le C2 en clair :
+C2_HOST="sync.324fr2abv9984.xyz"
+C2_PORT=9090
+L'implant supportait les commandes : exec, info, keylog, encrypt, exfil. L'identifiant de campagne était
+b09410flc1d4fc58.
+Phase 4 : Déploiement du ransomware
+L'algorithme cle chiffrement utilisé par le ransomware est un algorithme maison en mode CBC (4 rounds, SBOX 256
+octets, permutation de bloc), cont la clé est dérivée d'un seed de 32 octets aléatoires généré au démarrage de
+‘implant et d'un secret retourné par le serveur C2 en réponse au beacon. La clé K est calculée ainsi :
+K = SHA256(secret || “encrypt")[:16] XOR MD5(seed || "encrypt") IV =
+SHA256(K)[:16]
+7.3 Indicateurs clés
+IP attaquant 203.0.113.42
+Vecteur initial SSTI Jinja2, POST /espace-usager/reclamation
+Vulnérabilité conteneur Ixc.apparmor.profile = unconfined
+Binaire malveillant /usr/lib/sysmond/.sysmond.bin
+sysmond.service (systemd, multi-user.target)
+sync.324fr2abv9984.xyz:9090
+GUID campagne b09410f1c1d4fc58

@@ -1,0 +1,96 @@
+Source locale : operationtervalis/operation3
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+Ratchet Failure — Operation TERVALIS (HLB2026)
+
+Catégorie : Forensics / Cryptography
+Valeur : 100 points
+Flag : <EXPURGE>
+
+1. Extraction
+
+unzip 'challenge (3).zip' -d ratchet_failure
+cd ratchet_failure/challenge
+ls -la
+
+Les artefacts comprennent les sauvegardes CBOR du Double Ratchet, les messages chiffrés, le client Python, les journaux de récupération et l’audio ambiant.
+
+2. Comprendre le rollback
+
+Le fichier backup_timeline.csv indique :
+
+• 14:20 : sauvegarde ratchet_state_001.cbor achevée ;
+• 14:30 : sauvegarde ratchet_state_002.cbor en attente d’écriture ;
+• 14:42 : crash de l’application ;
+• 14:43 : restauration de l’état 001.
+
+Le rapport recovery_report.json précise que trois octets de la clé d’envoi CKs du snapshot 001 ont été corrompus, aux offsets 4, 17 et 28 (indexation à partir de zéro). Les compteurs d’envoi sont Ns=12 dans le snapshot 001 et Ns=17 dans le snapshot 002.
+
+3. Exploiter les deux snapshots
+
+Dans ratchet_client.py, la chaîne d’envoi avance comme suit :
+
+CK_next = HMAC_SHA256(CK, b'\x02')
+MK = HMAC_SHA256(CK, b'\x01')
+
+Il faut donc retrouver les trois octets inconnus de CKs dans l’état 001, tels que cinq avancées de la chaîne redonnent exactement le CKs du snapshot 002.
+
+La recherche exhaustive porte sur 256^3 = 16 777 216 candidats. Un programme C utilisant OpenSSL/HMAC accélère cette recherche : pour chaque triplet (i,j,k), modifier CKs[4], CKs[17], CKs[28], avancer cinq fois avec HMAC(EVP_sha256(), ..., "\x02", 1, ...), puis comparer les 32 octets avec CKs de l’état 002.
+
+Résultat vérifié :
+
+CKs[4]  = 0x3b
+CKs[17] = 0x5c
+CKs[28] = 0xe6
+
+La clé de chaîne corrigée est :
+
+<HEX_EXPURGE>
+
+4. Déchiffrer les messages
+
+Pour chaque message à partir de l’index 12 :
+
+1. Calculer MK = HMAC_SHA256(CKs, b'\x01').
+2. Avancer CKs = HMAC_SHA256(CKs, b'\x02').
+3. Lire la trame messages.bin : préfixe de longueur sur 4 octets big-endian, puis en-tête CBOR et ciphertext avec tag Poly1305.
+4. Construire le nonce : struct.pack('<I', n) + b'\x00' * 8.
+5. Utiliser l’en-tête CBOR original comme AAD et vérifier le tag avec ChaCha20-Poly1305.
+
+Exemple de déchiffrement (avec les modules cbor2 et cryptography) :
+
+import hmac, hashlib, struct
+from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
+
+ck = bytes.fromhex('<HEX_EXPURGE>')
+
+# messages : liste de couples (aad_cbor, ciphertext_plus_tag)
+# extraits du fichier messages.bin à partir de l'index 12.
+for n in range(12, 25):
+    mk = hmac.new(ck, b'\x01', hashlib.sha256).digest()
+    ck = hmac.new(ck, b'\x02', hashlib.sha256).digest()
+    aad, ciphertext = messages[n]
+    nonce = struct.pack('<I', n) + b'\x00' * 8
+    plaintext = ChaCha20Poly1305(mk).decrypt(nonce, ciphertext, aad)
+    print(n, plaintext.decode())
+
+5. Messages récupérés
+
+|Index|Type     |Contenu significatif                                                                                 |
+|-----|---------|-----------------------------------------------------------------------------------------------------|
+|12   |STATUS   |Activité inhabituelle près de l’hôtel ; véhicule inconnu garé en face                                |
+|13   |REPORT   |SUV noir ; plaque partielle `VLD-74` ; deux passages autour du pâté de maisons                       |
+|14   |ALERT    |Plaque confirmée `VLD-74-OPS` ; plusieurs occupants ; véhicule à 50 m                                |
+|15   |ALERT    |Individus en tenue tactique approchant ; possible équipe d’arrestation ; **flag** dans le champ `msg`|
+|16   |STATUS   |L’agent se met en silence radio et envisage d’échapper aux poursuivants                              |
+|17–24|HEARTBEAT|Messages de vie sans autre renseignement opérationnel                                                |
+
+Message 15, déchiffré et authentifié :
+
+{"type":"ALERT","agent":"TIMS","seq":15,"priority":"HIGH","body":"Individuals in tactical gear approaching. Possible arrest team.","msg":"<EXPURGE>"}
+
+6. Flag
+
+<EXPURGE>
+
+Conclusion : la comparaison des snapshots 001 et 002 permet de réparer trois octets corrompus de la clé de chaîne. Le message 15 révèle l’approche d’une équipe d’arrestation et contient le flag. L’enregistrement audio est un artefact complémentaire, non nécessaire pour extraire ce flag

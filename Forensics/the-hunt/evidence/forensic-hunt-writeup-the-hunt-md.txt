@@ -1,0 +1,137 @@
+Source locale : forensic/hunt/writeup-The hunt.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# Writeup — The hunt (HackerLab Bénin 2026)
+
+## 1. Objective & initial state
+
+**Challenge:** The hunt — Forensics / Reverse engineering / Crypto / OSINT (100 pts, auteur uchiwa).
+
+**Question 01:** *« L'un des binaire utilisé par le groupe de hackers a été identifié. Une analyse dynamique du binaire a été effectué pour comprendre son fonctionnement. Pouvez-vous fournir l'adresse mail du suspect ? »*
+
+**Provided artifact:** `relay.tar.gz` — a Docker image exported with `docker save` (`localhost/relay-chall:latest`).
+
+**Goal:** trace the suspect and return their e-mail address. The flag wraps the answer in the platform's standard prefix and braces.
+
+## 2. Reconnaissance — extracting the Docker image
+
+```bash
+tar -xzf relay.tar.gz
+cat manifest.json
+```
+
+The manifest lists 11 layers. The interesting ones are:
+
+- `689466e7…tar` → `app/app.py` (the Flask application)
+- `a3af8b6d…tar` → `app/web/*` (frontend)
+- `90a18d28…tar` → `data/relay.db` (seed database)
+- `f6134882…tar` → `data/relay.db` (final database, 24 encrypted messages)
+
+```bash
+mkdir -p app data
+tar -xf <HEX_EXPURGE>.tar app/
+tar -xf <HEX_EXPURGE>.tar data/
+```
+
+## 3. Understanding the RELAY application
+
+`app.py` is a small encrypted-chat platform. Its docstring is explicit:
+
+> « La plateforme ne connait pas l'algorithme de cipher.exe : elle affiche les messages tels qu'ils ont été envoyés. En revanche, elle chiffre leur stockage (AES-256-GCM) … Sans le code d'un channel ni le mot de passe d'un de ses membres, la base ne révèle aucun message. »
+
+Two layers of protection:
+
+1. **Server layer (AES-256-GCM).** Each channel has an access code; its key is derived with scrypt:
+   ```python
+   KDF_PARAMS = {"n": 2**15, "r": 8, "p": 1, "maxmem": 64*1024*1024, "dklen": 32}
+   def derive_key(code, salt): return hashlib.scrypt(code.encode(), salt=salt, **KDF_PARAMS)
+   def message_aad(channel_id, author): return f"relay:message:{channel_id}:{author}".encode()
+   ```
+   `channels.key_salt` and `channels.key_check` allow offline verification of a code.
+
+2. **Client layer.** The hackers encrypt their text with `cipher.exe` before sending it, so the stored cleartext of the outer layer is still an opaque `ENC`-style payload.
+
+## 4. Database inventory
+
+```bash
+sqlite3 data/relay.db "SELECT id, username FROM users;"      # thanos, killer23, VanDerLin, krypton, hailer
+sqlite3 data/relay.db "SELECT id, name FROM channels;"        # 1 general, 2 infra, 3 archive
+sqlite3 data/relay.db "SELECT count(*) FROM messages;"        # 24
+```
+
+24 encrypted blobs (19 in `general`, 5 in `infra`, 0 in `archive`). `memberships` is empty, so the channel codes are the only route into the messages.
+
+## 5. Recovering the channel access codes
+
+The codes are not in the image. In the full challenge they live in a second artifact — `channel.pdf` on the operator's workstation — protected by the password `<EXPURGE>` (recovered with `pdf2john` + `john`).
+
+The PDF yields the three channel codes (verified against `key_check`):
+
+| Channel | Code |
+|---|---|
+| 1 (general) | `<EXPURGE>` |
+| 2 (infra) | `<EXPURGE>` |
+| 3 (archive) | `<EXPURGE>` |
+
+Verification:
+
+```python
+key = hashlib.scrypt(code.encode(), salt=salt, **KDF_PARAMS)
+unseal(key, channel["key_check"], f"relay:check:{cid}".encode()) == b"relay-channel-key-check"
+```
+
+## 6. Reversing cipher.exe (inner layer)
+
+Static/dynamic analysis of `cipher.exe` reveals:
+
+- **Custom base64 alphabet:**
+  `Zm9Kx2QaLp7VfT0cRw4YhN1sJd8GuB3eXo6IkP5tCyAqWn-_ErSvHgMlDjUbOiFz`
+- **4-byte random salt** (BCryptGenRandom) prepended to each payload.
+- **Seed** = FNV-1a variant of the salt.
+- **Xorshift32** keystream:
+  ```
+  x ^= x << 13
+  x ^= x >> 17
+  x ^= x << 5
+  ```
+- Plaintext is XORed byte-by-byte with the keystream before base64 encoding.
+
+## 7. Decryption result
+
+Decrypting the outer AES-GCM layer, then the inner cipher.exe layer, restores the whole chat. The decisive message is in channel `infra`:
+
+> **[thanos]:** *Hello les gars, je suis sur le coup pour Aquaterv. je pense cibler un employe du nom de simon*
+
+Other notable items (context, not the answer):
+- `[Ch1] thanos: Tervalis` — the group is attacking Tervalis on Norveth's orders.
+- `[Ch1] VanDerLin: Centrale hydraulique, hopital central et Tervagrid peuvent etre des cibles de choix`
+- `[Ch1] VanDerLin: #n0rv3th_c1ph3r_1s_br0k3n`
+- `[Ch2] VanDerLin: Les nouveaux serveurs a utiliser : 203.0.113.42, 203.0.113.15, 203.0.113.66 …`
+
+## 8. OSINT pivot & resolution
+
+Message 20 points at **AquaTerv** (`aquaterv.trv`), the national water utility, and an employee named **Simon**.
+
+The HackerLab 2026 « Bible d'univers » staff directory lists:
+
+- **Organisation:** AquaTerv
+- **Name:** Simon Vermont
+- **Role:** Administrateur plateforme de gestion d'eau
+- **E-mail convention:** `<initiale_prenom>.<nom>@<domaine>`
+
+This yields the flag value (submitted to CTFHUB as "the submitted answer").
+
+## 9. Dead ends / lessons
+
+- **Brute-forcing the channel codes offline** was the obvious first idea, but scrypt (`n=32768`) makes it too slow, and the codes are high-entropy (`XXXX-XXXX-XXXX`), not dictionary words — the codes come from `channel.pdf`, not from guessing.
+- **The `memberships` table** was empty (only a 12-byte residual cell-pointer array survived `PRAGMA secure_delete`), so the "member password unwraps the channel key" path was unusable.
+- The outer AES-GCM layer is sound (random 12-byte nonces, no reuse); there is no shortcut — you need the channel codes.
+
+## 10. Reproducible validation
+
+1. Extract `relay.db` and `app.py` from the Docker layers.
+2. Derive each channel key with scrypt from its access code and salt.
+3. Confirm each `key_check` decrypts to `relay-channel-key-check`.
+4. Decrypt every `messages.body` with AES-GCM (`nonce = body[:12]`, AAD `relay:message:{cid}:{author}`).
+5. Decode the resulting cipher.exe payloads (custom base64 → strip 4-byte salt → FNV-1a seed → Xorshift32 keystream → XOR).
+6. Read message 20 of channel `infra` and pivot to the staff directory to confirm the e-mail address.

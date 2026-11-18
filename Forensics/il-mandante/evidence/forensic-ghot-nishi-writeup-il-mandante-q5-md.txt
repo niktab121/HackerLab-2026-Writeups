@@ -1,0 +1,266 @@
+Source locale : forensic/ghot/nishi/writeup-il-mandante-q5.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# Il Mandante — Q5 : à partir de quand le dossier a-t-il pu exister ?
+
+## Objectif
+
+Quatre pièces sont fournies dans le répertoire `nishi/` :
+
+| Fichier | Taille | Nature |
+|---|---|---|
+| `dossier-varelcorp.pdf` | 5 326 octets | « Dossier de synthèse CDI-2026-0217 » attribuant la préparation de l'attaque du 15 mars 2026 à <EXPURGE> |
+| `dossier-varelcorp.pdf.p7s` | 2 572 octets | signature détachée CMS/PKCS#7 du PDF, avec la chaîne de certification |
+| `ct-log-hote.csv` | 95 622 octets | extrait de journal Certificate Transparency (1 200 entrées) |
+| `wayback-cdx.txt` | 330 octets | deux captures d'archivage public du dossier |
+
+La question : **à partir de quand le dossier a-t-il réellement pu exister ?**
+
+Le piège annoncé par l'énoncé est explicite : le dossier revendique une
+antériorité (« rédaction au 20 février 2026 »), donc une datation qui
+précéderait l'incident. Il s'agit de trouver un **plancher technique
+infalsifiable**, pas de croire une métadonnée déclarative.
+
+## État initial : ce que le document raconte
+
+### Les métadonnées du PDF
+
+```console
+$ pdfinfo dossier-varelcorp.pdf
+Title:           Dossier de synthèse CDI-2026-0217
+Author:          Comité de Divulgation Indépendant
+Creator:         Writer
+Producer:        LibreOffice 24.8
+CreationDate:    Fri Feb 20 10:00:00 2026 WAT
+ModDate:         Fri Feb 20 10:00:00 2026 WAT
+Pages:           1
+File size:       5326 bytes
+PDF version:     1.7
+```
+
+La thèse du document est construite sur ces deux champs : création et
+modification au 20 février 2026, soit **avant** l'incident du 15 mars 2026.
+
+### Le contenu
+
+```console
+$ pdftotext -layout dossier-varelcorp.pdf -
+```
+
+Le texte reprend la même affirmation en section 6 (« Datation du dossier ») :
+
+> La compilation de ce dossier est antérieure à l'incident. Les propriétés du
+> fichier (date de création et date de dernière modification) attestent d'une
+> rédaction au 20 février 2026.
+
+puis, en pied de page : « Dossier compilé le 20 février 2026, antérieurement à
+l'incident. »
+
+Or le document **décrit l'incident du 15 mars 2026 comme un fait accompli**
+(« l'incident du 15 mars 2026 n'en est que l'aboutissement ») et détaille une
+chronologie allant du 8 janvier au 18 février 2026. Un document ne peut pas
+documenter un événement futur : l'antériorité revendiquée est donc déjà
+logiquement douteuse. Mais la question demande une borne *réelle*, pas une
+impression.
+
+## Reconnaissance
+
+### 1. La signature détachée est valide
+
+```console
+$ openssl cms -verify -in dossier-varelcorp.pdf.p7s -inform DER \
+    -content dossier-varelcorp.pdf -binary -noverify -out /dev/null
+CMS Verification successful
+```
+
+La signature couvre bien le PDF fourni. Structure du SignedData :
+
+```console
+$ openssl cms -cmsout -inform DER -in dossier-varelcorp.pdf.p7s -print
+  digestAlgorithms: sha256
+  eContentType: pkcs7-data
+  eContent: <ABSENT>            # signature détachée
+  certificates: 2 (racine + feuille)
+  signerInfos:
+    issuer: C=XX, O=Borealis Trust Services, CN=Borealis Certification Authority
+    serialNumber: <HEX_EXPURGE>
+    digestAlgorithm: sha256
+    signedAttrs: <ABSENT>      # aucun signingTime authentifié
+    signatureAlgorithm: rsaEncryption
+```
+
+Point capital : **`signedAttrs` est absent**. Il n'y a donc aucun attribut
+`signingTime` protégé par la signature. La seule date opposable attachée à
+cette signature est celle que porte le certificat du signataire (et
+l'horodatage de transparence, voir plus bas).
+
+### 2. La chaîne de certification
+
+```console
+$ openssl pkcs7 -inform DER -in dossier-varelcorp.pdf.p7s -print_certs -noout
+subject=C=XX, O=Borealis Trust Services, CN=Borealis Certification Authority
+issuer=C=XX, O=Borealis Trust Services, CN=Borealis Certification Authority
+
+subject=O=Comite de Divulgacao Independente, CN=dossier.leaks.borealis-trust.example
+issuer=C=XX, O=Borealis Trust Services, CN=Borealis Certification Authority
+```
+
+Le certificat feuille est émis par l'autorité Borealis déjà rencontrée en Q2
+(racine auto-signée, `notBefore` au 2 février 2026). Le sujet de la feuille
+(`O=Comite de Divulgacao Independente`,
+`CN=dossier.leaks.borealis-trust.example`) correspond au domaine de publication
+du dossier.
+
+### 3. La validité du certificat feuille
+
+```console
+$ openssl pkcs7 -inform DER -in dossier-varelcorp.pdf.p7s -print_certs \
+    | awk '/BEGIN/ { n++ } n==2 { print } /END/ && n==2 { exit }' > /tmp/leaf.pem
+$ openssl x509 -in /tmp/leaf.pem -noout -dates -serial -subject
+notBefore=<DATE_EMISSION> GMT
+notAfter=<DATE_EXPIRATION> GMT
+serial=<HEX_EXPURGE>
+subject=O=Comite de Divulgacao Independente, CN=dossier.leaks.borealis-trust.example
+```
+
+Un certificat X.509 **ne peut pas être utilisé avant son `notBefore`** : aucune
+signature produite avec sa clé ne peut être antérieure à cette date. C'est donc
+une borne basse cryptographique, indépendante du contenu du PDF et de ses
+métadonnées.
+
+La valeur exacte est masquée ici (voir « Validation reproductible ») mais elle
+est précise à la seconde et se situe **le lendemain de l'incident**.
+
+### 4. L'horodatage de transparence (SCT) incorporé
+
+```console
+$ openssl x509 -in /tmp/leaf.pem -noout -text | sed -n '/CT Precertificate/,$p'
+CT Precertificate SCTs:
+    Signed Certificate Timestamp:
+        Version   : v1 (0x0)
+        Log ID    : EE:4B:BD:B7:75:CE:60:BA:E1:42:69:1F:AB:E1:9E:66:
+                    A3:0F:7E:5F:B0:72:D8:83:00:C4:7B:89:7A:A8:FD:CB
+        Timestamp : <HORODATAGE_EMISSION> GMT
+        Extensions: none
+        Signature : ecdsa-with-SHA256
+                    30:45:02:21:AA:AA:...:02:20:BB:BB:...
+```
+
+Le SCT porte **exactement le même horodatage que le `notBefore`** de la
+feuille : la demande de certificat et son enregistrement dans le journal de
+transparence ont eu lieu au même instant, à la seconde près. Cela confirme que
+la date du certificat n'est pas un artefact de génération, mais bien le moment
+où l'identité de signature a été créée.
+
+(La valeur de `Signature` du SCT est un remplissage `AA…`/`BB…` : le fichier
+est une reconstitution d'enquête, l'horodatage reste la donnée exploitable.)
+
+### 5. Le journal Certificate Transparency fourni
+
+```console
+$ head -1 ct-log-hote.csv
+id,not_before,common_name,organization,issuer
+$ grep -n "borealis" ct-log-hote.csv
+860:4113447,<DATE_JOURNAL>,dossier.leaks.borealis-trust.example,Comite de Divulgacao Independente,Borealis Certification Authority | serial=<HEX_EXPURGE>
+```
+
+La ligne 860 est la seule entrée Borealis du fichier, et son numéro de série
+(`cadc52ea…`) correspond au certificat feuille. La date du journal est
+**identique au jour du `notBefore`** : l'émission est donc corroborée par une
+source externe au PDF.
+
+À noter : le journal s'arrête au jour de cette émission — l'extrait a été tiré
+juste après, ce qui est cohérent avec un dossier publié dans la foulée.
+
+### 6. Le premier archivage public
+
+```console
+$ cat wayback-cdx.txt
+com,example,borealis-trust,leaks)/dossier-varelcorp 20260318114500 https://leaks.borealis-trust.example/dossier-varelcorp.pdf application/pdf 200 A1B2C3D4E5F6 51233
+com,example,borealis-trust,leaks)/dossier-varelcorp 20260319090200 https://leaks.borealis-trust.example/dossier-varelcorp.pdf application/pdf 200 Z9Y8X7W6V5U4 51240
+```
+
+Première capture publique le 18 mars 2026 à 11h45, seconde le 19 mars 2026.
+Ces dates bornent la **publication**, pas la création : elles sont postérieures
+et ne peuvent donc pas servir de borne basse.
+
+## Raisonnement
+
+1. Les métadonnées PDF (`CreationDate`/`ModDate`) sont des chaînes déclaratives
+   écrites par le producteur du fichier. N'importe quel outil (`exiftool`,
+   réécriture du dictionnaire `Info`, ou simple `touch` avant conversion) les
+   fixe arbitrairement. **Non opposables.**
+2. Le PDF est signé : la signature est valide et lie le contenu au certificat
+   `dossier.leaks.borealis-trust.example`.
+3. Ce certificat porte un `notBefore` précis à la seconde. Une signature
+   cryptographique avec sa clé privée ne peut pas exister avant cette date.
+   **Borne basse réelle.**
+4. Le SCT incorporé porte le même instant, et le journal CT fourni contient la
+   même date. Trois sources indépendantes convergent.
+5. Le `notBefore` est postérieur à l'incident du 15 mars 2026 : le dossier
+   prétendument rédigé le 20 février 2026 n'a donc **pas pu exister** avant que
+   son certificat de signature soit émis, c'est-à-dire le lendemain de
+   l'incident.
+6. La première capture Wayback (18 mars) est cohérente avec cette chronologie :
+   émission de l'identité de signature, signature du dossier, puis publication.
+
+Conclusion : le dossier n'a pu exister **qu'à partir de l'instant d'émission de
+son certificat de signature** — date masquée ici, lue dans `notBefore` — et non
+au 20 février 2026 comme il le revendique. L'antériorité alléguée est donc une
+fabrication, et l'argument de préméditation qui en découle s'effondre.
+
+## Chemins écartés
+
+| Hypothèse | Pourquoi elle ne tient pas |
+|---|---|
+| Se fier au `CreationDate`/`ModDate` du PDF (20 février 2026) | Champs triviaux à réécrire ; c'est précisément la thèse que le dossier veut imposer. |
+| Prendre le `notBefore` de la racine (2 février 2026) | La racine est une ancre de confiance, pas le certificat de signature ; elle ne date pas l'acte. |
+| Utiliser la première capture Wayback (18 mars 2026) | C'est une date de publication, donc une borne haute, pas un plancher d'existence. |
+| Croire le `Producer: LibreOffice 24.8` | Chaîne libre, sans valeur probante sur la date. |
+| Chercher un `signingTime` dans le CMS | `signedAttrs` absent : aucun horodatage signé dans le conteneur. |
+| Lire le SCT comme preuve cryptographique complète | La signature du SCT est un remplissage ; seul l'horodatage est exploitable, mais il concorde avec `notBefore` et le journal. |
+
+## Validation reproductible (sans révéler la réponse)
+
+Depuis le répertoire `nishi/` :
+
+```console
+# 1. La signature couvre bien le PDF
+openssl cms -verify -in dossier-varelcorp.pdf.p7s -inform DER \
+  -content dossier-varelcorp.pdf -binary -noverify -out /dev/null
+
+# 2. Extraire la feuille
+openssl pkcs7 -inform DER -in dossier-varelcorp.pdf.p7s -print_certs \
+  | awk '/BEGIN/ { n++ } n==2 { print } /END/ && n==2 { exit }' > /tmp/q5-leaf.pem
+
+# 3. Lire la borne basse (notBefore) et l'horodatage SCT
+openssl x509 -in /tmp/q5-leaf.pem -noout -dates
+openssl x509 -in /tmp/q5-leaf.pem -noout -text | sed -n '/CT Precertificate/,$p'
+
+# 4. Corroborer dans le journal fourni
+grep -n "<HEX_EXPURGE>" ct-log-hote.csv
+
+# 5. Vérifier que la publication est postérieure
+cut -d' ' -f2 wayback-cdx.txt
+```
+
+Critères de confirmation :
+
+- l'étape 1 affiche `CMS Verification successful` ;
+- le `notBefore` de l'étape 3 est **postérieur au 15 mars 2026** et précède la
+  première capture Wayback (18 mars 2026) ;
+- l'horodatage du SCT est **identique** au `notBefore` ;
+- la ligne du journal CT trouvée à l'étape 4 porte la **même date** que le
+  `notBefore`, et son numéro de série est celui de la feuille.
+
+## Leçons
+
+- Une métadonnée de fichier est une **déclaration**, pas une preuve. La seule
+  datation opposable dans ce dossier vient d'un matériel cryptographique :
+  validité du certificat de signature et journal de transparence.
+- L'absence de `signedAttrs`/`signingTime` dans un CMS est un angle d'analyse à
+  vérifier systématiquement : sans attribut signé, il faut chercher l'heure
+  ailleurs (validité du certificat, SCT, journaux CT).
+- Trois sources indépendantes qui donnent le même instant à la seconde
+  (certificat, SCT, journal CT) valent mieux qu'une seule date lue dans un
+  fichier modifiable.

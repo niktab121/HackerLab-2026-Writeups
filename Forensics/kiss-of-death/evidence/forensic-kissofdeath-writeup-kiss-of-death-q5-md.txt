@@ -1,0 +1,372 @@
+Source locale : forensic/kissofdeath/writeup-kiss-of-death-q5.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# Write-up — Kiss of Death, question 5 : l'application qui cache le vrai téléphone
+
+## Objectif
+
+La question 5 de *Kiss of Death* (Forensics, HackerLab 2026) demande :
+
+> Derrière quelle application se trouvait le véritable téléphone, et quel était
+> le code permettant d'y accéder ?
+
+Format attendu : `Application:Code`. Ce document décrit la démarche complète,
+les commandes exactes et la validation reproductible, sans publier la valeur
+soumise.
+
+## État initial
+
+Les questions précédentes ont fourni :
+
+- le code de déverrouillage du téléphone simulé (schéma Android à 9 points),
+  retrouvé hors ligne à partir du condensat de `gesture.key` ;
+- la page « Pièce à conviction — Téléphone », servie par un tunnel
+  `trycloudflare` ;
+- un premier profil du téléphone, contenant les applications Téléphone,
+  Messages, Galerie, Horloge, Boussole et Paramètres ;
+- la liste des objets placés sous scellés lors de la perquisition, dont une
+  **montre à aiguilles** portée au poignet gauche du suspect.
+
+Le profil accessible après le schéma ne contient que des conversations banales
+(maman, pizzeria, garage). Le contenu intéressant est ailleurs : la page parle
+d'un « profil principal » et le JavaScript mentionne un mode `real`.
+
+L'indice officiel de la question oriente vers les scellés :
+
+> L'un des objets que vous avez placés sous scellés, retrouvé sur le suspect,
+> ressemble à une boussole. Il lui sert d'aide-mémoire pour retenir le code.
+
+## Reconnaissance
+
+### 1. Accès à la page
+
+Le tunnel `trycloudflare` ne résout pas correctement en local ; on force l'IP
+d'un nœud Cloudflare qui répond :
+
+```bash
+curl -s --resolve herald-discuss-simpson-gonna.trycloudflare.com:443:104.18.32.7 \
+  https://herald-discuss-simpson-gonna.trycloudflare.com/ -o /tmp/herald.html
+```
+
+Autres IP testées : `188.114.96.1`, `104.17.0.1` et `104.21.0.1` fonctionnent
+aussi ; `104.16.230.132`, `104.16.231.132` expirent et `104.16.132.229`
+renvoie une erreur 403.
+
+### 2. Lecture du JavaScript de la page
+
+Le script embarqué (sauvegardé dans `/tmp/herald.js`) contient trois points
+d'entrée :
+
+```js
+// déverrouillage du premier profil
+const r = await fetch("api/unlock", {method:"POST", ... body: JSON.stringify({pattern: cells})});
+
+// envoi d'un cap de boussole
+async function postBearing(bearing){
+  const r = await fetch("api/real", {method:"POST", ... body: JSON.stringify({token: TOKEN, bearing: Number(bearing)})});
+}
+
+// commentaire révélateur au-dessus de openCompass()
+// --- boussole (coffre déguisé : viser le bon AZIMUT fait basculer dans le vrai tél) ---
+```
+
+La fonction `boot(data, mode)` positionne `REALMODE = (mode === "real")` et
+affiche un message différent selon le mode. Autrement dit :
+
+- `api/unlock` ouvre toujours le profil affiché par défaut ;
+- `api/real` ne bascule sur le profil **réel** que si le cap envoyé est le bon
+  et s'il est maintenu assez longtemps.
+
+La table des applications nomme explicitement l'application concernée :
+
+```js
+{key:"compass", label:"Boussole", ...}
+```
+
+### 3. La montre-scellé : un aide-mémoire en forme de boussole
+
+Dans le JavaScript de la scène 3D, la montre portée par le suspect est un
+objet externe `compass_watch` (« Montre à aiguilles », scellé `MONTRE`,
+description : *« Elle ne fonctionne pas : la trotteuse est immobile sur le
+12 »*). Elle est construite par la fonction `R7`, qui reçoit un cap par défaut
+et le transmet au modèle :
+
+```js
+async function R7(r,{pos:e,heading:t=…,facing:n=[-1,0,0]}){ … }
+…
+xt = await R7(ve.scene,{pos:ks.seat, facing:ks.facing, heading:ks.heading})
+```
+
+Le cap est converti en **heure affichée** par `L7` :
+
+```js
+function L7(r){
+  const e = Math.round((r % 360 + 360) % 360 * 2);
+  return { h: Math.floor(e / 60) % 12, m: e % 60 };
+}
+```
+
+Puis `D7` place les aiguilles aux angles correspondants :
+
+```js
+function D7(r){
+  const {h:e, m:t} = L7(r),
+        n = e*30 + t*0.5,   // angle de l'aiguille des heures
+        i = t*6;            // angle de l'aiguille des minutes
+  …
+}
+```
+
+La montre se lit donc comme un rapporteur : l'aiguille des heures matérialise
+un cap. Vérification hors ligne, sans toucher au serveur :
+
+```bash
+python3 - <<'EOF'
+import re
+src = open("app.js").read()
+h = int(re.search(r"heading:t=(\d+)", src).group(1))
+e = round((h % 360) * 2)
+hh, mm = (e // 60) % 12, e % 60
+print("heure affichée : %02d:%02d" % (hh, mm))
+print("azimut approché :", hh * 30 + mm * 0.5, "degrés")
+EOF
+```
+
+Sortie observée :
+
+```text
+heure affichée : 03:48
+azimut approché : …
+```
+
+La montre affiche **03:48**. L'angle de son aiguille des heures
+(`30°×h + 0,5°×m`) donne un azimut de quelques degrés inférieur à celui de la
+cible : une montre analogique arrêtée est un aide-mémoire approximatif, pas un
+instrument de visée. C'est exactement le rôle décrit par l'indice.
+
+### 4. L'azimut exact dans la galerie
+
+Le profil accessible contient une photo dont la légende donne l'azimut
+précis :
+
+```text
+IMG_1004 — Rando dimanche — viser le pylône, azimut 118°
+```
+
+Cette légende est un artefact de scénario rattaché au suspect (photo de
+randonnée, repère du pylône). Elle donne la valeur exacte, là où la montre
+n'en donne qu'une lecture approchée.
+
+## Raisonnement
+
+1. `api/unlock` ne renvoie que le profil par défaut : le schéma ouvre le
+   téléphone mais ne donne pas le vrai contenu.
+2. Le commentaire du script dit littéralement que la boussole est un « coffre
+   déguisé » et que viser le bon azimut fait basculer dans le vrai téléphone.
+3. L'application qui cache le vrai téléphone est donc la **Boussole**.
+4. Le code n'est pas un PIN : c'est un **azimut**. La montre scellée (03:48)
+   sert d'aide-mémoire approximatif ; la valeur exacte est l'azimut inscrit
+   dans la galerie.
+5. Le serveur ne valide pas un cap isolé : il répond d'abord
+   `{"ok": false, "holding": true, "held_ms": 0, "hold_ms": 2000}`, puis
+   `{"ok": true, "mode": "real", ...}` si le même cap est renvoyé pendant au
+   moins deux secondes. Il faut donc boucler.
+
+## Commandes exactes
+
+### Obtention d'un jeton
+
+Le schéma Android a été retrouvé à partir du condensat SHA-1 du fichier
+`/data/system/gesture.key` (comparaison des empreintes des séquences
+possibles). Le déverrouillage renvoie un jeton de session :
+
+```bash
+H=herald-discuss-simpson-gonna.trycloudflare.com
+curl -s -m 25 --resolve $H:443:104.18.32.7 \
+  -X POST -H 'Content-Type: application/json' \
+  -d '{"pattern":[1,6,5,0,7,2,3,8]}' \
+  https://$H/api/unlock -o /tmp/unlock.json
+```
+
+Réponse (extrait) :
+
+```json
+{"ok": true, "token": "…", "mode": "decoy",
+ "content": {"apps": {"phone": …, "messages": …, "gallery": …, "clock": …, "compass": …, "settings": …}}}
+```
+
+### Récupération de l'azimut
+
+```bash
+A=$(python3 -c "
+import json, re
+d = json.load(open('/tmp/unlock.json'))
+caps = [p.get('caption','') for p in d['content']['apps']['gallery']['photos']]
+print(int(re.search(r'azimut\s+(\d+)', ' '.join(caps)).group(1)))")
+echo "azimut = $A"
+```
+
+### Envoi d'un cap unique
+
+```bash
+H=herald-discuss-simpson-gonna.trycloudflare.com
+T=$(python3 -c "import json;print(json.load(open('/tmp/unlock.json'))['token'])")
+curl -s -m 20 --resolve $H:443:104.18.32.7 \
+  -X POST -H 'Content-Type: application/json' \
+  -d "{\"token\":\"$T\",\"bearing\":$A}" https://$H/api/real
+```
+
+```json
+{"ok": false, "holding": true, "held_ms": 0, "hold_ms": 2000}
+```
+
+### Boucle de maintien
+
+Une requête toutes les ~350 ms jusqu'au basculement :
+
+```bash
+H=herald-discuss-simpson-gonna.trycloudflare.com
+T=$(python3 -c "import json;print(json.load(open('/tmp/unlock.json'))['token'])")
+for i in $(seq 1 8); do
+  curl -s -m 15 --resolve $H:443:104.18.32.7 \
+    -X POST -H 'Content-Type: application/json' \
+    -d "{\"token\":\"$T\",\"bearing\":$A}" https://$H/api/real -o "/tmp/r$i.json"
+  python3 -c "
+import json
+d=json.load(open('/tmp/r$i.json'))
+print('$i','ok=',d.get('ok'),'mode=',d.get('mode'),'held_ms=',d.get('held_ms'),'apps=',len(d.get('content',{}).get('apps',{})))"
+  sleep 0.35
+done
+```
+
+Sortie observée lors de la dernière exécution :
+
+```text
+1 ok= False mode= None held_ms= 0 apps= 0
+2 ok= False mode= None held_ms= 877 apps= 0
+3 ok= False mode= None held_ms= 1814 apps= 0
+4 ok= True  mode= real held_ms= None apps= 17
+5 ok= False mode= None held_ms= 0 apps= 0
+```
+
+Les réponses courtes sont des refus avec progression du maintien ; les
+réponses `mode: real` contiennent les 17 applications du profil réel
+(messages, chat, contacts, email, navigateur, notes, galerie, calendrier,
+cartes, banque, fichiers, réglages, musique, horloge, météo, coffre, …). On y
+trouve notamment une discussion avec « Le Relais » et un dossier « Masque »
+dans le coffre — matière des questions suivantes, hors sujet ici.
+
+### Tolérance du serveur (important pour l'interprétation)
+
+Le serveur n'exige pas la valeur au degré près : le contrôle est un écart
+angulaire maximal, de l'ordre de ±4°, autour de la cible. Mesures réalisées
+avec un jeton neuf à chaque essai (un seul POST, donc pas de maintien) :
+
+| Cap relatif à l'azimut de la galerie | Réponse |
+| --- | --- |
+| −5° | `{"ok": false}` (rejeté, pas de maintien) |
+| −4° | `holding: true` |
+| valeur exacte | `holding: true` |
+| +4° | `holding: true` |
+| +5° | `{"ok": false}` (rejeté) |
+
+La plage acceptée est donc centrée sur l'azimut de la galerie. La lecture
+approchée de la montre tombe dans cette plage, ce qui explique qu'elle
+fonctionne aussi : c'est un aide-mémoire, pas la valeur de référence. La
+valeur centrale, celle qui est encodée côté serveur, est l'azimut de la légende.
+
+## Pistes qui ont échoué
+
+- **Utiliser le schéma comme « code »** : `api/unlock` ne renvoie que le profil
+  par défaut, et le code attendu par la question est un code d'accès au vrai
+  téléphone.
+- **Chercher un code PIN dans le coffre** : la liste des documents du coffre
+  (`beth.png`, `vault.enc`, `ticket_parking.pdf`, `plan_km7.jpg`,
+  `signalx.apk`) est affichée, mais la page ne propose aucune saisie de PIN et
+  le JavaScript n'appelle aucune API de coffre.
+- **Prendre l'angle de la montre pour la valeur exacte** : il ne donne qu'une
+  lecture approchée, à quelques degrés de la cible, et ne tombe juste que
+  parce que le serveur tolère un écart.
+- **Un seul POST sur `api/real`** : la réponse est toujours
+  `holding: true, held_ms: 0` ; sans maintien, le serveur ne valide jamais.
+- **Compter sur la boussole du navigateur** : sur un poste de travail, aucun
+  événement `deviceorientationabsolute` n'arrive ; la page affiche
+  « Capteur indisponible ». Il faut simuler le cap via l'API.
+- **Lire le profil `real` via `api/unlock` avec un autre schéma** : le mode
+  reste celui du profil par défaut, la bascule est uniquement déclenchée par
+  `api/real`.
+
+## Validation reproductible (sans publier la réponse)
+
+Le script ci-dessous rejoue toute la chaîne. Il lit l'azimut dans la légende
+de la galerie, déverrouille le téléphone, maintient le cap et vérifie
+l'ouverture du profil réel. Aucune valeur de réponse n'est écrite en clair.
+
+```python
+import json, re, subprocess, time
+
+HOST = "herald-discuss-simpson-gonna.trycloudflare.com"
+IP   = "104.18.32.7"
+BASE = f"https://{HOST}"
+
+def post(path, payload):
+    out = subprocess.run(
+        ["curl", "-s", "-m", "20", "--resolve", f"{HOST}:443:{IP}",
+         "-X", "POST", "-H", "Content-Type: application/json",
+         "-d", json.dumps(payload), BASE + path],
+        capture_output=True, text=True, check=True).stdout
+    return json.loads(out)
+
+# 1. déverrouillage (schéma retrouvé hors ligne)
+decoy = post("/api/unlock", {"pattern": [1, 6, 5, 0, 7, 2, 3, 8]})
+token = decoy["token"]
+
+# 2. azimut lu dans la légende de la galerie
+captions = [p.get("caption", "") for p in decoy["content"]["apps"]["gallery"]["photos"]]
+azimut = int(re.search(r"azimut\s+(\d+)", " ".join(captions)).group(1))
+print("azimut lu dans la galerie")
+
+# 3. maintien du cap jusqu'à la bascule
+real = None
+for _ in range(12):
+    r = post("/api/real", {"token": token, "bearing": azimut})
+    if r.get("ok") and r.get("mode") == "real":
+        real = r
+        break
+    time.sleep(0.35)
+
+assert real is not None, "le maintien n'a pas abouti"
+apps = set(real["content"]["apps"])
+assert {"vault", "bank", "chat", "files"} <= apps
+print("OK — profil réel ouvert via la Boussole ;", len(apps), "applications")
+```
+
+Exécution attendue :
+
+```text
+azimut lu dans la galerie
+OK — profil réel ouvert via la Boussole ; 17 applications
+```
+
+## Réponse
+
+- Application : **Boussole** (`compass`), le « coffre déguisé ».
+- Code : l'**azimut** indiqué dans la galerie du téléphone. La montre scellée
+  (03:48) n'en donne qu'une lecture approchée, cohérente avec la cible à
+  quelques degrés près et acceptée grâce à la tolérance du serveur.
+
+La valeur exacte a été transmise au hub CTFHUB et n'est pas recopiée ici.
+
+## Leçons
+
+- Lire le JavaScript d'une simulation : un simple commentaire (« coffre
+  déguisé ») donne la mécanique exacte.
+- Un objet de scène peut être un aide-mémoire : une horloge analogique est un
+  rapporteur d'angle, mais sa lecture reste approximative.
+- Toujours distinguer une valeur exacte écrite dans un artefact (légende de
+  photo) d'une valeur dérivée approximative (angle d'aiguille).
+- Une API à « dwell » (maintien) ne se valide pas en un seul appel : prévoir
+  une boucle et interpréter `holding` / `held_ms`.
+- Mesurer la tolérance serveur avant de conclure : une valeur acceptée n'est
+  pas nécessairement la valeur cible. Le centre de la plage acceptée donne la
+  cible réelle.

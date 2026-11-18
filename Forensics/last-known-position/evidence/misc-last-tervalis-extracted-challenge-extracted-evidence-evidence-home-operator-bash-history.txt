@@ -1,0 +1,24 @@
+Source locale : misc/last/tervalis_extracted/challenge/_extracted_evidence/evidence/CHEMIN_LOCAL/.bash_history
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+cd /opt/tsd-transfer-system
+ls -la /var/lib/tsd/
+cat /var/lib/tsd/config.ini
+systemctl status tsd-transfer-daemon
+journalctl -u tsd-transfer-daemon --since '2024-10-28' | tail -50
+sqlite3 /var/lib/tsd/transfers.db ".tables"
+sqlite3 /var/lib/tsd/transfers.db "SELECT COUNT(*) FROM transfers"
+sqlite3 /var/lib/tsd/transfers.db "SELECT * FROM transfers ORDER BY id DESC LIMIT 10"
+sqlite3 /var/lib/tsd/transfers.db "SELECT * FROM transfers WHERE priority='priority'"
+sqlite3 /var/lib/tsd/transfers.db "SELECT * FROM transfers WHERE subject_id='SUBJ-7742'"
+sqlite3 /var/lib/tsd/transfers.db "SELECT destination, escort_badge, vehicle_id FROM transfers WHERE id=15"
+sqlite3 /var/lib/tsd/transfers.db "UPDATE transfers SET destination=NULL, vehicle_id=NULL WHERE subject_id='SUBJ-7742'"
+sqlite3 /var/lib/tsd/transfers.db "SELECT * FROM audit_log WHERE record_id=15"
+sqlite3 /var/lib/tsd/transfers.db "DELETE FROM audit_log WHERE record_id=15"
+ls -la /var/log/tsd/
+shred -u /tmp/transfer_report_SUBJ-7742.pdf
+shred -u /CHEMIN_LOCAL/notes/route_plan_7742.txt
+rm -f /var/log/tsd/transfer_7742.log
+ls -la /var/log/tsd/
+cat /var/log/auth.log | grep operator | tail -20
+history -c

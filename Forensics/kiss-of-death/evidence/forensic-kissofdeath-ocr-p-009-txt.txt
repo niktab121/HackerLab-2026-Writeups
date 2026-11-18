@@ -1,0 +1,37 @@
+Source locale : forensic/kissofdeath/ocr/p-009.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+Phase 3: Exfiltration par tunnel DNS
+L'implant réel embarquait deux capacités distinctes :
+1. Vol de credentials DPAPI (CryptUnprotectData), identifiants BCT de j.aterbe
+2. Exfiltration par tunnel DNS via des sous-domaines base32 encodés vers dns-sync.xn--varelcrp-s4a.var
+Le canal C2 chiffré (TLS) était distinct : 203.0.113.66:8443 (et non le serveur de mise a jour HTTP).
+Requétes DNS montrant le tunnel d’exfiltration
+
+-T fields -e dns.qry.name 2>/dev/null \
+
+| grep -E “dns-sync|varelcrp|xn--" | head -20
+000.cyitnout7wi6wvcS54a2o0wnrtr7srkl.dns-sync.xn--varelcrp-s4a.var
+600.cyitnout 7wi6wvcS4a2ownrtr7srkl.dns-sync.xn--varelcrp-s4a.var
+0602.ku7xtbjg5htumybhivdaxsziuvthaj.dns-sync.xn--varelcrp-s4a.var
+002.ku7xtbjgShtumybhivdaxsziuvthaj.dns-sync.xn--varelcrp-s4a.var
+003.tfmqqveeuwtncisotwxz6fox6wml5t.dns-sync.xn--varelcrp-s4a.var
+003.tfmqqveeuwtncisotwxz6fox6wml5t.dns-sync.xn--varelcrp-s4a.var
+004.pd5d7fxSztqnbqchzucxt22nfkdmwv.dns-sync.xn--varelcrp-s4a.var
+004.pd5d7fxS5ztqnbqchzucxt22nfkdmwv.dns-sync.xn--varelcrp-s4a.var
+0605.6Lxos7uwilugy3whix6jdpggju6ldy.dns-sync.xn--varelcrp-s4a.var
+005.6Lxos7uwilugy3whix6jdpggju6ldy.dns-sync.xn--varelcrp-s4a.var
+006.1lsxezflupkfudfbw3g4ivwq2o0tbzyn.dns-sync.xn--varelcrp-s4a.var
+006.lsxezflupkfudfbw3g4ivwq2o0tbzyn.dns-sync.xn--varelcrp-s4a.var
+007.vhiqzownSzfpjqoew4ilubdve7wjvu.dns-sync.xn--varelcrp-s4a.var
+007.vhiqzownSzfpjqoew4ilubdve7wjvu.dns-sync.xn--varelcrp-s4a.var
+008 .ehfjvbpn.dns-sync.xn--varelcrp-s4a.var
+0e8.ehfjvbpn.dns-sync.xn--varelcrp-s4a.var
+Les données exfiltrées, déchiffrées par RC4 avec la clé statique VARELID (retrouvée dans le binaire), contenaient :
+sid=c3f0456f; host=BCT-WKS-07; user=contact@example.invalid;
+rtgs_token=TOKEN_EXPURGE
+cred=portal.bct.gov.trv|j.aterbe|Trv$2026#bct;
+campaign=MSK-CAMPAIGN-7F3A
+Le jeton RTGS (TOKEN_EXPURGE) est un token d'accés au systeéme RTGS (Real-Time Gross Settlement) de la BCT,
+un acces de trés haute valeur permettant de déclencher des virements interbancaires.
+6.3 Indicateurs clés

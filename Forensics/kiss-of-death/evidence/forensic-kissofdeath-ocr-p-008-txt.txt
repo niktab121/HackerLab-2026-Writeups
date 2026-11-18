@@ -1,0 +1,44 @@
+Source locale : forensic/kissofdeath/ocr/p-008.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+6. Dossier 4 - BCT : campagne de phishing ciblé (Opération
+Blackout)
+
+6.1 Contexte
+
+Un courriel de spear-phishing a été adressé a un agent de réglement de la Banque Centrale de Tervalis
+(contact@example.invalid). Ce courriel usurpait l'identité du fournisseur <EXPURGE> (contact@example.invalid) en
+utilisant un domaine homographe punycode : xn--varelcrp-s4a.var (qui s'affiche visuellement comme varelcérp.var,
+indiscernable cevarelcorp.var).
+
+6.2 Chaine d'attaque
+
+Phase 1 : Livraison et exécution de la macro
+
+Le courriel (courriel.eml) a été relayé depuis 203.0.113.10 (relay-mail.kalnet.kal) et contenait un fichier .docm en
+piéce jointe. La signature DKIM pointait vers le domaine xn--varelcrp-s4a.var, trahissant l'usurpation
+
+En-tétes du courriel
+
+Le fichier .docm implémentait une technique anti-forensique de VBA Stomping : le code source de la macro a été
+retiré mais le p-code compileé (interprétable uniquement par la version d'Office correspondante) a été conserve,
+trompant les outils d'analyse qui lisent le module texte.
+
+La macro reconstituait un payload chiffré réparti dans deux parties XML du document (customXml/item1.xml et
+customXml/item2.xml), le déchiffrait par XOR répétitif avec la clé VX-2026-0007 (dérivée des propriétés du
+clocument : Company/Category/RefCode), et l'exécutait via WMI.
+
+Le fichier résultant, tgsync_cache.bin (alias tgsync.exe, SHA-256 :
+<HEX_EXPURGE>), est un stager se présentant comme «
+Tervagrid Document Sync Helper »
+
+Phase 2: Téléchargement et exécution du véritable implant
+
+Le stager tgsync.exe envoyait des requétes GET /health vers stage-01.xn--varelcrp-s4a.var (serveur de mise a jour)
+et récupérait, dissimulé dans le corps de la réponse HTTP (précédé des magic bytes 60 91 F8 B3), le véritable
+implant.
+
+L'URL complete de téléchargement : http://stage-01.xn--varelcrp-s4a.var/upd/7F3A/stage2.bin
+
+Limplant se déguisait en processus Windows légitime RuntimeBroker.exe (métadonnées VS_VERSION_INFO:
+Microsoft Corporation) et utilisait le mutex Global\Msk_9F3C7A21.

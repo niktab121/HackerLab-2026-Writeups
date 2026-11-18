@@ -1,0 +1,13 @@
+Source locale : forensic/broken/broken_channel.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# Broken channel — solve
+
+1. Télécharger l’archive Mega.
+2. L’extraire avec `tar xzf`.
+3. Repérer `manifest.json`, puis extraire les layers Docker.
+4. Utiliser `channel.pdf` et son mot de passe `<EXPURGE>` pour obtenir les codes des canaux.
+5. Reproduire `derive_key`, `unseal` et les AAD de `app.py`.
+6. Décoder les messages avec l’alphabet Base64 personnalisé et le générateur xorshift de `cipher.exe`.
+
+Message final : `#n0rv3th_c1ph3r_1s_br0k3n`.

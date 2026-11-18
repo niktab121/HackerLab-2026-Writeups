@@ -1,0 +1,11 @@
+Source locale : canry/corp_auth-1.2.0/corp_auth.egg-info/SOURCES.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+setup.py
+corp_auth/__init__.py
+corp_auth/middleware.py
+corp_auth.egg-info/PKG-INFO
+corp_auth.egg-info/SOURCES.txt
+corp_auth.egg-info/dependency_links.txt
+corp_auth.egg-info/requires.txt
+corp_auth.egg-info/top_level.txt

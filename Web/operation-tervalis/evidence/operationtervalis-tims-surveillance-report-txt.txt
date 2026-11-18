@@ -1,0 +1,167 @@
+Source locale : operationtervalis/tims_surveillance_report.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+FEDERAL BUREAU OF INVESTIGATION - VALDORIA FIELD OFFICE
+TECHNICAL SURVEILLANCE DIVISION - SIGINT BRANCH
+========================================================
+CLASSIFICATION: SECRET // SI
+DOCUMENT CONTROL: TSD-2024-SURV-7742
+DATE: 2024-10-30
+PREPARED BY: SIGINT Collection Team Alpha
+========================================================
+
+         SURVEILLANCE AND TRACKING REPORT
+         SUBJECT: AVALD, Tims (SUBJ-7742)
+         OPERATION: TERVALIS
+
+1. SURVEILLANCE OVERVIEW
+
+This report documents the physical and electronic surveillance
+operations conducted against subject Tims Avald from the
+authorization of OPERATION TERVALIS (2024-02-15) through the
+subject's arrest (2024-11-03).
+
+2. ELECTRONIC SURVEILLANCE
+
+2.1 Network Monitoring
+Continuous monitoring of TSD network traffic was implemented on
+2024-02-20. Key findings:
+
+  - Subject accessed SIGINT repository outside normal work hours
+    on 23 occasions between February and October 2024
+  - Query patterns showed systematic access to documents matching
+    known Syndicate intelligence requirements
+  - NorvethSecure session analysis revealed covert data embedding
+    in 14 sessions, totaling approximately 340 MB of exfiltrated data
+  - Subject used rotating DNS resolvers to obscure QUIC relay
+    destinations (47 unique resolver addresses identified)
+
+2.2 Workstation Forensics (Covert)
+On 2024-03-18, a covert forensic image was taken of subject's
+workstation (TSD-WS-0044) during a scheduled maintenance window:
+
+  - Python scripts matching exfiltration tool signatures found
+    in encrypted partition (/dev/sda3, LUKS, passphrase recovered
+    via memory capture)
+  - SSH configuration referencing 4 external hosts (all confirmed
+    Syndicate infrastructure)
+  - Browser history showing regular access to TOR-based message
+    boards (3 .onion addresses matched to Syndicate dead drops)
+  - Keylogger analysis confirmed subject's typing patterns matched
+    repository access during anomalous sessions
+
+2.3 Communication Intercepts
+Subject maintained two communication channels:
+
+  Channel A (ECHO liaison):
+    Medium: TOR-routed text messages via custom onion service
+    Frequency: 2-3 messages per week
+    Content: Tasking orders, operational coordination, technical
+    instructions
+    Sample intercept (2024-07-14, decrypted):
+      ECHO -> KAPPA: "Priority list updated. Items 7, 12, 15
+      from current cycle. Delivery window: 72 hours."
+
+  Channel B (Gruner/Syndicate command):
+    Medium: Encrypted VOIP (Signal protocol derivative)
+    Frequency: Bi-weekly voice calls (avg 12 minutes)
+    Note: Channel went dormant after Gruner's death (2024-01-14),
+    subject established Channel A as primary
+
+3. PHYSICAL SURVEILLANCE
+
+3.1 Movement Patterns
+Subject was placed under 24/7 physical surveillance from
+2024-04-01. Surveillance teams (3 teams, 6 agents each,
+rotating 8-hour shifts) documented:
+
+  Regular patterns:
+    - Home (Halvsted, Lindengatan 47) to TSD offices: daily,
+      0730-0745 departure, public transit Route 14
+    - Wednesday evening: Halvsted University Library, 1800-2100
+      (cover for dead drop checks)
+    - Saturday morning: Nordvelt Marina area (monthly, 3 of 7
+      Saturdays during surveillance period)
+
+  Anomalous patterns:
+    - 2024-05-22: Subject conducted 90-minute SDR (Surveillance
+      Detection Route) through Halvsted Old Town before meeting
+      unknown individual at Cafe Lundqvist. Meeting lasted 22
+      minutes. Unknown individual departed by private vehicle
+      (registration traced to rental agency, false ID used).
+    - 2024-07-08: Subject traveled to Nordvelt border crossing
+      (Halvsted-Nordvelt checkpoint Alpha). Did not cross.
+      Observed making a phone call from payphone. Duration: 4
+      minutes 17 seconds.
+    - 2024-09-14: Subject visited Dressler Financial Services
+      office in Halvsted commercial district. Duration: 35 minutes.
+      Surveillance team noted subject carrying a briefcase into
+      the building and leaving without it.
+
+3.2 Counter-Surveillance Assessment
+Subject demonstrated counter-surveillance awareness consistent
+with intelligence training:
+  - Regular use of SDR techniques (varied routes, public transit
+    transfers, doubling back)
+  - Environmental awareness (noted checking reflections, pausing
+    at corners)
+  - Pattern variation (no two identical routes in the monitored
+    period)
+  - Electronic counter-surveillance (checked for tracking devices
+    on personal vehicle weekly, used RF scanner detected via
+    electronic surveillance)
+
+4. TECHNICAL COLLECTION - QUIC RELAY ANALYSIS
+
+The primary technical breakthrough of OPERATION TERVALIS was the
+identification and exploitation of the subject's QUIC relay
+exfiltration chain:
+
+4.1 Relay Chain Topology (as mapped by SIGINT Branch):
+  Node 1: TSD internal network (source)
+  Node 2: 185.220.xxx.xxx (Nordvelt ISP, leased by shell company)
+  Node 3: 91.219.xxx.xxx (Baltic data center, Syndicate controlled)
+  Node 4: 45.154.xxx.xxx (Nordvelt Autonomous Region backbone)
+  Node 5: 10.42.3.88 (relay origin, final identified hop)
+  Node 6-7: Two additional hops (Nordvelt internal, not fully mapped)
+  Node 8: Final destination (Syndicate collection server, location
+           estimated: Nordvelt eastern district)
+
+4.2 Interception Method:
+  Exploitation of NorvethSecure certificate validation weakness
+  (CN-only check, no SAN/AKI verification) allowed insertion of
+  interception proxy at Node 3. QUIC connection migration tokens
+  were captured and replayed to redirect traffic through FBI-
+  controlled infrastructure, enabling real-time content inspection
+  without alerting the subject.
+
+4.3 DNS Redirection:
+  Subject's DNS queries for relay infrastructure were intercepted
+  via cooperation with 2 ISPs (court order VF-FISC-2024-0412).
+  Modified DNS responses redirected a subset of traffic to analysis
+  servers while maintaining the appearance of normal connectivity.
+
+5. PRE-ARREST INTELLIGENCE
+
+5.1 KAPPA Facility Identification
+Cross-referencing physical surveillance data, communication
+intercepts, and financial records identified the Nordvelt safehouse:
+
+  Location: 64.0812N, 22.3148W
+  Property: Rural compound, 3 buildings on 2.4 hectares
+  Owner: Shell company (Nordvelt Arctic Holdings Ltd, dissolved)
+  Occupants: Subject (intermittent, 3 visits documented)
+  Security: Electronic perimeter alarm, 2 cameras (non-networked)
+  Designation: KAPPA (Syndicate internal codename)
+
+5.2 Arrest Planning
+  - Nordvelt Regional Police liaison established 2024-10-25
+  - Legal coordination through diplomatic channels (sealed)
+  - Arrest team: 4 FBI agents + 4 Nordvelt Regional Police
+  - Entry method: Dynamic entry, 0417 UTC, subject sleeping
+  - Duration: 3 minutes from breach to subject secured
+
+========================================================
+END OF REPORT - TSD-2024-SURV-7742
+CLASSIFICATION: SECRET // SI
+========================================================

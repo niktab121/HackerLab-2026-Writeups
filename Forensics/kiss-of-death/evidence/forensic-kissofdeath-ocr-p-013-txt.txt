@@ -1,0 +1,38 @@
+Source locale : forensic/kissofdeath/ocr/p-013.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+Phase 3 : RCE via backdoor dans le package npm (KnockKnock)
+La version malveillante 1.4.7 de @tervagrid/tervalog embarquait un middleware Node,js lisant l'en-téte HTTP
+personnalisé x-tervalog-trace sur chaque requéte, décodant sa valeur en base64, et l'exécutant via
+child_process.exec(). La reponse de la commande était renvoyée directement dans le corps HTTP.
+
+CMD=$(echo_ -n'id' | base64 -w0)
+
+curl http://172.28.6.2:3001/ -H"x-tervalog-trace:$CMD"
+
+#-> uid=0(root) gid=0(root)
+RCE non authentifiée avec exécution en root, sur le serveur de facturation TervaBill (billing-01). Cette exécution
+root est le préalable technique indispensable au pivot réseau ce la Phase 4: sans elle, l'attaquant n'aurait aucun acces
+a l'interface réseau eth1 (cdté OT) du serveur.
+Phase 4 : Pivot vers le réseau OT (The Ferryman)
+Le serveur billing-O1 est dual-homed : ethO cdté réseau bureautique (172.28.61.0/24) et eth1 cété réseau OT
+(10.96.2.0/24). Depuis l'accés root obtenu en Phase 3, l'attaquant a atteint le systeme historian SCADA en
+10.96.2.3:8080, cont l'endpoint /api/gateway/diag?host= effectuait un ping $host sans assainissement, une
+injection de commande classique.
+Ce pivot a brisé la segmentation réseau bureautique/OT, donnant a l'attaquant un accés direct aux systemes de
+contréle industriels : acces réseau OT préalable et nécessaire aux Phases 5 et 6.
+
+Injection de commande permettant d’accéder au réseau OT
+
+Phase 5 : Implant C2 caché sur le serveur de facturation (Moonwalking / Smooth
+Criminal)
+
+Un script caché .sync-agent.js (lancé par nightly-backup.sh chaque nuit a 2h du matin) constituait un implant C2
+chiffré par RC4 (clé : T3rv4Gr1d_C2_2026, mot de passe : <SECRET_EXPURGE>
+consolide et pérennise l'acces obtenu par le pivot de la Phase 4.
+
+La reconstitution du trafic chiffré dans capture.pcap a permis de retrouver la session de l'attaquant
+(203.0.113.66:54321) et l'ensemble des commandes exécutées, incluant l'extraction du flag applicatif du serveur
+TervaBill :
+
+Code du middleware C2 (.sync-agent.js)

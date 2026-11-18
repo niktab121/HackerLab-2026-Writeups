@@ -1,0 +1,2261 @@
+[
+  {
+    "path": ".DS_Store",
+    "size": 6148,
+    "sha256": "9d8e0db8dd75d9d2c352451b81f36d942ce87e52b10662f5fe37b3f826c0c1a1"
+  },
+  {
+    "path": "FEU.md",
+    "size": 1506,
+    "sha256": "3ee68be9dddbd1f7235f704ea21c6a94dc735269d4f2fbab24e91719e72af5ef",
+    "publication": "Copie expurgée : Web/feu/evidence/feu-md.txt"
+  },
+  {
+    "path": "Kiss_of_Death.md",
+    "size": 2359,
+    "sha256": "5c21f337d2ec711e47cf7c84ff8a544fc1bb4e79129bd61dcdfe90e19bb09500",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/kiss-of-death-md.txt"
+  },
+  {
+    "path": "adb/crack_pattern.py",
+    "size": 2056,
+    "sha256": "c81b56eb339618f9a96b27a97b7dc49b7edb6c5f7c0f3e53f0b80e581a136bec",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/scripts/adb--crack_pattern.py"
+  },
+  {
+    "path": "blockchain/anotherwu",
+    "size": 4316,
+    "sha256": "848fbca53ac21965d869f2353c0fc546fca1625c9eb5b848e4a9d887c5ffb02e",
+    "publication": "Copie expurgée : Blockchain/connecting-the-dots/evidence/blockchain-anotherwu.txt"
+  },
+  {
+    "path": "blockchain/hachage.txt",
+    "size": 340,
+    "sha256": "43650418c4e6df0e35880862c3168d18bd88cf25a5eaf094ef8afcef4fa62ddc",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "blockchain/hash",
+    "size": 83,
+    "sha256": "ef382de2706c25837f62f0927d68603638e7291c3a55fff3a93af9118d977348",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "blockchain/solveur.py",
+    "size": 8121,
+    "sha256": "822b7217a29b2f965e80cda26679b1c00db235ac96b24a422133a6601f75f61c",
+    "publication": "Copie expurgée : Blockchain/connecting-the-dots/scripts/blockchain--solveur.py"
+  },
+  {
+    "path": "blockchain/trace_both_ways_fixed.py",
+    "size": 6548,
+    "sha256": "31d9d1c285a08bcd29bbe557a9c572d04be0f8255ab78617804535859c9ae123",
+    "publication": "Copie expurgée : Blockchain/connecting-the-dots/scripts/blockchain--trace_both_ways_fixed.py"
+  },
+  {
+    "path": "blockchain/trace_result.json",
+    "size": 660,
+    "sha256": "c830bf09ef74a809deb36d6e45e1f989fbbe037afaacce8849596249e9849d85",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "blockchain/trace_wassabi.py",
+    "size": 1671,
+    "sha256": "6f9a660091e6874eb091b372c857180a769378dcd19021ab659887471ffdcbee",
+    "publication": "Copie expurgée : Blockchain/connecting-the-dots/scripts/blockchain--trace_wassabi.py"
+  },
+  {
+    "path": "blockchain/verifiy.py",
+    "size": 539,
+    "sha256": "f6b609478a57a7a8ce00f1ff380c2fe57f56ac0468d5200a0b2c6fb6074e2723",
+    "publication": "Copie expurgée : Blockchain/connecting-the-dots/scripts/blockchain--verifiy.py"
+  },
+  {
+    "path": "blockchain/wu1.md",
+    "size": 2859,
+    "sha256": "592eeba0fd9076718784ffeebb791bbab32e0ac6191b29151636aee077509752",
+    "publication": "Copie expurgée : Blockchain/node-to-nowhere-01/evidence/blockchain-wu1-md.txt"
+  },
+  {
+    "path": "canry/admin.cj",
+    "size": 267,
+    "sha256": "cf32648f35c16467ca390ce0beefd5bc4847e5dcd5db3138778dd9d388c80ece",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "canry/analyse_janus.txt",
+    "size": 857,
+    "sha256": "2354af9bcd038e66efa97c752d296210d8cab47471dfc16daa8fa873174f1825",
+    "publication": "Copie expurgée : Misc/canary/evidence/canry-analyse-janus-txt.txt"
+  },
+  {
+    "path": "canry/app.js",
+    "size": 16777,
+    "sha256": "32e60585e93878deed8f4f54e1f84a08c0e9a27b33347b911604d5c27715e002",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "canry/app_live.js",
+    "size": 16777,
+    "sha256": "32e60585e93878deed8f4f54e1f84a08c0e9a27b33347b911604d5c27715e002",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "canry/architecture-infra-janus-v3.pdf",
+    "size": 34855,
+    "sha256": "d72d8df2f42ea2e6f62d56626eed201c14f00327a736fcb633a608e209af36df",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "canry/bad.html",
+    "size": 8987,
+    "sha256": "9e06153469c7a8ec7b39d879ce6871690fdbe26df1f576bcf2805ab96f27fa41",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "canry/canary_phase2.txt",
+    "size": 32,
+    "sha256": "fd16c97346dac870dfe2321edcacd0ae7ca08112e96fdd5fa1b70cfe8b6a91c6",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "canry/cj.txt",
+    "size": 131,
+    "sha256": "46b05971e8b9b8f73c819f6c2ba54a5720be27e2f635488c0158b4a628468553",
+    "publication": "Copie expurgée : Misc/canary/evidence/canry-cj-txt.txt"
+  },
+  {
+    "path": "canry/corp_auth-1.2.0/PKG-INFO",
+    "size": 289,
+    "sha256": "085ff7fbb25fe408667de627289d19414645289fbd37a55cf2f176d30558f707",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "canry/corp_auth-1.2.0/corp_auth/__init__.py",
+    "size": 290,
+    "sha256": "199cabe4bfbc92fc5fb4715b1bcf9b498124f260c069b9eefaa30bc131f42af4",
+    "publication": "Copie expurgée : Misc/canary/scripts/canry-corp-auth-1-2-0-corp-auth--__init__.py"
+  },
+  {
+    "path": "canry/corp_auth-1.2.0/corp_auth/middleware.py",
+    "size": 3524,
+    "sha256": "12e6a2b8417562b64b356c3eefa7cdd42ba50a89d0a505dbaefe56014ba2c6d7",
+    "publication": "Copie expurgée : Misc/canary/scripts/canry-corp-auth-1-2-0-corp-auth--middleware.py"
+  },
+  {
+    "path": "canry/corp_auth-1.2.0/corp_auth.egg-info/PKG-INFO",
+    "size": 289,
+    "sha256": "085ff7fbb25fe408667de627289d19414645289fbd37a55cf2f176d30558f707",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "canry/corp_auth-1.2.0/corp_auth.egg-info/SOURCES.txt",
+    "size": 218,
+    "sha256": "b8a47e40bbb9d9a3cee37b9dd7c9ba6a8ee8e39aa3e308402b9e03189e203f06",
+    "publication": "Copie expurgée : Misc/canary/evidence/canry-corp-auth-1-2-0-corp-auth-egg-info-sources-txt.txt"
+  },
+  {
+    "path": "canry/corp_auth-1.2.0/corp_auth.egg-info/dependency_links.txt",
+    "size": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "publication": "Copie expurgée : Misc/canary/evidence/canry-corp-auth-1-2-0-corp-auth-egg-info-dependency-links-txt.txt"
+  },
+  {
+    "path": "canry/corp_auth-1.2.0/corp_auth.egg-info/requires.txt",
+    "size": 6,
+    "sha256": "76f8bae45e807865955344c1a58882d38c8ceb4f855f58091642b7d48290af97",
+    "publication": "Copie expurgée : Misc/canary/evidence/canry-corp-auth-1-2-0-corp-auth-egg-info-requires-txt.txt"
+  },
+  {
+    "path": "canry/corp_auth-1.2.0/corp_auth.egg-info/top_level.txt",
+    "size": 10,
+    "sha256": "0b40b2df937a87f00bc56e325f3336bc81794ea899d3d4eef31afb7219775c05",
+    "publication": "Copie expurgée : Misc/canary/evidence/canry-corp-auth-1-2-0-corp-auth-egg-info-top-level-txt.txt"
+  },
+  {
+    "path": "canry/corp_auth-1.2.0/setup.cfg",
+    "size": 38,
+    "sha256": "1c473cbaee8da5fc46e7f0158794af5cea4414c34a3cf3f180c2001f5e38bd3e",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "canry/corp_auth-1.2.0/setup.py",
+    "size": 301,
+    "sha256": "6ea535a2de071909151f7c4ab5a80b0e4093d3dc5b980c06868343c4bc5742d9",
+    "publication": "Copie expurgée : Misc/canary/scripts/canry-corp-auth-1-2-0--setup.py"
+  },
+  {
+    "path": "canry/corp_auth-1.2.0.tar.gz",
+    "size": 2467,
+    "sha256": "9e6f188036d9fd76d75786a6c1b0a3b94518c94a16ca507b86f50f4c302abb9a",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "canry/dash.html",
+    "size": 17538,
+    "sha256": "985aa8d56143bb9732e92110e74afe12b3778246162f00f03a08acf4be990f46",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "canry/ds",
+    "size": 16388,
+    "sha256": "b1493441fdf4e75d1b0b5bb3f69477f29ad686701d73e0a3777b41f5b0c83aba",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "canry/favicon.ico",
+    "size": 295,
+    "sha256": "cc01f19b2cd0ba0226bb922a5462b5620d4c1f67e3a58685abe6fc68e932a600",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "canry/k.txt",
+    "size": 131,
+    "sha256": "46b05971e8b9b8f73c819f6c2ba54a5720be27e2f635488c0158b4a628468553",
+    "publication": "Doublon exact : référence à Misc/canary/evidence/canry-cj-txt.txt"
+  },
+  {
+    "path": "canry/login.html",
+    "size": 380,
+    "sha256": "0581c188234fdeb4dd854d8f2bf5a66c8c12433871eb0d53e89bd29015cd1b0b",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "canry/nf.html",
+    "size": 409,
+    "sha256": "53eec8e1d7c07595430254058e737cdf993a389db39120640c73c72f7b2395c3",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "canry/r.html",
+    "size": 8987,
+    "sha256": "9e06153469c7a8ec7b39d879ce6871690fdbe26df1f576bcf2805ab96f27fa41",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "canry/rce.py",
+    "size": 526,
+    "sha256": "ccb71df52670e9f0bb05c764e139870b9340badd23fb00006158f8c16fef236f",
+    "publication": "Copie expurgée : Misc/canary/scripts/canry--rce.py"
+  },
+  {
+    "path": "canry/reconnaissance_canary.txt",
+    "size": 11447,
+    "sha256": "3ef3eaec7adbfa8ce8491c8cc8dc31c504c8db934340724abff952f63fa44607",
+    "publication": "Copie expurgée : Misc/canary/evidence/canry-reconnaissance-canary-txt.txt"
+  },
+  {
+    "path": "canry/root.html",
+    "size": 8994,
+    "sha256": "775ab4e0e1bf821b4de86253c52526d6e8fe6fadfb38611581c7619897c425ea",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "canry/solve_canary_janus.py",
+    "size": 8783,
+    "sha256": "9197c52b1c4baeefa20f018ce987a8ffbf682e2032f585aa2644c7f2419ced55",
+    "publication": "Copie expurgée : Misc/canary/scripts/canry--solve_canary_janus.py"
+  },
+  {
+    "path": "canry/solvedecode.py",
+    "size": 221,
+    "sha256": "a23f35be5f31569977ef1d0ff1e60a217d96fd9014b586f4fd0809cd02e06f4f",
+    "publication": "Copie expurgée : Misc/canary/scripts/canry--solvedecode.py"
+  },
+  {
+    "path": "canry/style.css",
+    "size": 157259,
+    "sha256": "2a7d12967b32f5dd7d521066b6355455d0f5427c4e51dc0e588cb1aeb2cfaae6",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "canry/t.txt",
+    "size": 131,
+    "sha256": "46b05971e8b9b8f73c819f6c2ba54a5720be27e2f635488c0158b4a628468553",
+    "publication": "Doublon exact : référence à Misc/canary/evidence/canry-cj-txt.txt"
+  },
+  {
+    "path": "canry/writeup-CANARY.md",
+    "size": 7736,
+    "sha256": "d5be07cfc3bba29b98bd19bfc3a11a8921a3baaa75b0baf1e25069720be56f4b",
+    "publication": "Copie expurgée : Misc/canary/evidence/canry-writeup-canary-md.txt"
+  },
+  {
+    "path": "conspiracy.md",
+    "size": 163,
+    "sha256": "798dcea6025adfef954118d3c1abe399ae6d9dee3b0e02c9ec816e7cbf2dbfaf",
+    "publication": "Copie expurgée : Misc/conspiracy/evidence/conspiracy-md.txt"
+  },
+  {
+    "path": "dfir/.work/dfir-observations.md",
+    "size": 6826,
+    "sha256": "158fe7c2e21e9e51091e7fb579c48070944339415f7c69e54d2b61f6fd33f62b",
+    "publication": "Copie expurgée : Forensics/the-gauntlet/evidence/dfir-work-dfir-observations-md.txt"
+  },
+  {
+    "path": "dfir/Rapport DFIR — The Gauntlet (HackerLab Bénin 2026).pdf",
+    "size": 291874,
+    "sha256": "f02e8cb580eadbad12f937f780593fc4a8420e62aef231ffe5f6d210e9e8e5d9",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "dfir/rapport-the-gauntlet.md",
+    "size": 19177,
+    "sha256": "d0fc4c8e891cd00c724749fca01fd06bb3234df810d972ab083e7d09f2083cdd",
+    "publication": "Copie expurgée : Forensics/the-gauntlet/evidence/dfir-rapport-the-gauntlet-md.txt"
+  },
+  {
+    "path": "forensic/.DS_Store",
+    "size": 6148,
+    "sha256": "33cf7529e8033e1d22b9940bfda021867ac9b2f7e24c048f6af33b89a02850b2"
+  },
+  {
+    "path": "forensic/broken/broken_channel.md",
+    "size": 464,
+    "sha256": "be57f001f767daf7e99164b6b0030eeea6971740fe6de9a2fa39452d4f8b212e",
+    "publication": "Copie expurgée : Forensics/broken-channel/evidence/forensic-broken-broken-channel-md.txt"
+  },
+  {
+    "path": "forensic/broken/thanos_desktop.ad1",
+    "size": 1264587858,
+    "sha256": "bb1e0708b20d3fbfa119d8051266c4a61479c4515f307e1062d9c30bf14ce705",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/broken/writeup-broken-relay.md",
+    "size": 6525,
+    "sha256": "91b303b9a06de03dc56cc3905c51a25471aabf529db0a598a13d99b043510cba",
+    "publication": "Copie expurgée : Forensics/broken-relay/evidence/forensic-broken-writeup-broken-relay-md.txt"
+  },
+  {
+    "path": "forensic/enquete/check.py",
+    "size": 975,
+    "sha256": "bf0f43d5748924e8f39b864d746dfb227b2b4cc1cff499b00baf7265346d4372",
+    "publication": "Copie expurgée : OSINT/enquete/scripts/forensic-enquete--check.py"
+  },
+  {
+    "path": "forensic/enquete/harmattan-app.js",
+    "size": 52084,
+    "sha256": "6133c26fd53c6ac9bcf0a66c1048aacd1a7ffb66a6b8ab3600d3b07236111138",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/enquete/harmattan-data.js",
+    "size": 33555,
+    "sha256": "34eb0a03c0b1f280d037062a7cbf422ecd4ccce6c18f2c1dad4c7e5439c55949",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/enquete/harmattan.html",
+    "size": 79785,
+    "sha256": "e3cc0bfc4834a8e433a914202ee203c1e85eee18c932aa18292ad4b61d2cc4ac",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/furgitif/confidential.zip",
+    "size": 515802,
+    "sha256": "a7680e5ddd42c6e7332664ed73b98428e7624eb0ba3a7312529232cd5a050eda",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/ghost/GHOST-RATCHET.zip",
+    "size": 17545,
+    "sha256": "53dce3451085aa3fba111632d1e34253de2fb7dff6721d45f25240a7a77cb083",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/ghost/Ghost Ratchet — write-up forensique.pdf",
+    "size": 87031,
+    "sha256": "ffbbd1d3ae728d357336ebcf15adf23d423c6935b61ee5f1329bca154a8c183c",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/ghot/.DS_Store",
+    "size": 6148,
+    "sha256": "96d0d14951eeba04e819b3402bb8ca62c991916db0d11855b48c2d9cd2addf91",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "forensic/ghot/andwerso/img_4468.jpg",
+    "size": 2516854,
+    "sha256": "dedcf5460b992e5c8dadf17675237fe54948a333a184fa9102742ec54edcc105",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/ghot/andwerso/img_4473.jpg",
+    "size": 518359,
+    "sha256": "c109f11b2c03b063e96e8f60b07844c86611cbf40fd413605811d035ed296bf9",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/ghot/andwerso/out-of-office.eml",
+    "size": 794,
+    "sha256": "c27af3b64775b27719634e8a16a99e0da19793ceb60661e371ed285c320702d9",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/ghot/andwerso/programme-confsec.html",
+    "size": 4642,
+    "sha256": "af670857d05baab08b3f0aeb8e279eb7125536925e630dd8de2e42bd190eaed2",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/ghot/andwerso/varga-profil.html",
+    "size": 4193,
+    "sha256": "036dda42ac52e314abddaf8580fe791cdee382201cec7ba671f88f3bf930fe65",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/ghot/capture-poste.pcap",
+    "size": 2558654,
+    "sha256": "729f059d90432c9d2cad1af1e3e53daa6968f7fab516b6dffab232fb16ab289e",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/ghot/il mandante/borealisCA-root.pem",
+    "size": 1395,
+    "sha256": "c4c7ba2e20fedb03dbf7869913b3e44b87d1cd1770c289c6d3ebd38f9f58554a",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/ghot/il mandante/ct-log.csv",
+    "size": 642789,
+    "sha256": "839d94fbd691e8906203f3f0df2b2ad1a53ce271c3a862196eed9761a6f6ca48",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/ghot/il mandante/whois-borealis.txt",
+    "size": 725,
+    "sha256": "984e105c70a330960803fd603028ea22934563456ba8f30ac9e5ce52056be53e",
+    "publication": "Copie expurgée : Forensics/il-mandante/evidence/forensic-ghot-il-mandante-whois-borealis-txt.txt"
+  },
+  {
+    "path": "forensic/ghot/il mandante/writeup-il-mandante.md",
+    "size": 24153,
+    "sha256": "1713265a421838dc3a407b26a41080799ce221ca0da88fba536cc9a9a7fefd6c",
+    "publication": "Copie expurgée : Forensics/il-mandante/evidence/forensic-ghot-il-mandante-writeup-il-mandante-md.txt"
+  },
+  {
+    "path": "forensic/ghot/new/new/blob-capture-c2node.bin",
+    "size": 256,
+    "sha256": "10f8ea582ea27cbf5a407a746d81267e2c7ef68c65a9581404a209dd4733936e",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/ghot/new/new/blob-capture-c2node.enc",
+    "size": 256,
+    "sha256": "10f8ea582ea27cbf5a407a746d81267e2c7ef68c65a9581404a209dd4733936e",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/ghot/new/new/crtsh-dump.pem",
+    "size": 1354547,
+    "sha256": "5c275a758846a989d451f214e412e6d70d5db83a3aa3f477d33d7cd145be143a",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/ghot/new/new.zip",
+    "size": 714649,
+    "sha256": "06c5159df6349a45b5c1548e08857af8fadf2a58c1caf8ea10a70e650342c5d2",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/ghot/nishi/ct-log-hote.csv",
+    "size": 95622,
+    "sha256": "5cfdbdba508c74bba2d2794ec94de8a67fc940d5f9aa2dde270c510957263a31",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/ghot/nishi/dossier-varelcorp.pdf",
+    "size": 5326,
+    "sha256": "e8b8f30091def91cc4b71ad9c52dc1e0da96b077c7944bfcd5c71098dc3cf799",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/ghot/nishi/dossier-varelcorp.pdf.p7s",
+    "size": 2572,
+    "sha256": "9a6bd00c14fa256f2f2da2b5e170ce8c21e774dddddea8b5bfd0fd6bb7c3c702",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/ghot/nishi/wayback-cdx.txt",
+    "size": 330,
+    "sha256": "77f3ac6369cd32898072d540fcb1e2faa51653e904c1620883f30bd024f67a65",
+    "publication": "Copie expurgée : Forensics/il-mandante/evidence/forensic-ghot-nishi-wayback-cdx-txt.txt"
+  },
+  {
+    "path": "forensic/ghot/nishi/writeup-il-mandante-q5.md",
+    "size": 11906,
+    "sha256": "7b625c055266530574ebeb7c56fdda72bd097f81a552423b721cfd7482d0378b",
+    "publication": "Copie expurgée : Forensics/il-mandante/evidence/forensic-ghot-nishi-writeup-il-mandante-q5-md.txt"
+  },
+  {
+    "path": "forensic/ghot/solveur.py",
+    "size": 4148,
+    "sha256": "3ebf5ef7af84c560ed6835335a14071d9c2d4e31ad402e9c50e05a2fd528fd98",
+    "publication": "Copie expurgée : Forensics/ghost-ratchet/scripts/forensic-ghot--solveur.py"
+  },
+  {
+    "path": "forensic/ghot/trusted-cas.pem",
+    "size": 5810,
+    "sha256": "85dbf1f65682e03ecebbcc0a56a94d33e254c5269de02df4473c4880061e8369",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/.DS_Store",
+    "size": 6148,
+    "sha256": "a5a75ba83b8c9bd8dda18766ee053ff61e5b6a8d51684f72b1dd882d1711c9d5",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "forensic/hunt/artefact.zip",
+    "size": 9851,
+    "sha256": "3c0dd26705520c0e8018276d95eb459b8cd17a6c85642f327ecf054f9b227005",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/capture.pcap",
+    "size": 24842,
+    "sha256": "c82357e9631d541ce71bf4522e54aeb86ba3eb581af70586fcbd71887786cb3e",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/ctf_writeup_relay_forensics.md",
+    "size": 4735,
+    "sha256": "5c5b61762be45eb421a56d3eca72bc70ae2e87bf0ec89dbeb101ca8d2e04d194",
+    "publication": "Copie expurgée : Forensics/the-hunt/evidence/forensic-hunt-ctf-writeup-relay-forensics-md.txt"
+  },
+  {
+    "path": "forensic/hunt/exfil",
+    "size": 14592,
+    "sha256": "5b8534536f9c1cb238e2aeb972387f61693f58bdabf9e0dcaacb96be9755cb41",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/.DS_Store",
+    "size": 12292,
+    "sha256": "6c830bb175686894f8175f735bd5335d4a874a929fe07c3bbc2292998b0f734b",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "forensic/hunt/relay/0b728309796fbb790ad646a620e4618e9f7d08c1f9deee7b8ebdd1f9fa201404/VERSION",
+    "size": 3,
+    "sha256": "d0ff5974b6aa52cf562bea5921840c032a860a91a3512f7fe8f768f6bbe005f6",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/0b728309796fbb790ad646a620e4618e9f7d08c1f9deee7b8ebdd1f9fa201404/json",
+    "size": 149,
+    "sha256": "f911a24d96053c3be75d4ac3139a0b80c8f37e1cfa7f09076bf44781ffee5bad",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/0b728309796fbb790ad646a620e4618e9f7d08c1f9deee7b8ebdd1f9fa201404/layer.tar",
+    "size": 14848,
+    "sha256": "689466e7b772d8cd51bf5a055a0dccc8c93f7809e2a9933282bf140903457bd8",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/1016cc1944ecfcea54b0cb0e1d82813530d8c74d8a3584bc5e173c14c303984b/VERSION",
+    "size": 3,
+    "sha256": "d0ff5974b6aa52cf562bea5921840c032a860a91a3512f7fe8f768f6bbe005f6",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/1016cc1944ecfcea54b0cb0e1d82813530d8c74d8a3584bc5e173c14c303984b/json",
+    "size": 149,
+    "sha256": "265885295a21293505a320931886cea322f5d827001e7daa09bcd0ac07b476ce",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/1016cc1944ecfcea54b0cb0e1d82813530d8c74d8a3584bc5e173c14c303984b/layer.tar",
+    "size": 38150656,
+    "sha256": "96a69f98ae076bdff5264720ee922820291d658c6a2df97f7c4899864ceb7ea8",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/1f86a8871867ed4f799f3cccc237258a7c38bfc1a76627003c6f4069b7aa11de/VERSION",
+    "size": 3,
+    "sha256": "d0ff5974b6aa52cf562bea5921840c032a860a91a3512f7fe8f768f6bbe005f6",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/1f86a8871867ed4f799f3cccc237258a7c38bfc1a76627003c6f4069b7aa11de/json",
+    "size": 149,
+    "sha256": "3c1c7fa3f6d582ed8ec5025b38600b5c1dfa24222006acf202b9a594492ef087",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/1f86a8871867ed4f799f3cccc237258a7c38bfc1a76627003c6f4069b7aa11de/layer.tar",
+    "size": 29649408,
+    "sha256": "94471d7643992c4c29b0d0eb4e171e0fc572fc55a293884c763e2c373a049fd7",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/22f9045ca4fe2fbb4953b78022ddb0e5a7de0fc80129e1155149512fe8d34772.tar",
+    "size": 2560,
+    "sha256": "22f9045ca4fe2fbb4953b78022ddb0e5a7de0fc80129e1155149512fe8d34772",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/340931a1d98607a7f1319082179f82ba477f1a1de6e3ecf2ea11f4cc0fe454c3.tar",
+    "size": 5120,
+    "sha256": "340931a1d98607a7f1319082179f82ba477f1a1de6e3ecf2ea11f4cc0fe454c3",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/3918ed8fdf29acfc8427d8036d7bd71fbd93cda425f9f7e5cf6da9a7b999a09e/VERSION",
+    "size": 3,
+    "sha256": "d0ff5974b6aa52cf562bea5921840c032a860a91a3512f7fe8f768f6bbe005f6",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/3918ed8fdf29acfc8427d8036d7bd71fbd93cda425f9f7e5cf6da9a7b999a09e/json",
+    "size": 149,
+    "sha256": "b68fa527d5350b6053a9c0fc41d70a97633368dcaa438ef1c96f5426edc77053",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/3918ed8fdf29acfc8427d8036d7bd71fbd93cda425f9f7e5cf6da9a7b999a09e/layer.tar",
+    "size": 5120,
+    "sha256": "340931a1d98607a7f1319082179f82ba477f1a1de6e3ecf2ea11f4cc0fe454c3",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/3dc3efdf011007403514ffd3b699da9deef847535ae30a3639ef3fee93c1375e.tar",
+    "size": 4118528,
+    "sha256": "3dc3efdf011007403514ffd3b699da9deef847535ae30a3639ef3fee93c1375e",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/539e4019e88352ebab2c45264dd71af4ac8c1b725ce414c24426e14b9a41862a.json",
+    "size": 8273,
+    "sha256": "539e4019e88352ebab2c45264dd71af4ac8c1b725ce414c24426e14b9a41862a",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/5d8ab3109eefe00333d8dd19dfc8258173b0767fdaf67fa18f4789dbd92a43d3/VERSION",
+    "size": 3,
+    "sha256": "d0ff5974b6aa52cf562bea5921840c032a860a91a3512f7fe8f768f6bbe005f6",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/5d8ab3109eefe00333d8dd19dfc8258173b0767fdaf67fa18f4789dbd92a43d3/json",
+    "size": 149,
+    "sha256": "eee19216a3a9dc5c9da35d35a6fab2d4d361fb2123dae30876e23dbbbb53873e",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/5d8ab3109eefe00333d8dd19dfc8258173b0767fdaf67fa18f4789dbd92a43d3/layer.tar",
+    "size": 80896,
+    "sha256": "a3af8b6d87e053107f3a7bd9d3b4b0d03353f3e861bce41b058803633a81657c",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/6785c273d425a780d5b6b38df50ca81dd706aa94282f5d4e3ecdeb25c24cde0a.tar",
+    "size": 1536,
+    "sha256": "6785c273d425a780d5b6b38df50ca81dd706aa94282f5d4e3ecdeb25c24cde0a",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/689466e7b772d8cd51bf5a055a0dccc8c93f7809e2a9933282bf140903457bd8.tar",
+    "size": 14848,
+    "sha256": "689466e7b772d8cd51bf5a055a0dccc8c93f7809e2a9933282bf140903457bd8",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/7c5d229c4f610c065261eb87da747cd4c6fc86d55e4b24f7905fb301ec501672/VERSION",
+    "size": 3,
+    "sha256": "d0ff5974b6aa52cf562bea5921840c032a860a91a3512f7fe8f768f6bbe005f6",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/7c5d229c4f610c065261eb87da747cd4c6fc86d55e4b24f7905fb301ec501672/json",
+    "size": 149,
+    "sha256": "3ad12b3428dadf5c9eb50b07f6f2b78381997c797cfa864da3ef74d3d82d7de4",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/7c5d229c4f610c065261eb87da747cd4c6fc86d55e4b24f7905fb301ec501672/layer.tar",
+    "size": 2560,
+    "sha256": "22f9045ca4fe2fbb4953b78022ddb0e5a7de0fc80129e1155149512fe8d34772",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/85b45afa95437dfb0ad999a0007f396cd0f2a2130cd9a451ad717ade48fe68ca/VERSION",
+    "size": 3,
+    "sha256": "d0ff5974b6aa52cf562bea5921840c032a860a91a3512f7fe8f768f6bbe005f6",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/85b45afa95437dfb0ad999a0007f396cd0f2a2130cd9a451ad717ade48fe68ca/json",
+    "size": 149,
+    "sha256": "f52f90a2b612a8f6328e267aa8e08acc851d03b7ad0dc74332e7d5bfa22230ab",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/85b45afa95437dfb0ad999a0007f396cd0f2a2130cd9a451ad717ade48fe68ca/layer.tar",
+    "size": 4118528,
+    "sha256": "3dc3efdf011007403514ffd3b699da9deef847535ae30a3639ef3fee93c1375e",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/90a18d2846c2edc5ac529601ca883c5fd3c08f7ac15ef723c916c60e18e5efbd.tar",
+    "size": 43008,
+    "sha256": "90a18d2846c2edc5ac529601ca883c5fd3c08f7ac15ef723c916c60e18e5efbd",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/94471d7643992c4c29b0d0eb4e171e0fc572fc55a293884c763e2c373a049fd7.tar",
+    "size": 29649408,
+    "sha256": "94471d7643992c4c29b0d0eb4e171e0fc572fc55a293884c763e2c373a049fd7",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/96a69f98ae076bdff5264720ee922820291d658c6a2df97f7c4899864ceb7ea8.tar",
+    "size": 38150656,
+    "sha256": "96a69f98ae076bdff5264720ee922820291d658c6a2df97f7c4899864ceb7ea8",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/a3af8b6d87e053107f3a7bd9d3b4b0d03353f3e861bce41b058803633a81657c.tar",
+    "size": 80896,
+    "sha256": "a3af8b6d87e053107f3a7bd9d3b4b0d03353f3e861bce41b058803633a81657c",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/app/requirements.txt",
+    "size": 51,
+    "sha256": "58b172514b0b2e0ae5f305b72974fef460fede08def66c29a1a600d13ee756cc",
+    "publication": "Copie expurgée : Forensics/the-hunt/evidence/forensic-hunt-relay-app-requirements-txt.txt"
+  },
+  {
+    "path": "forensic/hunt/relay/b7204a813b11dd5f431f6b0739137307189b825b9294d6ba9c3ae5fe2b3768c0/VERSION",
+    "size": 3,
+    "sha256": "d0ff5974b6aa52cf562bea5921840c032a860a91a3512f7fe8f768f6bbe005f6",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/b7204a813b11dd5f431f6b0739137307189b825b9294d6ba9c3ae5fe2b3768c0/json",
+    "size": 149,
+    "sha256": "bf8b72184bd59f3594306c6c2cc8110fbe019bf0b83d6e06a49f174af0f9f270",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/b7204a813b11dd5f431f6b0739137307189b825b9294d6ba9c3ae5fe2b3768c0/layer.tar",
+    "size": 43008,
+    "sha256": "90a18d2846c2edc5ac529601ca883c5fd3c08f7ac15ef723c916c60e18e5efbd",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/b9975cd47a053ba034ef762d119b9be2eaf8e2b6c6b54e3d1cac1479437a7b16/VERSION",
+    "size": 3,
+    "sha256": "d0ff5974b6aa52cf562bea5921840c032a860a91a3512f7fe8f768f6bbe005f6",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/b9975cd47a053ba034ef762d119b9be2eaf8e2b6c6b54e3d1cac1479437a7b16/json",
+    "size": 73,
+    "sha256": "3dcf837d83bb37d29f30699ae9a9cc52e8ab95765377a689892a68b74d73fe18",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/b9975cd47a053ba034ef762d119b9be2eaf8e2b6c6b54e3d1cac1479437a7b16/layer.tar",
+    "size": 81295360,
+    "sha256": "dd57f90311a2567b55ff22eeacff1602fd04ad7566e315957731359eab173b90",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/d42b637523644b92f6380c9ceb754e7acef247e5f363dfc678f6f043f983454a/VERSION",
+    "size": 3,
+    "sha256": "d0ff5974b6aa52cf562bea5921840c032a860a91a3512f7fe8f768f6bbe005f6",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/d42b637523644b92f6380c9ceb754e7acef247e5f363dfc678f6f043f983454a/json",
+    "size": 149,
+    "sha256": "156503806850fbae5c2e2e10bbc4897a7505534b30de60655aabbee8fd88e33b",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/d42b637523644b92f6380c9ceb754e7acef247e5f363dfc678f6f043f983454a/layer.tar",
+    "size": 1536,
+    "sha256": "6785c273d425a780d5b6b38df50ca81dd706aa94282f5d4e3ecdeb25c24cde0a",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/dd57f90311a2567b55ff22eeacff1602fd04ad7566e315957731359eab173b90.tar",
+    "size": 81295360,
+    "sha256": "dd57f90311a2567b55ff22eeacff1602fd04ad7566e315957731359eab173b90",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/f2d9e31db79edc65a7ffa5fec881bfd3f0644c173cb28b5b5398d57e568bd6c1/VERSION",
+    "size": 3,
+    "sha256": "d0ff5974b6aa52cf562bea5921840c032a860a91a3512f7fe8f768f6bbe005f6",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/f2d9e31db79edc65a7ffa5fec881bfd3f0644c173cb28b5b5398d57e568bd6c1/json",
+    "size": 914,
+    "sha256": "21cf5c81837044c8efea90ef5d41ee18afc0bf9e2b324dd616dedfcfcd00967a",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/f2d9e31db79edc65a7ffa5fec881bfd3f0644c173cb28b5b5398d57e568bd6c1/layer.tar",
+    "size": 47104,
+    "sha256": "f6134882a0bca47d24d55cc3c976dc50a1ee23e185e9a03841f4dd9ded7ec842",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/f6134882a0bca47d24d55cc3c976dc50a1ee23e185e9a03841f4dd9ded7ec842.tar",
+    "size": 47104,
+    "sha256": "f6134882a0bca47d24d55cc3c976dc50a1ee23e185e9a03841f4dd9ded7ec842",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/manifest.json",
+    "size": 920,
+    "sha256": "689dd302ea6bc737e2fa15a987f92d98501091c735819b9789111bd3378be754",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay/repositories",
+    "size": 103,
+    "sha256": "be3a27109ae72448756e03966944a52eaadb7b63b912eac4188ed2061846cc3c",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/relay.tar",
+    "size": 153456128,
+    "sha256": "d2a2574786d5ab779d5d917db53827cb02887331ce1e289b2936476604e2a52a",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/hunt/solve_the_hunt.py",
+    "size": 759,
+    "sha256": "5aba3e72fcc0db8f898c836e6cf9a09fa96754fdd1c80185abb14bbe8b912294",
+    "publication": "Copie expurgée : Forensics/the-hunt/scripts/forensic-hunt--solve_the_hunt.py"
+  },
+  {
+    "path": "forensic/hunt/solveur.py",
+    "size": 5711,
+    "sha256": "7196bd5c14c7fd2cabad5b1c5a5c66761622f679f3ce8a050c1ef01e171a67ad",
+    "publication": "Copie expurgée : Forensics/the-hunt/scripts/forensic-hunt--solveur.py"
+  },
+  {
+    "path": "forensic/hunt/writeup-The hunt.md",
+    "size": 6191,
+    "sha256": "7049e465c7185cb2ac0399f8704cd9e273d088325cb953e0790a43de6acdb999",
+    "publication": "Copie expurgée : Forensics/the-hunt/evidence/forensic-hunt-writeup-the-hunt-md.txt"
+  },
+  {
+    "path": "forensic/hunt/wu.md",
+    "size": 13833,
+    "sha256": "130e70616c3b3eec6c44fdfa5e67508d289c3bd174f2daa9e968916b5cc34e04",
+    "publication": "Copie expurgée : Forensics/the-hunt/evidence/forensic-hunt-wu-md.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/__pycache__/decode_yellow.cpython-314.pyc",
+    "size": 3946,
+    "sha256": "46e1d483fd0cc1175176c737409ecdc636afd3cfcceee874f4b8de00c67dab13",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "forensic/kissofdeath/all.txt",
+    "size": 19,
+    "sha256": "4b4c54f636bfc670ea4d941d22ccdc1730c2d2bb16327cff15fac7d4d3d6ddd2",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "forensic/kissofdeath/app.js",
+    "size": 1031015,
+    "sha256": "45b1e2494dd54d15911c8f580582f29ae2f40bd2f3b63b0c5a688159c1b16325",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/beth.png",
+    "size": 13775536,
+    "sha256": "dca4f50d3abf1f76b4008ad2cdbcacea7c3b27e86f704cfa9e444aaee79ba6d0",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/cover-000.png",
+    "size": 126716,
+    "sha256": "9694aac33c3fec6b7d789729be5681f04f48069cbe3f79c59914b7b5b7f86dc1",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/decode_yellow.py",
+    "size": 1383,
+    "sha256": "1509ad66685d191eefb64839c898746e50effa62f6d43080ef5e40b70f67b9f7",
+    "publication": "Copie expurgée : Forensics/dreamer/scripts/forensic-kissofdeath--decode_yellow.py"
+  },
+  {
+    "path": "forensic/kissofdeath/dl.sh",
+    "size": 738,
+    "sha256": "877df5f484b0d617bbaf413f34a7608a16ddfe11ab0f7b08028d501b6b1d762f",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/scripts/forensic-kissofdeath--dl.sh"
+  },
+  {
+    "path": "forensic/kissofdeath/dl2.log",
+    "size": 164,
+    "sha256": "4d2bfbc5f42b1bada86e441e3775cfe9a558d8039445bb04437bf9fb19837a02",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-dl2-log.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/dl2.sh",
+    "size": 871,
+    "sha256": "56468d5e55806402aaccba07480af55b4ca1b8ec4d60636855997218ae4372f5",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/scripts/forensic-kissofdeath--dl2.sh"
+  },
+  {
+    "path": "forensic/kissofdeath/dvpn-1138b6f7.conf",
+    "size": 320,
+    "sha256": "d4eb7a39296dadd90f09391c2efda085630fadbf1d7c778079303379f359720e",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "forensic/kissofdeath/dvpn-c14a6219.conf",
+    "size": 319,
+    "sha256": "c12227f76db99ee943656c3a6e6e0867f12de2b6cebadc64900ba146f05eb636",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "forensic/kissofdeath/herald.html",
+    "size": 47482,
+    "sha256": "5514cfe5b6bf8a1726062591300b751ce8233d20298010379e410951b4ef4e35",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/herald.js",
+    "size": 34477,
+    "sha256": "a1e8c110a55d67f05c97495899666a2ba1f025a66cb65993b1cd46256a99b25f",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/index.html",
+    "size": 4295,
+    "sha256": "5c8c27bd1048fc34856943430ad2b17de11e3c9c6e064cbd93a70808e7091056",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/kiss.conf",
+    "size": 318,
+    "sha256": "fe9773b58d7d27ba0b8a001ae4a8da94110579e4fdc72125b7d0f68240aca8a2",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "forensic/kissofdeath/ocr/p-000.txt",
+    "size": 129,
+    "sha256": "3140fc148bc3b9eeb33bb657509b61d5667454fda86b46055f200151c11c9541",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-ocr-p-000-txt.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/ocr/p-001.txt",
+    "size": 2162,
+    "sha256": "906e3d1f61c96fb501c72f63ba8ac9be77c2aa4934d57b78868947cffc160a06",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-ocr-p-001-txt.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/ocr/p-002.txt",
+    "size": 3124,
+    "sha256": "06ac4c87938ae8462eee078398b89869a9632a5cf07cc57582cf30cf69f30182",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-ocr-p-002-txt.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/ocr/p-003.txt",
+    "size": 2472,
+    "sha256": "335237d70279aa947a95ca0474a88cbc83e9ebf16f43788f03c9c1c6e8c49b56",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-ocr-p-003-txt.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/ocr/p-004.txt",
+    "size": 763,
+    "sha256": "4e284526c57f8270d0c8941cfff11368bb9a1ad5c7b6b0b02686bb590ce01f36",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-ocr-p-004-txt.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/ocr/p-005.txt",
+    "size": 1994,
+    "sha256": "cea9d24e132f0afcf0b08799f3170e5e0327702999a481ef076435ea500c3cd8",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-ocr-p-005-txt.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/ocr/p-006.txt",
+    "size": 551,
+    "sha256": "68114733f7dbb2f21408e178106fc07fc0bec6bf2d3b9afcbd7a93c51aa711ff",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-ocr-p-006-txt.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/ocr/p-007.txt",
+    "size": 2730,
+    "sha256": "bf6d5d9c1aa7183291ffeba7b44effa0200812bff58ff975229fbf0a68760cf1",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-ocr-p-007-txt.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/ocr/p-008.txt",
+    "size": 2127,
+    "sha256": "3398d3014dc2d63faa9abc75929de227583d373e070d2958b25dde830af1617c",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-ocr-p-008-txt.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/ocr/p-009.txt",
+    "size": 2031,
+    "sha256": "56fbdeaae4f5652b70f9976c52bd116f45447245709ef909762b0269d1cec15d",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-ocr-p-009-txt.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/ocr/p-010.txt",
+    "size": 2085,
+    "sha256": "6606bf8829e259096d0f7ec534887000d826ea7ace6fd5fc0b1e34a6738846ac",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-ocr-p-010-txt.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/ocr/p-011.txt",
+    "size": 1327,
+    "sha256": "8ca84ce02420f4e5610b23175336082c8584c068cc6888a5274fe2c5d36a7f36",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-ocr-p-011-txt.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/ocr/p-012.txt",
+    "size": 2144,
+    "sha256": "3e687c509c2c1292d2a1abbd2cc8fff323d45f152843d55cd66512953314c57e",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-ocr-p-012-txt.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/ocr/p-013.txt",
+    "size": 2108,
+    "sha256": "68ed8528ca5944d6d9a928db00917f5b49a8d6dba5bf81d37ffa66bb3d56cac3",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-ocr-p-013-txt.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/ocr/p-014.txt",
+    "size": 2638,
+    "sha256": "0bbe0dee00b2900d6265eba04f3f15b1def0894babace677cd7c7845b88800b1",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-ocr-p-014-txt.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/ocr/p-015.txt",
+    "size": 981,
+    "sha256": "7ccd5da8ae35564f21f7de80287d0b7b5363624f9e1b92eee527b68f949021cd",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-ocr-p-015-txt.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/ocr/p-016.txt",
+    "size": 229,
+    "sha256": "7e1c911d2037094779a5ba0c084fdd02f8e56a383ab51ca65d22aeb5b883f47b",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-ocr-p-016-txt.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/ocr/p-017.txt",
+    "size": 2124,
+    "sha256": "f743bd6c4793d9e4b03e8562fe73a38679896550c08d23d5af6e464202c499b3",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-ocr-p-017-txt.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/ocr/p-018.txt",
+    "size": 1564,
+    "sha256": "1eda0be4f69ef68ff484ee116b991128ff760cfe7fef1a604b1dbf20b3a83e64",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-ocr-p-018-txt.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/pdfpages/p-000.png",
+    "size": 126716,
+    "sha256": "9694aac33c3fec6b7d789729be5681f04f48069cbe3f79c59914b7b5b7f86dc1",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/pdfpages/p-001.png",
+    "size": 439307,
+    "sha256": "08efe2661b67b4279b7299338fdb781327b58d3ecfe732282bcde31a690dc36d",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/pdfpages/p-002.png",
+    "size": 544820,
+    "sha256": "655009bcfd8e2a0585d5f6333c93f8da3b3c37b3f4343cb71e61e18f3ed5c519",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/pdfpages/p-003.png",
+    "size": 1731998,
+    "sha256": "eba71aa578dc638910b24d098f414614be57fafb9d9fc6442338aae2c0f38ded",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/pdfpages/p-004.png",
+    "size": 196241,
+    "sha256": "21f00744a7c9729561a8f324eff110c107ed5712bc89ff87ef1426ce8a83d727",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/pdfpages/p-005.png",
+    "size": 621206,
+    "sha256": "3d4b10350e6cd9c60a77b9d01a9002c905b27ab17541e69b592511b496028846",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/pdfpages/p-006.png",
+    "size": 167626,
+    "sha256": "6c8a31e1ee165616f6d2c3ace50d302de4f5c98c73409511d56010ef31e3c021",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/pdfpages/p-007.png",
+    "size": 532200,
+    "sha256": "a3d0d8b5d469af93a55c79c6c6bf86331fd8fcd3a9e892c568fa1a271a1b02e0",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/pdfpages/p-008.png",
+    "size": 844146,
+    "sha256": "512d001c1499b505200ca2c8fba91a95bbe5313c4b2fc71a2753878fc2d33403",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/pdfpages/p-009.png",
+    "size": 1398095,
+    "sha256": "1318f627d72c981c75e6270ffbdc18838ed9c30167197b692c432a7410183c14",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/pdfpages/p-010.png",
+    "size": 1245866,
+    "sha256": "267008f6186029afc55003f110bf7830083b08b3a47bedb32a62fc8192184b49",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/pdfpages/p-011.png",
+    "size": 279611,
+    "sha256": "5c1b48d109d330c6d5643dc8aa996110e04e586d50aede5c0cb16480b6452f7d",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/pdfpages/p-012.png",
+    "size": 447714,
+    "sha256": "cd9c7648ebafe7acc131b2c5e5bf91d3dcaeb05ccf0bdd275f19f781a449ae51",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/pdfpages/p-013.png",
+    "size": 1016895,
+    "sha256": "f52ab005067116265c83fc3922eefb7081b5e45032ab0bc36ad7af98982b6e83",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/pdfpages/p-014.png",
+    "size": 1656236,
+    "sha256": "0fe5d7acfaa8810534e3832caa254c4a8ac8bc4a75559d4a449435ceb14cac15",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/pdfpages/p-015.png",
+    "size": 1335243,
+    "sha256": "1ce2db6239f4a0446e608f5d25d794eb722326543c65ba01ad4f89c8b1b595fc",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/pdfpages/p-016.png",
+    "size": 486267,
+    "sha256": "eab386cc7e4e8988a57471955c09af1ec91a83220a0b5042577b7dcfbffebe03",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/pdfpages/p-017.png",
+    "size": 361935,
+    "sha256": "912098c7d8738e36df4ff0b4f76ba22f83d347637ebaa5e4e5638028782cc31a",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/pdfpages/p-018.png",
+    "size": 240436,
+    "sha256": "d09c98eee886d99ef8fddd39f51915be806db76baff7cf94758aa5708e3c80d5",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/real.json",
+    "size": 9886,
+    "sha256": "f95a649cbcdcbcf03334aa6e4229d2e8d8c6ed9b7de6f981982c08581044c70e",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "forensic/kissofdeath/step2.bin",
+    "size": 13775536,
+    "sha256": "8c80deab2c4b39005092231c861a3fe68fb03d268349c1598abb313357807bb8",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/step2_470.png",
+    "size": 19919,
+    "sha256": "7ebe1adbd362025f2344bb10ee53f8f208535abb7530ced622e0f61dddd68686",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/step3.pdf",
+    "size": 13775536,
+    "sha256": "85f4dbf05e75a065aff67517829632f515befdd0a64bac36735a67a342318d5b",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/kissofdeath/unlock.json",
+    "size": 2431,
+    "sha256": "e6d59051553f840c8f4f8f872de649a5d26866acb044da7a52aa1bd23f0cf921",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "forensic/kissofdeath/writeup-dreamer.md",
+    "size": 3676,
+    "sha256": "68ab0362373250fefa56da4eddd8b5d4e1eaff353bf5b980381cf89908cba0d7",
+    "publication": "Copie expurgée : Forensics/dreamer/evidence/forensic-kissofdeath-writeup-dreamer-md.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/writeup-kiss-of-death-q5.md",
+    "size": 13733,
+    "sha256": "81857a3419a2c1e8b9ab09d222044d4592c6e63281a6bce6794fa69b246227e3",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-writeup-kiss-of-death-q5-md.txt"
+  },
+  {
+    "path": "forensic/kissofdeath/writeup-kiss-of-death.md",
+    "size": 7856,
+    "sha256": "283e18219dee4d59815afe3773d61c2abc9385476519b4057741cbc805e71086",
+    "publication": "Copie expurgée : Forensics/kiss-of-death/evidence/forensic-kissofdeath-writeup-kiss-of-death-md.txt"
+  },
+  {
+    "path": "forensic/memento/app.js",
+    "size": 25919,
+    "sha256": "12fcc5684acf69426824d6ef32213c253e8d9eb146fdced755b2863e9061062f",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/memento/assets_exhibit-A.png",
+    "size": 2712829,
+    "sha256": "73dc8832dd8397f51b96462556dd6360a3522ac56045ac021883ef56d453c39b",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/memento/assets_exhibit-B.jpg",
+    "size": 377934,
+    "sha256": "aafc90f7686328dc87b6f0176508f3ef2b31f61812f7f3293d444ea9f8b27c7f",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/memento/assets_exhibit-C.jpg",
+    "size": 439133,
+    "sha256": "91a858b75a7f58d88605029c1c146e5bc395ac1165c04834fca5d561670f652b",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/memento/assets_exhibit-D.jpg",
+    "size": 525526,
+    "sha256": "a09078c5b3d1c6066fe993a4bf4a7fc3c634d1219eb22341555eb81be7a22347",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/memento/assets_exhibit-E.jpg",
+    "size": 508525,
+    "sha256": "79760eb9fd1f71462bd8d81345be549254981e42b489010c9bc50d7c3e234729",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/memento/assets_exhibit-F.jpg",
+    "size": 310766,
+    "sha256": "b126d56090068d1dae5b39672cff55831ecfbe7c4299904a1cccb4aedce44d30",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/memento/assets_exhibit-G.jpg",
+    "size": 461778,
+    "sha256": "3acecdd999fff13860703e8ad10e20df7fedc4e17f509dd4cca7b7df8ed99de4",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/memento/assets_exhibit-H.jpg",
+    "size": 705987,
+    "sha256": "126e59ef8456f092a80446de48462891f77c14e62f117a93b2df6d25b4b54f9c",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/memento/assets_exhibit-I.jpg",
+    "size": 447276,
+    "sha256": "61d7e1633f926fe769b41525af2796f19b9ff867b116626c5e37c8cc9134a59d",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/memento/assets_hero-tableau.jpg",
+    "size": 419144,
+    "sha256": "9c2246c8f478645e530e4b10dbedd0ef8ee78501a099374699f455d047950751",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/memento/assets_scelle-P7.enc",
+    "size": 64,
+    "sha256": "032c89c02cdfb0e56ab1c0afaa98c15b5900d717be8f57e38e94de9067f420f0",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/memento/data.js",
+    "size": 6158,
+    "sha256": "4af612ecb1172697e0c7a9ba92ac684637e7e1e7e344e7bec1dcd632e97fc02e",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/memento/index.html",
+    "size": 10069,
+    "sha256": "fc243cb28ffb2c111f8ca83d7f4c8fe4e50a5a21e4d97dc2c78a3e3e1ec84063",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/memento/work/assets_scelle-P7.enc",
+    "size": 64,
+    "sha256": "032c89c02cdfb0e56ab1c0afaa98c15b5900d717be8f57e38e94de9067f420f0",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "forensic/memento/work/brute.py",
+    "size": 3774,
+    "sha256": "e89e381354d53ce69978d613f94e7503379a5fdae3bca4493107a475f7a288e8",
+    "publication": "Copie expurgée : Forensics/memento/scripts/forensic-memento-work--brute.py"
+  },
+  {
+    "path": "forensic/memento/work/candidates.txt",
+    "size": 589,
+    "sha256": "785e69b7915da0c89482668db34dc66ce94f906bbcd6563f73dffccbe1d5eac7",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "forensic/memento/work/out.bin",
+    "size": 32,
+    "sha256": "75998d6ad1dff1150174db6b83ec22db4fa56e3b3da4dfaf928ecb91667b0879",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "forensic/memento/work/try.sh",
+    "size": 442,
+    "sha256": "58e8ea2c080db64480a4f938b8a48a46373cbe4ea1674804363d4c61e6a21e44",
+    "publication": "Copie expurgée : Forensics/memento/scripts/forensic-memento-work--try.sh"
+  },
+  {
+    "path": "ghost/GHOST-RATCHET.zip",
+    "size": 17545,
+    "sha256": "53dce3451085aa3fba111632d1e34253de2fb7dff6721d45f25240a7a77cb083",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "ghost/nordlink_device/NordLink.jar",
+    "size": 6460,
+    "sha256": "0eb7a5c6e1bf835ae01a8be0867f73309f606d1832e150b4bd5ea74f46008d7a",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "ghost/nordlink_device/data/data/nrv.nordlink/databases/nordlink.db",
+    "size": 53248,
+    "sha256": "213c7f06a71527b27fb929c8f5331a16cea3248c8191678503d88c9b0030e025",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "ghost/nordlink_device/data/data/nrv.nordlink/files/ratchet_state.dat",
+    "size": 114,
+    "sha256": "a36dbc6831344acd24173ac01c015e09516643a85c587d842f9f286c117e15a0",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "ghost/nordlink_device/data/data/nrv.nordlink/files/session_init.bak",
+    "size": 262,
+    "sha256": "a9bb4b308c2ce4ae1f9d3955bcdbfe8a1e3221ab4a73c96e801b79fa7c74debd",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "ghost/nordlink_device/data/data/nrv.nordlink/shared_prefs/nrv.nordlink_preferences.xml",
+    "size": 610,
+    "sha256": "e1969240a7ca82f8ac6644e0e814d00fd9e3c0a59b6b0f66581a192922fa5838",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/.DS_Store",
+    "size": 6148,
+    "sha256": "a6b2050aa01f2e7eda7ffbaeca61773bd94144b1c10193bea89ab4a87eed5df0"
+  },
+  {
+    "path": "misc/aizen/cookies.txt",
+    "size": 131,
+    "sha256": "46b05971e8b9b8f73c819f6c2ba54a5720be27e2f635488c0158b4a628468553",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "misc/aizen/dvpn-cace2360.conf",
+    "size": 319,
+    "sha256": "1739f8d2fafdca1c744cf6574bb9cfcbe141c8abd97f61ae2c2813128da919c6",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "misc/aizen/login.html",
+    "size": 1730,
+    "sha256": "bc5e4cda279ee520295cd7f9bd69c840ff41ae90113e81ccbc1289cfcc6c74b3",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/aizen/nf.html",
+    "size": 2840,
+    "sha256": "1e313b2184458dead10ae0b3b4a45caf879efca1610104a92037a4cd64e66e22",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/aizen/style.css",
+    "size": 11339,
+    "sha256": "1b0e9b2767e808433918b9526a79b3baec01f2c30485bf4826537667b93c856f",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/deaddrop/broken/challenge/BRIEFING.md",
+    "size": 2073,
+    "sha256": "08346a6405f175265e777f200c2b46e0879524631a04ba445c1a454e225d0d33",
+    "publication": "Copie expurgée : Network/broken-handshake/evidence/misc-deaddrop-broken-challenge-briefing-md.txt"
+  },
+  {
+    "path": "misc/deaddrop/broken/challenge/ca_intermediate_01.pem",
+    "size": 1956,
+    "sha256": "2f4a638574601e3d2d122fd8a4dd9228b227a7697d8ca3d12903dec81e705d01",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/deaddrop/broken/challenge/ca_intermediate_02.pem",
+    "size": 1956,
+    "sha256": "e55ba07106f8c4c786e9f3e085fe8f2955110dfea605ff664152b4cb1e54df67",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/deaddrop/broken/challenge/ca_root.pem",
+    "size": 2094,
+    "sha256": "46e73c4475b8bc99fa725c12e9795d9a1b6dd48034c46d216147e28f88da4874",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/deaddrop/broken/challenge/certificate_inventory.json",
+    "size": 3835,
+    "sha256": "bef20f0b7a9fa4b74532210989d94971f36c3eb25edc003758417b86d2c435b8",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/deaddrop/broken/challenge/ct_log_dump.jsonl",
+    "size": 207678,
+    "sha256": "f766b9379607cf57cc0e1fbe702639677ffed056529ae0f79656e11d7c1361c4",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/deaddrop/broken/challenge/tls_events.jsonl",
+    "size": 3632,
+    "sha256": "c91319562dbfcb8e58094463af88eaddf4ec9244d0ffef0c3359e90b76edcb48",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/deaddrop/broken/challenge/tls_handshake.pcapng",
+    "size": 59536,
+    "sha256": "a7a82ebdf78c61cf9bbecc5e782ef4c8b0aa7df9ebacbb3e141eff5c006a8bab",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/deaddrop/broken/challenge/trust_policy.md",
+    "size": 7664,
+    "sha256": "68cf06e4c7e35ec0555b11941086028aa9320f4423a0f7e324c006457a6d9d1f",
+    "publication": "Copie expurgée : Network/broken-handshake/evidence/misc-deaddrop-broken-challenge-trust-policy-md.txt"
+  },
+  {
+    "path": "misc/deaddrop/broken/challenge/verification_protocol.md",
+    "size": 2606,
+    "sha256": "df409661d4ad1dc128b90d1ff7ab9a3ab29580a3fd7454626163b9abc3b9bc11",
+    "publication": "Copie expurgée : Network/broken-handshake/evidence/misc-deaddrop-broken-challenge-verification-protocol-md.txt"
+  },
+  {
+    "path": "misc/deaddrop/broken/challenge (1).zip",
+    "size": 80859,
+    "sha256": "9b318bfec41a8c4f095177e2695c1ec4b90938354fd7054889a87647f9f06ec3",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/deaddrop/challenge/BRIEFING.md",
+    "size": 1819,
+    "sha256": "99b3342db7ec5467b88ae6c56bebb2cab11d545333900cc8a0f7ee9d80fa4999",
+    "publication": "Copie expurgée : Cryptography/cryptographic-dead-drop/evidence/misc-deaddrop-challenge-briefing-md.txt"
+  },
+  {
+    "path": "misc/deaddrop/challenge/known_messages.json",
+    "size": 476,
+    "sha256": "546a819a4f4911b5654cd36e7d5ee93fa3fa0c07c40f5eae0318e74fac6afca1",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/deaddrop/challenge/message_schema.json",
+    "size": 800,
+    "sha256": "173bd65c6c324e2f848c8847407fe61364cc76b404268f46d8ea3768de9603fd",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/deaddrop/challenge/protocol_v3.md",
+    "size": 2911,
+    "sha256": "661173154842ab19f4691ff16d9fdf63a493f86671a9be97e69dcf7793795a95",
+    "publication": "Copie expurgée : Cryptography/cryptographic-dead-drop/evidence/misc-deaddrop-challenge-protocol-v3-md.txt"
+  },
+  {
+    "path": "misc/deaddrop/challenge/session_01.pcapng",
+    "size": 12376,
+    "sha256": "d4fd31c491ac9f4a79d2519f598c55073c8161836ae442023adb44dee3211d55",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/deaddrop/challenge/session_02.pcapng",
+    "size": 7608,
+    "sha256": "dc6555415408ec9ff1ae719aecb97134beeb0a94b3828ed8be7b9fe6db1080e0",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/deaddrop/challenge/session_03.pcapng",
+    "size": 7948,
+    "sha256": "8671eef3dc97a0adbc58027cd280fb4168a2bf4f36a99cf9f4ba8034a10a64c1",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/deaddrop/challenge/session_04.pcapng",
+    "size": 4996,
+    "sha256": "07dfc9850fae52985abc9e130694f7c8bcdfa0aa387f46cb04b7e95769327a51",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/deaddrop/challenge/session_05.pcapng",
+    "size": 4172,
+    "sha256": "c649205aea5f8a5aa57edf61ac2db2ac3ea6d471fae2315a2f7ada9726fd4d7c",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/deaddrop/challenge/session_metadata.csv",
+    "size": 836,
+    "sha256": "7d7f52070b99c3796dd12e527621429f2b49dbfb28c5b29199439abd7a0bae90",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/deaddrop/challenge/solve.py",
+    "size": 3470,
+    "sha256": "c849c5e78d81a75b1d98ae49d60b1e1319b214939a9b95e873c274bd5b960249",
+    "publication": "Copie expurgée : Cryptography/cryptographic-dead-drop/scripts/misc-deaddrop-challenge--solve.py"
+  },
+  {
+    "path": "misc/deaddrop/challenge.zip",
+    "size": 27637,
+    "sha256": "f73ce075732425eb12dc35b334a242b9d3c987ecb8344a1ac2ce0e3552ae8732",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/BRIEFING.md",
+    "size": 2869,
+    "sha256": "e2e65629e4c033ae74add8dca4a469f0a17042264700a1abc12d162a740b7faa",
+    "publication": "Copie expurgée : Forensics/last-known-position/evidence/misc-last-challenge-briefing-md.txt"
+  },
+  {
+    "path": "misc/last/challenge/checkpoint_logs.csv",
+    "size": 196201,
+    "sha256": "5bec6de9076bd7ee46b0cb8172e3ac6538797fd88e93207c4067b1613145fb8a",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/dispatch_records.jsonl",
+    "size": 96681,
+    "sha256": "18668abb39762b4dd2c89cafd95316ff46fc94a98e1c57d6c2a02765ff38a138",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/evidence_files.zip",
+    "size": 5709,
+    "sha256": "72d6afc8a23e8e10206ef138620f045e94f4cef130db7ab71d62c8ab71775710",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/facility_registry.csv",
+    "size": 1298,
+    "sha256": "a6792c165ad20794d30f7aabb03f10764fcb7132fac0cc065cb99b48c439c888",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/reporting_format.md",
+    "size": 512,
+    "sha256": "c1c94f3ceb7cc33f827d72fa50c721f451612bfef99f741f1f8677666d55ff15",
+    "publication": "Copie expurgée : Forensics/last-known-position/evidence/misc-last-challenge-reporting-format-md.txt"
+  },
+  {
+    "path": "misc/last/challenge/sigint_stations.json",
+    "size": 648,
+    "sha256": "b5011bfbc3d3f56ed045c748cc131ba578aa4694f6d717514586a8e2c3474758",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/signal_intel.csv",
+    "size": 33893,
+    "sha256": "234fa0a052a993414d777d1553dc13208df409c53bee58b596e71a790286f227",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/station_diagnostics.json",
+    "size": 2630,
+    "sha256": "ff72d7165fa3104d85acd7810d85c58f382feec525c9b4813cdc389fdc4777a1",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/traffic_cameras/frame_tcam_n7_001_121544.jpg",
+    "size": 65020,
+    "sha256": "3dbd40515094f5e29bce8648298bf431ae210c517147e9fca39a495edda06f22",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/traffic_cameras/frame_tcam_n7_002_103308.jpg",
+    "size": 68113,
+    "sha256": "654d9035d839247858c2fa2b1fca5684c68c630eff86af463f6b6c0c9051d876",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/traffic_cameras/frame_tcam_n7_002_154017.jpg",
+    "size": 65368,
+    "sha256": "525d00f26a1ef5ae74fdfeb452b234e006a6fe15ed9ccc36472e79aa8d7075a5",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/traffic_cameras/frame_tcam_n7_003_143022.jpg",
+    "size": 75432,
+    "sha256": "f7090caadbd65818d09e3bcb57e1d0d5d059865ed7b7d9c27b12d8c0c05543c4",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/traffic_cameras/frame_tcam_n7_004_112250.jpg",
+    "size": 65095,
+    "sha256": "380ed833d3f5c4405f1ebaf663ed9b2033b321c7b9ea3a4615f69a19ce3d75b8",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/traffic_cameras/frame_tcam_n7_005_090512.jpg",
+    "size": 61577,
+    "sha256": "ebdaebc28bee646c3ed0a7a38f33ca23576a2ea75a4f7a7e4b0874037396d8ae",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/traffic_cameras/frame_tcam_n7_005_145542.jpg",
+    "size": 66167,
+    "sha256": "51fa52cf1b08a016d11354bab54dda1ab3259af0c1fda7dfa4d2cf3a07135818",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/traffic_cameras/frame_tcam_n7_006_150815.jpg",
+    "size": 59339,
+    "sha256": "1aeeaab5a371fb7ad38a3dd84c6a5c991028fa2cfc7d48ec1c201f1eb97a1eb0",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/traffic_cameras/frame_tcam_n7_007_134833.jpg",
+    "size": 69306,
+    "sha256": "64dfe5140c666b4a0b1aef780c112fbe2f63c4c86b9e87d4915492e19aec7257",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/traffic_cameras/frame_tcam_n7_008_110855.jpg",
+    "size": 66789,
+    "sha256": "6f0d0b84650108ace98b925a9051466ff66ee3e367654194514ebe72f949a7ab",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/traffic_cameras/frame_tcam_n7_008_171205.jpg",
+    "size": 51640,
+    "sha256": "6a9645131f70a22dab0f8d0ff859bc9d1236a3c348f86ba3a0d09d1a2ebf6d63",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/traffic_cameras/frame_tcam_n7_009_155240.jpg",
+    "size": 63946,
+    "sha256": "9b473d32edf87c567ae6c3d2a3378843240ad6f44f9f25bba5c5c8689f665657",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/traffic_cameras/frame_tcam_n7_010_084522.jpg",
+    "size": 62476,
+    "sha256": "c85a60910e59793fbb3ae3eabc12e9506cbce1114a1d7c184e1316e4b841f6f0",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/traffic_cameras/frame_tcam_n7_011_163055.jpg",
+    "size": 57992,
+    "sha256": "7a9c2dc3af37a587d1dc1791bbeadd6d3545ed48a6a18b86236b033da0961888",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/traffic_cameras/frame_tcam_n7_012_183010.jpg",
+    "size": 48994,
+    "sha256": "6ef52baeb24821f8b040f53ad833b907fe7ce5a5e19373ffeebd1bc1516ea2c0",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/traffic_cameras_manifest.json",
+    "size": 3509,
+    "sha256": "81246ef16cb3e8de1dd415bbc7473fdf738e57d66d63106a1018bf2260b75d51",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/transport_routes.csv",
+    "size": 1286,
+    "sha256": "3a8df2791b6e5330fb89aee72d8d3658618f60c8ef26374e3b1a57a457cc8fe3",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge/vehicle_tracking.db",
+    "size": 4509696,
+    "sha256": "c71c539fa42fa41120b0899b11d9196649c5f0ce66d6f6c6c33127708472f555",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/challenge.zip",
+    "size": 2486396,
+    "sha256": "d08fb1c69fb6c9af44df539c7700e0b47fba84950e1ec1e85646c4e7dffc66fe",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/solveur.py",
+    "size": 6108,
+    "sha256": "3a48b9f3f31f7ea66f4502ccce4094e806c860175fc79bfa754095fbd67d73c3",
+    "publication": "Copie expurgée : Forensics/last-known-position/scripts/misc-last--solveur.py"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/BRIEFING.md",
+    "size": 2869,
+    "sha256": "e2e65629e4c033ae74add8dca4a469f0a17042264700a1abc12d162a740b7faa",
+    "publication": "Doublon exact : référence à Forensics/last-known-position/evidence/misc-last-challenge-briefing-md.txt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/_extracted_evidence/evidence/etc/gate_map.conf",
+    "size": 1032,
+    "sha256": "09cc0f9aa281dffcf732bddc668c910a23325035bf6f3b1d7567f2f5a43ba41f",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/_extracted_evidence/evidence/home/operator/.bash_history",
+    "size": 1169,
+    "sha256": "44566661ec2b8dc35bafce10426eff56bb82e32e8f55422f872d9c7e9fdb6da7",
+    "publication": "Copie expurgée : Forensics/last-known-position/evidence/misc-last-tervalis-extracted-challenge-extracted-evidence-evidence-home-operator-bash-history.txt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/_extracted_evidence/evidence/home/operator/.sqlite_history",
+    "size": 514,
+    "sha256": "d7276e3897e0df3fe2c0f47353c29a158ed8b62b485cc5f2c3efe2cff842bdfa",
+    "publication": "Copie expurgée : Forensics/last-known-position/evidence/misc-last-tervalis-extracted-challenge-extracted-evidence-evidence-home-operator-sqlite-history.txt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/_extracted_evidence/evidence/home/operator/notes/shift_notes.txt",
+    "size": 733,
+    "sha256": "eea6a8e98cac9e884bd4eb596ef845c11ba01a574b76da01401ae78ee3afd5fa",
+    "publication": "Copie expurgée : Forensics/last-known-position/evidence/misc-last-tervalis-extracted-challenge-extracted-evidence-evidence-home-operator-notes-shift-notes-txt.txt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/_extracted_evidence/evidence/home/operator/transfers/transfer_log.db",
+    "size": 12288,
+    "sha256": "a4a5626c13da9c8068b3a13ccbb999f4be8756315a21c6e6fd4d4b40701ea998",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/_extracted_evidence/evidence/home/operator/transfers/transport_manifest_VLD-2024-1103-047.txt",
+    "size": 767,
+    "sha256": "013713af2876b77e3ac6c5f5758872ee91dd3c830a13d42b0e1507bdd198e758",
+    "publication": "Copie expurgée : Forensics/last-known-position/evidence/misc-last-tervalis-extracted-challenge-extracted-evidence-evidence-home-operator-transfers-transport-manifest-vld-2024-1103-047-txt.txt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/_extracted_evidence/evidence/home/operator/transfers/transport_manifest_VLD-2024-1106-023.txt",
+    "size": 742,
+    "sha256": "eb769351caca5b4d58b4621c7a191bde917ade68272272bc98ba37e3a704d96c",
+    "publication": "Copie expurgée : Forensics/last-known-position/evidence/misc-last-tervalis-extracted-challenge-extracted-evidence-evidence-home-operator-transfers-transport-manifest-vld-2024-1106-023-txt.txt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/_extracted_evidence/evidence/var/log/gate_access.log",
+    "size": 4134,
+    "sha256": "8019217276de30cc5a03baf8cc28a998ba6319bcdc8aecbfa1a14196d747668a",
+    "publication": "Copie expurgée : Forensics/last-known-position/evidence/misc-last-tervalis-extracted-challenge-extracted-evidence-evidence-var-log-gate-access-log.txt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/checkpoint_logs.csv",
+    "size": 196201,
+    "sha256": "5bec6de9076bd7ee46b0cb8172e3ac6538797fd88e93207c4067b1613145fb8a",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/dispatch_records.jsonl",
+    "size": 96681,
+    "sha256": "18668abb39762b4dd2c89cafd95316ff46fc94a98e1c57d6c2a02765ff38a138",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/evidence_files.zip",
+    "size": 5709,
+    "sha256": "72d6afc8a23e8e10206ef138620f045e94f4cef130db7ab71d62c8ab71775710",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/facility_registry.csv",
+    "size": 1298,
+    "sha256": "a6792c165ad20794d30f7aabb03f10764fcb7132fac0cc065cb99b48c439c888",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/reporting_format.md",
+    "size": 512,
+    "sha256": "c1c94f3ceb7cc33f827d72fa50c721f451612bfef99f741f1f8677666d55ff15",
+    "publication": "Doublon exact : référence à Forensics/last-known-position/evidence/misc-last-challenge-reporting-format-md.txt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/sigint_stations.json",
+    "size": 648,
+    "sha256": "b5011bfbc3d3f56ed045c748cc131ba578aa4694f6d717514586a8e2c3474758",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/signal_intel.csv",
+    "size": 33893,
+    "sha256": "234fa0a052a993414d777d1553dc13208df409c53bee58b596e71a790286f227",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/station_diagnostics.json",
+    "size": 2630,
+    "sha256": "ff72d7165fa3104d85acd7810d85c58f382feec525c9b4813cdc389fdc4777a1",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/traffic_cameras/frame_tcam_n7_001_121544.jpg",
+    "size": 65020,
+    "sha256": "3dbd40515094f5e29bce8648298bf431ae210c517147e9fca39a495edda06f22",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/traffic_cameras/frame_tcam_n7_002_103308.jpg",
+    "size": 68113,
+    "sha256": "654d9035d839247858c2fa2b1fca5684c68c630eff86af463f6b6c0c9051d876",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/traffic_cameras/frame_tcam_n7_002_154017.jpg",
+    "size": 65368,
+    "sha256": "525d00f26a1ef5ae74fdfeb452b234e006a6fe15ed9ccc36472e79aa8d7075a5",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/traffic_cameras/frame_tcam_n7_003_143022.jpg",
+    "size": 75432,
+    "sha256": "f7090caadbd65818d09e3bcb57e1d0d5d059865ed7b7d9c27b12d8c0c05543c4",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/traffic_cameras/frame_tcam_n7_004_112250.jpg",
+    "size": 65095,
+    "sha256": "380ed833d3f5c4405f1ebaf663ed9b2033b321c7b9ea3a4615f69a19ce3d75b8",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/traffic_cameras/frame_tcam_n7_005_090512.jpg",
+    "size": 61577,
+    "sha256": "ebdaebc28bee646c3ed0a7a38f33ca23576a2ea75a4f7a7e4b0874037396d8ae",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/traffic_cameras/frame_tcam_n7_005_145542.jpg",
+    "size": 66167,
+    "sha256": "51fa52cf1b08a016d11354bab54dda1ab3259af0c1fda7dfa4d2cf3a07135818",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/traffic_cameras/frame_tcam_n7_006_150815.jpg",
+    "size": 59339,
+    "sha256": "1aeeaab5a371fb7ad38a3dd84c6a5c991028fa2cfc7d48ec1c201f1eb97a1eb0",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/traffic_cameras/frame_tcam_n7_007_134833.jpg",
+    "size": 69306,
+    "sha256": "64dfe5140c666b4a0b1aef780c112fbe2f63c4c86b9e87d4915492e19aec7257",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/traffic_cameras/frame_tcam_n7_008_110855.jpg",
+    "size": 66789,
+    "sha256": "6f0d0b84650108ace98b925a9051466ff66ee3e367654194514ebe72f949a7ab",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/traffic_cameras/frame_tcam_n7_008_171205.jpg",
+    "size": 51640,
+    "sha256": "6a9645131f70a22dab0f8d0ff859bc9d1236a3c348f86ba3a0d09d1a2ebf6d63",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/traffic_cameras/frame_tcam_n7_009_155240.jpg",
+    "size": 63946,
+    "sha256": "9b473d32edf87c567ae6c3d2a3378843240ad6f44f9f25bba5c5c8689f665657",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/traffic_cameras/frame_tcam_n7_010_084522.jpg",
+    "size": 62476,
+    "sha256": "c85a60910e59793fbb3ae3eabc12e9506cbce1114a1d7c184e1316e4b841f6f0",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/traffic_cameras/frame_tcam_n7_011_163055.jpg",
+    "size": 57992,
+    "sha256": "7a9c2dc3af37a587d1dc1791bbeadd6d3545ed48a6a18b86236b033da0961888",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/traffic_cameras/frame_tcam_n7_012_183010.jpg",
+    "size": 48994,
+    "sha256": "6ef52baeb24821f8b040f53ad833b907fe7ce5a5e19373ffeebd1bc1516ea2c0",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/traffic_cameras_manifest.json",
+    "size": 3509,
+    "sha256": "81246ef16cb3e8de1dd415bbc7473fdf738e57d66d63106a1018bf2260b75d51",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/transport_routes.csv",
+    "size": 1286,
+    "sha256": "3a8df2791b6e5330fb89aee72d8d3658618f60c8ef26374e3b1a57a457cc8fe3",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "misc/last/tervalis_extracted/challenge/vehicle_tracking.db",
+    "size": 4509696,
+    "sha256": "c71c539fa42fa41120b0899b11d9196649c5f0ce66d6f6c6c33127708472f555",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "operationtervalis/Administrator@cifs_FS01.valdoria.fbi.lab@VALDORIA.FBI.LAB.ccache",
+    "size": 1681,
+    "sha256": "642e52ee7ec523dfee49de3e27a6ff04651d811e461e4c28334c7f4cb55af48c",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "operationtervalis/Write-up_—_challenge06___Last_Known_Position.md",
+    "size": 9956,
+    "sha256": "a1a9c593e3fea5b51a8dbe3e2a4294b0c73b5131bf99dd515879704e17c8f694",
+    "publication": "Copie expurgée : Forensics/last-known-position/evidence/operationtervalis-write-up-challenge06-last-known-position-md.txt"
+  },
+  {
+    "path": "operationtervalis/ad_security_audit.txt",
+    "size": 976,
+    "sha256": "281bf488ee0b2dd8dcdd08e02a34d74e6943212510c342c8d29994f5176b8419",
+    "publication": "Copie expurgée : Web/operation-tervalis/evidence/operationtervalis-ad-security-audit-txt.txt"
+  },
+  {
+    "path": "operationtervalis/bridge.py",
+    "size": 1268,
+    "sha256": "ddfb595d592f176f8e09ea5bcc7d7104a03fab5cd4891e1f4185bf2f2b397a8f",
+    "publication": "Copie expurgée : Web/operation-tervalis/scripts/operationtervalis--bridge.py"
+  },
+  {
+    "path": "operationtervalis/check_fs01.py",
+    "size": 1741,
+    "sha256": "72b973830c0eca9dcecf4ce0999e25c66b0acd398a54a69c173ade2774c3bc02",
+    "publication": "Copie expurgée : Web/operation-tervalis/scripts/operationtervalis--check_fs01.py"
+  },
+  {
+    "path": "operationtervalis/delegation-notes.txt",
+    "size": 884,
+    "sha256": "f4524d93cebf41f58e094c68f0b235bb929840dcb0995fd0093cc055a7fc946b",
+    "publication": "Copie expurgée : Web/operation-tervalis/evidence/operationtervalis-delegation-notes-txt.txt"
+  },
+  {
+    "path": "operationtervalis/exploit.py",
+    "size": 8686,
+    "sha256": "a3f2b060324ab2a57b960292b93f90e963142878feeb9bdb67195dbd0c694faa",
+    "publication": "Copie expurgée : Web/operation-tervalis/scripts/operationtervalis--exploit.py"
+  },
+  {
+    "path": "operationtervalis/findings.md",
+    "size": 7802,
+    "sha256": "7651ad63c75db4a88cf9cc3c28653d372a1f020c27fbcc8e1cb8d0b849daa4a8",
+    "publication": "Copie expurgée : Web/operation-tervalis/evidence/operationtervalis-findings-md.txt"
+  },
+  {
+    "path": "operationtervalis/flag-i26.txt",
+    "size": 43,
+    "sha256": "a0f8a1c989e2acafb7427bb94c02e63a5c6188c865f0cf728a8d0a9fe4b5f5ef",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "operationtervalis/fs01_enum.py",
+    "size": 1152,
+    "sha256": "7ed9e8951127e7d595cd0bcd6eae2415fcdaf53f027d2e4bd94d1cdc1b3ad2ce",
+    "publication": "Copie expurgée : Web/operation-tervalis/scripts/operationtervalis--fs01_enum.py"
+  },
+  {
+    "path": "operationtervalis/getST_aes.py",
+    "size": 46962,
+    "sha256": "350d84a9717cf6b7c02c8b12881503c69a6333461c5ec034a67c9777adee479b",
+    "publication": "Référencé seulement : dérivé Impacket, licence accompagnatrice absente"
+  },
+  {
+    "path": "operationtervalis/getST_nopac.py",
+    "size": 46586,
+    "sha256": "7c86531fa40c845c522a4ea0635af5190a1ba153840fbd7b666460ed5119375a",
+    "publication": "Référencé seulement : dérivé Impacket, licence accompagnatrice absente"
+  },
+  {
+    "path": "operationtervalis/getst_port.py",
+    "size": 523,
+    "sha256": "14aa1a89b85aac32a1f58bde632291eca6af7d3823255c84d58b8ea5bedc2416",
+    "publication": "Copie expurgée : Web/operation-tervalis/scripts/operationtervalis--getst_port.py"
+  },
+  {
+    "path": "operationtervalis/here.conf",
+    "size": 320,
+    "sha256": "ab00d5816385d131f1fafe8a0530097a72febf21ee6cf59d3df4c64afbde539d",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "operationtervalis/krb5.conf",
+    "size": 506,
+    "sha256": "0a0726b4681b945c28e6b7e230169f07d3e19d8079c70b90a34de5253fa35edb",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "operationtervalis/ldap_detail.py",
+    "size": 2583,
+    "sha256": "5a41e0948d1fc352814492032e5eadbe0fcebf229dc9a3d0e8770743a9217ece",
+    "publication": "Copie expurgée : Web/operation-tervalis/scripts/operationtervalis--ldap_detail.py"
+  },
+  {
+    "path": "operationtervalis/ldap_enum.py",
+    "size": 2736,
+    "sha256": "4c762f88805a26c7f5eddf7abfc50f0dc2ff49a3e36890838cde57b708d10e35",
+    "publication": "Copie expurgée : Web/operation-tervalis/scripts/operationtervalis--ldap_enum.py"
+  },
+  {
+    "path": "operationtervalis/mqtt_listen.py",
+    "size": 1818,
+    "sha256": "ac4b475184379f7a77956d87091483c91142cb3335b2e61b56237d87af89762d",
+    "publication": "Copie expurgée : Web/operation-tervalis/scripts/operationtervalis--mqtt_listen.py"
+  },
+  {
+    "path": "operationtervalis/mqtt_out.txt",
+    "size": 271,
+    "sha256": "5077eeed7d33d35cb308b07472c573b9439299a757945be19751c8be22849587",
+    "publication": "Copie expurgée : Web/operation-tervalis/evidence/operationtervalis-mqtt-out-txt.txt"
+  },
+  {
+    "path": "operationtervalis/mqtt_probe.py",
+    "size": 2499,
+    "sha256": "018e559a82a64dfe6d42f91262bcee9f1de190b87255bb4a0cca3fd8a8118a00",
+    "publication": "Copie expurgée : Web/operation-tervalis/scripts/operationtervalis--mqtt_probe.py"
+  },
+  {
+    "path": "operationtervalis/operation.conf",
+    "size": 320,
+    "sha256": "4d5fafa7bc6b4654eb39c2d617347f7178e7a319341b760388ed80f9014519f1",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "operationtervalis/operation1",
+    "size": 7613,
+    "sha256": "1a17094769190c207f9f3d86530f8d699d9e3f196ba32fc697d5f9e8a458706f",
+    "publication": "Copie expurgée : Web/operation-tervalis/evidence/operationtervalis-operation1.txt"
+  },
+  {
+    "path": "operationtervalis/operation2",
+    "size": 1672,
+    "sha256": "a0dc417ae719794444906291aead7edf0881771d0ce11606db44759b05ba284a",
+    "publication": "Copie expurgée : Web/operation-tervalis/evidence/operationtervalis-operation2.txt"
+  },
+  {
+    "path": "operationtervalis/operation3",
+    "size": 4574,
+    "sha256": "515729794734f725f55c44a91762f2d1857cd63ae812368f79b5b040d9322643",
+    "publication": "Copie expurgée : Web/operation-tervalis/evidence/operationtervalis-operation3.txt"
+  },
+  {
+    "path": "operationtervalis/operation4",
+    "size": 10665,
+    "sha256": "51860cad90cc5fbef4247049f28e85281745b0f28c92fe7636d3fef096feacc4",
+    "publication": "Copie expurgée : Web/operation-tervalis/evidence/operationtervalis-operation4.txt"
+  },
+  {
+    "path": "operationtervalis/operation45",
+    "size": 7057,
+    "sha256": "5ac88b96061bb1a29e79df63421779ac711112eaf0b564020729e9c73146926e",
+    "publication": "Copie expurgée : Web/operation-tervalis/evidence/operationtervalis-operation45.txt"
+  },
+  {
+    "path": "operationtervalis/relay_exec.py",
+    "size": 2388,
+    "sha256": "c92e8dbf01455b6b477c910ea26453b6f8a0cd553da5d1b7bcadc917b1d53be3",
+    "publication": "Copie expurgée : Web/operation-tervalis/scripts/operationtervalis--relay_exec.py"
+  },
+  {
+    "path": "operationtervalis/reverse_relay.py",
+    "size": 1582,
+    "sha256": "6817cde455f3098ad57d891f0eea393fd98351bb6177d0ec389d4d10b8d538dd",
+    "publication": "Copie expurgée : Web/operation-tervalis/scripts/operationtervalis--reverse_relay.py"
+  },
+  {
+    "path": "operationtervalis/sessionresume_sJtoATjK",
+    "size": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "operationtervalis/share_scan.py",
+    "size": 1796,
+    "sha256": "b855f37992991c91e612ff9735426492ca0e15796c4cbb519f8939dd72d3c446",
+    "publication": "Copie expurgée : Web/operation-tervalis/scripts/operationtervalis--share_scan.py"
+  },
+  {
+    "path": "operationtervalis/smb_enum.py",
+    "size": 1058,
+    "sha256": "402de62870bc83b39125d5080df508c768f8f3ae6faad71d3005e5892b813d72",
+    "publication": "Copie expurgée : Web/operation-tervalis/scripts/operationtervalis--smb_enum.py"
+  },
+  {
+    "path": "operationtervalis/smb_tunnel.py",
+    "size": 1608,
+    "sha256": "4b17c0cf94f8d64e77acd219ce9b24cb5593b5232ae8ae7a7faf67d59fafd690",
+    "publication": "Copie expurgée : Web/operation-tervalis/scripts/operationtervalis--smb_tunnel.py"
+  },
+  {
+    "path": "operationtervalis/solve.py",
+    "size": 11070,
+    "sha256": "d8d3f2e277a6e9582909f2fc7227a011f1e7e8c45d151d9537b6e488685d5a6f",
+    "publication": "Copie expurgée : Web/operation-tervalis/scripts/operationtervalis--solve.py"
+  },
+  {
+    "path": "operationtervalis/solveur.py",
+    "size": 7571,
+    "sha256": "af1c602274f9f0aa045bf9aa34bb52e0d1f9a71ee529a11b6dc1502c1a76b134",
+    "publication": "Copie expurgée : Web/operation-tervalis/scripts/operationtervalis--solveur.py"
+  },
+  {
+    "path": "operationtervalis/stomp_client.py",
+    "size": 1463,
+    "sha256": "6661297cbe1fe90e64e5bf6f82734f6fe1cd2dbc15982b492235931a2efc1c95",
+    "publication": "Copie expurgée : Web/operation-tervalis/scripts/operationtervalis--stomp_client.py"
+  },
+  {
+    "path": "operationtervalis/tervalis_rce.py",
+    "size": 3281,
+    "sha256": "fc9c996d92dd625ac30cd2eaeb416597c27714bea5f05c67971404c232c0d965",
+    "publication": "Copie expurgée : Web/operation-tervalis/scripts/operationtervalis--tervalis_rce.py"
+  },
+  {
+    "path": "operationtervalis/tims_digital_forensics.pdf",
+    "size": 8608,
+    "sha256": "d99ad11cb1ef7cb91d125edd6d0732df3f977fccff82609910a3613d7c61406e",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "operationtervalis/tims_digital_forensics.txt",
+    "size": 7135,
+    "sha256": "3452f22a460a8df3d4e4e48ee1f592a0b82e21e6319d879dc36b9784484761e7",
+    "publication": "Copie expurgée : Web/operation-tervalis/evidence/operationtervalis-tims-digital-forensics-txt.txt"
+  },
+  {
+    "path": "operationtervalis/tims_profile.pdf",
+    "size": 8140,
+    "sha256": "fdcd7119b717a3d8883fcf5568fb67aa21cc8cde28bfed9b151f5b551d292ea7",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "operationtervalis/tims_profile.txt",
+    "size": 7435,
+    "sha256": "dd81c310138c02ba500a500988dbf4155c86d8b6cad2fa0d866a3e49b3387186",
+    "publication": "Copie expurgée : Web/operation-tervalis/evidence/operationtervalis-tims-profile-txt.txt"
+  },
+  {
+    "path": "operationtervalis/tims_surveillance_report.pdf",
+    "size": 7687,
+    "sha256": "189f17544478906c5601dc0f6eb45ae7ded2de3b5c01bd8f3f62d4d8ecee558c",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "operationtervalis/tims_surveillance_report.txt",
+    "size": 6957,
+    "sha256": "1c6197c3d744969e90be3a2022ee831daae5d2ddd26f3b2c79166286b4b6c1f6",
+    "publication": "Copie expurgée : Web/operation-tervalis/evidence/operationtervalis-tims-surveillance-report-txt.txt"
+  },
+  {
+    "path": "operationtervalis/writeup-operation-tervalis.md",
+    "size": 12130,
+    "sha256": "e4468c360cb07e41f7416fc4c1ef4c6099e0b9704b08b80c34488518e4e340cc",
+    "publication": "Copie expurgée : Web/operation-tervalis/evidence/operationtervalis-writeup-operation-tervalis-md.txt"
+  },
+  {
+    "path": "operationtervalis/writeup-restricted-zone.md",
+    "size": 3164,
+    "sha256": "affb1c6cdc5f35993fdde43a24b7cb11a34a980b70ff5b61d6820e78af034c39",
+    "publication": "Copie expurgée : Web/restricted-zone/evidence/operationtervalis-writeup-restricted-zone-md.txt"
+  },
+  {
+    "path": "operationtervalis/writeup-subject-file.md",
+    "size": 5299,
+    "sha256": "560cd1bc1a9126b9ac15d4c75ea505287b05ae6f9e62c299cf263862a57c5ce4",
+    "publication": "Copie expurgée : Web/subject-file/evidence/operationtervalis-writeup-subject-file-md.txt"
+  },
+  {
+    "path": "operationtervalis/writeup.md",
+    "size": 12130,
+    "sha256": "e4468c360cb07e41f7416fc4c1ef4c6099e0b9704b08b80c34488518e4e340cc",
+    "publication": "Doublon exact : référence à Web/operation-tervalis/evidence/operationtervalis-writeup-operation-tervalis-md.txt"
+  },
+  {
+    "path": "solvedecode.py",
+    "size": 506,
+    "sha256": "d176a5ef46961a856d4a221047cce41adea174c7f9b3d8e4f3534e4fa9f9185e",
+    "publication": "Copie expurgée : reports/unattributed/solvedecode.py ; attribution non établie"
+  },
+  {
+    "path": "web/depart/dvpn-591349b7.conf",
+    "size": 320,
+    "sha256": "d637c7fae35029207f82d04ba7a698a216457230d8d9fc6cc7c863b9eee86c75",
+    "publication": "Exclu : accès, réponse, cache ou donnée brute non nécessaire"
+  },
+  {
+    "path": "web/depart/recu_northline.png",
+    "size": 2894659,
+    "sha256": "b4ad7db89d1d55359f82ee76614baf3b6c535f6b099504aa05114be893c86454",
+    "publication": "Référencé seulement : artefact brut conservé hors dépôt"
+  },
+  {
+    "path": "web/depart/solveur.py",
+    "size": 8532,
+    "sha256": "3254d85754414b5efdb46bc1abd4c71b437913648626f5c0d013dbff95dd8c8c",
+    "publication": "Copie expurgée : Web/the-gate/scripts/web-depart--solveur.py"
+  },
+  {
+    "path": "web/depart/writeup-INTERNAL-DISPATCH.md",
+    "size": 2494,
+    "sha256": "97eeeac490b6d06136888182d1b8a2063d849e7507fd68bf3e328ae745c3d09c",
+    "publication": "Copie expurgée : Web/internal-dispatch/evidence/web-depart-writeup-internal-dispatch-md.txt"
+  },
+  {
+    "path": "web/depart/writeup-PICKUP.md",
+    "size": 3392,
+    "sha256": "ce47dbe16e927f95595bb041fc89f313be7e7457a12e350c420f7d69fbe68fdc",
+    "publication": "Copie expurgée : Web/pickup/evidence/web-depart-writeup-pickup-md.txt"
+  },
+  {
+    "path": "web/depart/writeup-THE-GATE.md",
+    "size": 8931,
+    "sha256": "bffd087fe469f96b12aa32220bb7daa92ba035e05953980f3f6b27475f8db626",
+    "publication": "Copie expurgée : Web/the-gate/evidence/web-depart-writeup-the-gate-md.txt"
+  },
+  {
+    "path": "web/depart/writeup-THE-PASSENGER.md",
+    "size": 4769,
+    "sha256": "a5945e496567236ed89d5930bfda91c67df8cdc6ad2e2295f2133323f4ff4aad",
+    "publication": "Copie expurgée : Web/the-passenger/evidence/web-depart-writeup-the-passenger-md.txt"
+  },
+  {
+    "path": "web/depart/writeup-WINDOW.md",
+    "size": 3901,
+    "sha256": "e6ef9d4da508f84f8edade79d0f6440b03742cade398752a6c56bf16214caf90",
+    "publication": "Copie expurgée : Web/window/evidence/web-depart-writeup-window-md.txt"
+  }
+]

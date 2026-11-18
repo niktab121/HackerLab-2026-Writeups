@@ -1,0 +1,20 @@
+Source locale : forensic/kissofdeath/ocr/p-006.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+Marc de Lacroix est ainsi lavé de tout soupcon: la connexion C2 établie depuis son poste prouve que ce dernier était
+compromis et manipulé a distance par VARELID au moment du virement.
+
+4.3 Indicateurs clés
+DESKTOP-O59DAGR (192.168.58.129)
+Marc de Lacroix (contact@example.invalid)
+
+IP C2 203.0.113.42
+
+Alias C2 partner-content.io
+
+Identité réelle (cert) * lynx-varelid.var / <EXPURGE> Solutions / Varelia
+13:56:34 -> 13:57:49 (WAT)
+
+Compte destination virement MU84BCTLO99900442210891
+mckinsey-ai-banking-2026.pdf
+http://financial-wire.press/

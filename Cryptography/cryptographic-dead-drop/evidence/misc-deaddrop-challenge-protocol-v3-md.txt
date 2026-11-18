@@ -1,0 +1,89 @@
+Source locale : misc/deaddrop/challenge/protocol_v3.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# NorvethSecure Protocol — Version 3
+
+## Overview
+
+NorvethSecure v3 is a secure messaging protocol designed for field communications
+over untrusted network infrastructure. It provides authenticated encryption with
+associated data (AEAD) using AES-256-GCM, with key material derived through
+HKDF-SHA-256 from an X25519 key agreement.
+
+## Key Agreement
+
+Each session begins with an X25519 Diffie-Hellman key exchange between client and
+server. The resulting 32-byte shared secret serves as the master secret for the
+session.
+
+## Key Derivation
+
+Multiple encryption keys are derived from the master secret using HKDF-SHA-256.
+Each key_id produces a distinct 32-byte AES key:
+
+    key = HKDF-SHA-256(
+        input_key_material = master_secret,
+        salt = session_id,
+        info = "NorvethSecure-v3-key-" || key_id_bytes,
+        length = 32
+    )
+
+Where key_id_bytes is the 4-byte big-endian encoding of the key identifier.
+
+## Nonce Generation
+
+Nonces are deterministically derived from a monotonically increasing counter
+using HKDF:
+
+    nonce = HKDF-SHA-256(
+        input_key_material = key,
+        salt = None,
+        info = "NorvethSecure-v3-nonce-" || counter_be32,
+        length = 12
+    )
+
+Where counter_be32 is the counter value encoded as a 4-byte big-endian integer.
+The counter MUST be incremented after each message and MUST NOT repeat for a
+given key.
+
+## Message Framing
+
+Messages are serialized as CBOR arrays with the following structure:
+
+    [session_id, key_id, nonce, ciphertext, tag]
+
+| Field       | Type  | Size     | Description                      |
+|-------------|-------|----------|----------------------------------|
+| session_id  | bytes | 16       | Unique session identifier        |
+| key_id      | bytes | 4        | Key identifier (big-endian)      |
+| nonce       | bytes | 12       | AES-GCM nonce                    |
+| ciphertext  | bytes | variable | AES-256-GCM encrypted payload    |
+| tag         | bytes | 16       | GCM authentication tag           |
+
+## Encryption
+
+Plaintext payloads are JSON-encoded message objects. Encryption uses AES-256-GCM
+with the derived key and nonce. No additional authenticated data (AAD) is used in
+the current version.
+
+## Key Identifiers
+
+A session may use multiple key_ids for traffic separation:
+
+| key_id     | Channel          |
+|------------|------------------|
+| 0x00000001 | General traffic   |
+| 0x00000002 | Reports channel   |
+| 0x00000003 | Priority channel  |
+
+## Session Lifecycle
+
+Sessions are identified by a 16-byte random session_id generated at session
+establishment. In the event of a network interruption, clients reconnect using
+the same session_id and master secret. Counter state MUST be persisted across
+reconnections to prevent nonce reuse.
+
+## Transport
+
+Messages are transmitted over TCP. Each CBOR-encoded message frame constitutes
+a single TCP segment payload. The server listens on port 8443.

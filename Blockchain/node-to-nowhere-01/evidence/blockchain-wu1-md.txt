@@ -1,0 +1,57 @@
+Source locale : blockchain/wu1.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+Write-Up : Node To Nowhere — 01 (HackerLab 2026)
+Auteur du challenge : W1z4rd
+Catégorie : BLOCKCHAIN INTELLIGENCE
+Points : 50 pts
+Événement : HackerLab 2026 (Opération Tervalis)
+
+Énoncé
+« Parmi les messages identifiés sur le forum Relay utilisé par le groupe APT figurait un portefeuille Ethereum, utilisé par Thanos pour blanchir des fonds d’origine illicite (<HEX_EXPURGE>).
+Un extrait du message divulgué a révélé que près de 50 % des fonds ETH du portefeuille mentionné ci-dessus ont été convertis en jetons ERC-20.
+Confirmez cette information en identifiant le hachage de la transaction ayant entraîné cette conversion. »
+
+1. Analyse médico-légale du portefeuille de Thanos
+Le portefeuille d'intérêt est l'adresse Ethereum Mainnet : <HEX_EXPURGE>
+
+Bilan des flux entrants
+En interrogeant l'historique on-chain (via Blockscout / Etherscan) :
+
+2025-03-01 / 2025-03-02 : Réception de plusieurs dépôts totalisant 1 009,63 ETH.
+2025-03-03 : Réception d'un transfert de 1 076,45 ETH (<HEX_EXPURGE>).
+Total géré : 
+≈
+2
+ 
+086
+,
+08
+ ETH
+≈2086,08 ETH.
+2. Traçage des sorties (~50% des fonds)
+Le portefeuille a ensuite vidé ses fonds en deux opérations distinctes de ~50 % chacune :
+
+Branche 1 (48,4 % — Mixage/Peeling) :
+
+Transaction : <HEX_EXPURGE>
+Montant : 1 009,6309 ETH transférés vers <HEX_EXPURGE>.
+Analyse : Ce montant a été immédiatement fractionné par paquets de 200 ETH vers des adresses intermédiaires (blanchiment/mixage). Aucun échange en ERC-20.
+Branche 2 (51,6 % — Conversion ERC-20) :
+
+Transaction de transfert intermédiaire : <EXPURGE>
+Montant : 1 076,4545 ETH transférés vers <HEX_EXPURGE>.
+Transaction de swap DEX : 5 minutes plus tard, depuis 0x1233dd32..., la transaction suivante est exécutée :
+Tx Hash : <EXPURGE>
+Contrat cible : <HEX_EXPURGE> (DexRouter)
+Méthode : smartSwapByOrderId
+Montant converti : 1 076,4385 ETH
+Jetons reçus : 2 397 936 DAI (jeton ERC-20 standard MakerDAO / DAI <HEX_EXPURGE>).
+3. Flag / Réponse
+Hash de la transaction de swap (conversion en ERC-20) :
+<EXPURGE>
+
+Format Flag standard :
+<EXPURGE>
+
+(Note : Si la plateforme attend la transaction directe sortant du portefeuille de Thanos : <EXPURGE> ou <EXPURGE>).

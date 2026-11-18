@@ -1,0 +1,62 @@
+Source locale : misc/deaddrop/broken/challenge/BRIEFING.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+CLASSIFICATION: TOP SECRET // NORVETH-EYES-ONLY
+OPERATION: TERVALIS
+REF: NV-OPS-2024-TERV-PKG02
+DATE: 2024-11-04
+PACKAGE: 02 — BROKEN HANDSHAKE
+
+---
+
+INTELLIGENCE PACKAGE 02 — BROKEN HANDSHAKE
+
+CONTEXT
+
+Agent AVALD's workstation established TLS connections to
+relay-01.norveth.vld for secure communications with HQ. A network tap
+at the relay site captured the TLS handshake sequences.
+
+Preliminary analysis suggests a man-in-the-middle interception was
+performed using a rogue certificate. Certificate Transparency logs
+covering the relay domain and surrounding infrastructure were obtained
+via legal subpoena. 510 log entries from multiple CT monitors are
+included.
+
+The Norveth Federation PKI trust anchors are provided for validation
+purposes. The federation's TLS validation policy documents the
+expected certificate verification behavior.
+
+ARTIFACTS
+
+  tls_handshake.pcapng     TLS handshake captures between SUBJ-7742's
+                           workstation and the relay infrastructure
+
+  tls_events.jsonl         Parsed TLS connection events with
+                           validation decisions and certificate hashes
+
+  ct_log_dump.jsonl        Certificate Transparency log entries
+                           (510 entries from multiple monitors)
+
+  ca_root.pem              Norveth Federation root CA certificate
+  ca_intermediate_01.pem   Intermediate CA certificate (tier 1)
+  ca_intermediate_02.pem   Intermediate CA certificate (tier 2)
+
+  certificate_inventory.json  Inventory of certificates observed in
+                              the operational environment
+
+  trust_policy.md          Norveth Federation TLS validation policy
+                           (certificate verification requirements)
+
+  verification_protocol.md Attribution verification procedure for
+                           interceptor certificate identification
+
+OBJECTIVE
+
+Identify the certificate used to intercept Agent AVALD's TLS
+connection. Determine which organization issued it and attribute the
+interception operation to the responsible party.
+
+---
+
+END OF PACKAGE BRIEFING

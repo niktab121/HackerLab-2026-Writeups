@@ -1,0 +1,32 @@
+# Artefacts privés et secrets
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.env.*
+*.ccache
+*.key
+*.p12
+*.pfx
+*.conf
+cookies*
+*.cj
+# Les preuves binaires restent dans les originaux privés
+*.ad1
+*.pcap
+*.pcapng
+*.zip
+*.tar
+*.gz
+*.db
+*.sqlite
+*.sqlite3
+*.pdf
+*.enc
+*.bin
+# Résultats privés de futures reproductions
+private/
+raw/
+.envrc

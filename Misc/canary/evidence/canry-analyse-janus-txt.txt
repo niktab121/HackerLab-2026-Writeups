@@ -1,0 +1,20 @@
+Source locale : canry/analyse_janus.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+========== JAVASCRIPT ==========
+   16777 app.js
+========== ROUTES ET API ==========
+35:    fetch("/api/telemetry", { cache: "no-store", credentials: "same-origin" })
+43:        subs.forEach(function (fn) { try { fn(t, state); } catch (e) { /* subscriber error must not stop the bus */ } });
+152:      $$("button[type=submit]", f).forEach(function (b) { b.disabled = true; });
+155:    $("[data-dlg-cancel]", dlg).addEventListener("click", function () { dlg.close(); });
+269:      window.dispatchEvent(new Event("janus:theme"));
+290:    $$("button[type=submit]", f).forEach(function (b) { b.disabled = true; });
+========== URLS EXTRAITES ==========
+"/api/telemetry
+"/logout
+========== HEALTH ==========
+{"platform":"Centre de diffusion JANUS","status":"ok","version":"3.0.0"}
+
+========== WORDLIST ==========
+Wordlist absente : analyse JavaScript prioritaire

@@ -1,0 +1,191 @@
+Source locale : forensic/kissofdeath/writeup-kiss-of-death.md
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+# Write-up — Kiss of Death (Forensics, 100 pts)
+
+## Objectif
+
+Diriger la perquisition de l'appartement 3B après l'arrestation de Mikkel
+STRANDHJELM (alias `mstrand`), identifié dans le challenge précédent. Le
+challenge est une **simulation de perquisition en 3D** (application web) où il
+faut explorer les pièces, découvrir les objets, et placer sous scellé
+exactement les **éléments d'intérêt** de l'enquête. La clôture de la
+perquisition n'est acceptée par le serveur que si l'ensemble des scellés
+correspond exactement aux éléments d'intérêt, et renvoie alors le flag.
+
+## État initial
+
+- Cible annoncée : `172.28.8.2:8080` (simulation de perquisition, navigateur).
+- Accès via un VPN WireGuard fourni par la plateforme (HackerLab).
+- Le VPN de l'instance a été téléchargé dans `~/Downloads` :
+  `dvpn-464da960.conf` (AllowedIPs `172.28.8.0/24`).
+- L'instance ayant expiré en cours de route, le joueur l'a relancée : la
+  nouvelle instance utilise le sous-réseau `172.28.2.0/24` (config
+  `dvpn-4ad7e8df.conf`), cible `172.28.2.2:8080`.
+
+## Reconnaissance
+
+### 1. Connexion VPN
+
+Le VPN est un tunnel WireGuard géré par l'application macOS « Gabcloud VPN »
+(`com.gabcloudtech.myvpn`). Les tunnels sont pilotables sans `sudo` via
+`scutil` :
+
+```bash
+scutil --nc list          # lister les services VPN
+scutil --nc start <nom>   # activer un tunnel
+scutil --nc status <nom>  # vérifier l'état
+```
+
+Après activation du tunnel `dvpn-4ad7e8df`, la route `172.28.2/24` apparaît
+via `utun6`, et la cible répond :
+
+```bash
+curl -sS http://172.28.2.2:8080/   # HTTP 200 — HTML de l'app
+```
+
+### 2. Analyse de l'application web
+
+La page HTML charge un bundle JavaScript (SPA Three.js) :
+`./assets/index-OeMI0vsb.js` (~1 Mo). Le titre interne est
+« Opération RESSAC — Simulation de perquisition ».
+
+L'analyse du JS révèle l'architecture :
+
+- L'état est maintenu côté **serveur** via une API JSON (cookie de session
+  `rs_sid`), pas seulement côté client.
+- Endpoints identifiés (fonction `hi(r, e)` → `POST api/<r>` avec corps JSON) :
+
+| Endpoint | Corps | Rôle |
+|----------|-------|------|
+| `api/new`    | `{}`                 | démarre une session |
+| `api/action` | `{id}`               | action sur un objet (fouiller, décrocher…) révèle des objets cachés |
+| `api/open`   | `{id, open}`         | ouvre un meuble (tiroir, armoire, valise) |
+| `api/seal`   | `{id}`               | place un objet sous scellé |
+| `api/unseal` | `{id}`               | lève un scellé |
+| `api/finish` | `{}`                 | clôture : vérifie les scellés et renvoie le flag |
+
+Le JS contient la table `N2` des **37 objets** de la scène. Chaque objet a un
+`id`, `name`, `cat` (catégorie), `room`, `location`, `description`,
+`findings[]` (indices), et pour 25 d'entre eux un champ `seal` (libellé du
+scellé). Les 12 autres (suspect + meubles) n'ont pas de `seal`.
+
+### 3. Mécanique de découverte
+
+Certains objets ne sont accessibles qu'après une action ou l'ouverture d'un
+meuble :
+
+- **Actions** (`api/action`) qui révèlent un objet `<EXPURGE>` :
+  - `trash` → révèle `receipt`
+  - `parcel` → révèle `simbox`
+  - `cigs` → révèle `microsd`
+  - `book` → révèle `usb`
+  - `frame` → révèle `envelope`
+- **Ouvertures** (`api/open`) qui exposent un objet `inside` :
+  - `desk_drawer` → `postit`
+  - `cab_d2` → `cards`
+  - `cab_d3` → `sims`
+  - `ns_drawer` → `pistol`
+  - `ward_r` → `suitcase`
+  - `suitcase` → `cash`, `burner`
+
+Sceller un objet non encore découvert renvoie :
+`{"ok":false,"error":"Élément non accessible : il n'a pas encore été découvert."}`.
+
+## Raisonnement
+
+Le flag est renvoyé uniquement par `api/finish` lorsque l'ensemble scellé
+correspond aux « éléments d'intérêt ». Les tests initiaux montrent que :
+
+- Sceller **tous** les 25 objets scellables → refus (le serveur exige une
+  correspondance exacte, pas un sur-ensemble).
+- Le message d'erreur est générique et ne donne aucune indication d'objet.
+
+Il faut donc déterminer l'ensemble exact des « éléments d'intérêt ». L'histoire
+de l'enquête (espionnage, désinformation, atteinte à la sûreté nationale)
+permet de classer les 25 objets scellables en deux groupes :
+
+**Contenants / leurres** (7 — pas des éléments d'intérêt) :
+- `trash` (sac poubelle), `parcel` (carton), `cigs` (paquet), `book` (livre),
+  `frame` (cadre), `suitcase` (valise) → simples cachettes.
+- `watch` (montre de la table de chevet, « rien de notable »).
+
+**Éléments d'intérêt** (18 — la preuve elle-même) :
+- Désinformation : `simbox`, `sims`
+- Outillage espionnage : `phone`, `laptop`, `usb`, `microsd`
+- Financier : `receipt`, `cash`, `envelope`, `cards`
+- Arme : `pistol`
+- Communications : `burner`
+- Documents/identité : `notebook`, `mail`, `wallet`, `postit`
+- Divers suspects : `compass_watch` (montre morte), `cam` (caméra IP)
+
+La soumission de cet ensemble de 18 objets fait accepter la clôture et renvoie
+le flag.
+
+## Script de résolution (API directe)
+
+On court-circuite l'interface 3D en parlant directement à l'API JSON avec un
+cookie de session :
+
+```python
+import requests
+
+B = "http://172.28.2.2:8080/api"
+s = requests.Session()
+
+def post(ep, data={}):
+    return s.post(f"{B}/{ep}", json=data, timeout=15).json()
+
+post("new", {})
+# révéler les objets cachés
+for a in ["trash", "parcel", "cigs", "book", "frame"]:
+    post("action", {"id": a})
+# ouvrir les meubles
+for o in ["desk_drawer", "cab_d2", "cab_d3", "ns_drawer", "ward_r", "suitcase"]:
+    post("open", {"id": o, "open": True})
+
+interest = ["compass_watch", "cam", "receipt", "simbox", "wallet", "phone",
+            "microsd", "usb", "laptop", "notebook", "mail", "postit", "cards",
+            "sims", "pistol", "envelope", "cash", "burner"]
+for oid in interest:
+    post("seal", {"id": oid})
+
+r = post("finish", {})          # {"ok": true, "flag": "..."}
+print(r)
+```
+
+## Pistes qui ont échoué
+
+- **Connexion VPN de la première instance** : le tunnel `dvpn-464da960.conf`
+  (172.28.8.0/24) ne réalisait pas de handshake (0 paquet entrant sur `utun6`),
+  très probablement parce que l'instance avait expiré et/ou que le réseau
+  invité bloquait l'UDP WireGuard. La relance de l'instance (nouvelle config
+  `dvpn-4ad7e8df.conf`) a résolu le problème.
+- **Sceller les 25 objets** : refus — le serveur exige l'ensemble exact, pas un
+  sur-ensemble.
+- **Réduction « un à la fois »** : tenter de désactiver un seul scellé puis
+  `finish` ne suffit pas, car il reste plusieurs leurres à retirer d'un coup ;
+  la classification par le scénario a été nécessaire.
+- **Chercher un marqueur « interest » dans le JS** : absent, la liste des
+  éléments d'intérêt est uniquement côté serveur.
+
+## Validation reproductible (sans le flag)
+
+1. Activer le VPN de l'instance (`scutil --nc start <tunnel>`), vérifier
+   `netstat -rn | grep 172.28` puis `curl -sS http://172.28.X.2:8080/` → HTTP 200.
+2. Exécuter le script ci-dessus (en remplaçant l'IP de base par celle de
+   l'instance courante).
+3. Le dernier appel `api/finish` renvoie `{"ok": true, "flag": ...}`.
+4. Le flag soumis est validé par la plateforme.
+
+## Leçons
+
+- Une « simulation 3D » cache souvent une API JSON stateful derrière un client
+  Three.js : lire le bundle JS et interroger l'API directement est plus rapide
+  et plus fiable que l'exploration manuelle.
+- Le flag est servi par le serveur au moment de la clôture ; le client ne fait
+  que l'afficher. L'analyse du JS révèle les endpoints et la table d'objets,
+  mais pas la logique de validation (côté serveur).
+- La mécanique action/ouverture → découverte → scellé est le cœur du
+  challenge : identifier les objets « cachés »/« intérieurs » et leurs
+  déclencheurs était indispensable pour constituer l'ensemble complet.

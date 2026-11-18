@@ -1,0 +1,7 @@
+{
+  "octets": 64,
+  "en_tete_OpenSSL": true,
+  "sel_octets": 8,
+  "chiffre_octets": 48,
+  "out_bin_octets": 32
+}

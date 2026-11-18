@@ -1,0 +1,5 @@
+Source locale : forensic/ghot/nishi/wayback-cdx.txt
+Copie documentaire expurgée ; les affirmations restent celles de la source.
+
+com,example,borealis-trust,leaks)/dossier-varelcorp 20260318114500 https://leaks.borealis-trust.example/dossier-varelcorp.pdf application/pdf 200 A1B2C3D4E5F6 51233
+com,example,borealis-trust,leaks)/dossier-varelcorp 20260319090200 https://leaks.borealis-trust.example/dossier-varelcorp.pdf application/pdf 200 Z9Y8X7W6V5U4 51240

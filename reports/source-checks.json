@@ -1,0 +1,84 @@
+{
+  "Il Mandante": {
+    "certificats": 1019,
+    "flotte_AKI": 19,
+    "tailles_bits": {
+      "2048": 17,
+      "2047": 2
+    },
+    "relations_pgcd": [
+      {
+        "relation": "module identique",
+        "bits": 2048
+      },
+      {
+        "relation": "facteur propre partagé",
+        "bits": 1024
+      }
+    ],
+    "blob_octets": 256,
+    "note": "Aucun déchiffrement effectué."
+  },
+  "Ghost Ratchet": {
+    "messages": 25,
+    "directions": [
+      [
+        "recv",
+        11
+      ],
+      [
+        "send",
+        14
+      ]
+    ],
+    "archive_dupliquee": true
+  },
+  "Memento": {
+    "octets": 64,
+    "en_tete_OpenSSL": true,
+    "sel_octets": 8,
+    "chiffre_octets": 48,
+    "out_bin_octets": 32
+  },
+  "Furgitif": {
+    "archive": [
+      {
+        "nom": "confidential/",
+        "octets": 0,
+        "chiffre": false
+      },
+      {
+        "nom": "confidential/DOC-01_Note_operationnelle_saisie.pdf",
+        "octets": 511582,
+        "chiffre": false
+      },
+      {
+        "nom": "confidential/DOC-05_Crew_Change_Log_Nordheim.pdf",
+        "octets": 174463,
+        "chiffre": false
+      },
+      {
+        "nom": "confidential/DOC-06_Carnet_codes_operationnels_BRN.pdf",
+        "octets": 195453,
+        "chiffre": false
+      }
+    ]
+  },
+  "The hunt": {
+    "images": 1,
+    "couches": 11,
+    "couches_toutes_presentes": true
+  },
+  "The hunt PCAP": {
+    "code_retour": 0,
+    "paquets": 230
+  },
+  "Il Mandante PCAP": {
+    "code_retour": 0,
+    "paquets": 10002
+  },
+  "Broken Handshake PCAP": {
+    "code_retour": 0,
+    "paquets": 191
+  }
+}
